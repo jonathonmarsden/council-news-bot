@@ -223,7 +223,8 @@ class CardScraper(BaseScraper):
     
     # CSS selectors - override these in subclasses for different structures
     # Note: Some sites wrap entire cards in <a> tags (e.g., a.card--news, a.card__news-listing)
-    ARTICLE_SELECTOR = 'article, .news-item, .news-card, .listing-item, .views-row, .content-card, .article-container, .media-item, a.card--news, a.card__news-listing, a.card[href*="/news/"]'
+    # Note: div.card with a > .card__title is common GovCMS pattern (Golden Plains, etc)
+    ARTICLE_SELECTOR = 'article, .news-item, .news-card, .listing-item, .views-row, .content-card, .article-container, .media-item, a.card--news, a.card__news-listing, a.card[href*="/news/"], div.card'
     TITLE_SELECTOR = 'h2 a, h3 a, .title a, a.title, .field--name-title a, .news-title a, a[href*="/news/"]'
     DATE_SELECTOR = '.date, .published, time, .meta-date, .field--name-created, .news-date'
     EXCERPT_SELECTOR = '.excerpt, .summary, .description, .field--name-body, .teaser, p'
@@ -318,7 +319,32 @@ class CardScraper(BaseScraper):
         date = None
         excerpt = None
         
-        # Strategy 0: Check if the item itself is a link (whole card is clickable)
+        # Strategy 0: Card div with link inside containing .card__title (Golden Plains/GovCMS pattern)
+        # Structure: div.card > a > div.card__title > h2
+        if item.name == 'div' and 'card' in item.get('class', []):
+            card_link = item.select_one('a[href*="/news/"]')
+            if card_link:
+                url = card_link.get('href', '')
+                # Look for title in card__title div
+                title_elem = item.select_one('.card__title h2, .card__title h3, .card__title')
+                if title_elem:
+                    title = title_elem.get_text(strip=True)
+                    # Get date from card__date or time element
+                    date_elem = item.select_one('.card__date time, .card__date, time[datetime]')
+                    if date_elem:
+                        datetime_attr = date_elem.get('datetime')
+                        if datetime_attr:
+                            date = self.parse_date(datetime_attr)
+                        else:
+                            date = self.parse_date(date_elem.get_text(strip=True))
+                    # Get excerpt if present (some card layouts have it)
+                    excerpt_elem = item.select_one('.card__excerpt, .card__summary, .card__description')
+                    if excerpt_elem:
+                        excerpt = excerpt_elem.get_text(strip=True)
+                    if title and url and len(title) >= 10:
+                        return self.create_article(title, url, date, excerpt)
+        
+        # Strategy 0b: Check if the item itself is a link (whole card is clickable)
         if item.name == 'a' and item.get('href'):
             url = item.get('href', '')
             # Look for title inside
