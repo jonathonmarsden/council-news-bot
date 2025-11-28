@@ -71,15 +71,20 @@ Published: [Date if available]
 `data/posted_articles.json` contains:
 - `posted_urls`: Already posted to BlueSky
 - `known_urls`: Seen in previous scrapes (for priority detection)
-- `last_post_time`: For 5-minute gap enforcement
+- `last_post_time`: Timestamp of last post
 
-**Priority System:** Articles not in `known_urls` are newly discovered and posted FIRST, before backlog items.
+**Priority System:** 
+1. Newly discovered articles (not in `known_urls`) posted FIRST
+2. Then backlog items
+3. Round-robin across councils for feed diversity
 
 ### Current Settings (TEMPORARY - for backlog clearing)
 - Schedule: Every 5 minutes (revert to 15 min)
 - Hours: 24/7 (revert to 5am-10pm Melbourne)
-- Gap: 5 minutes between posts (revert to 15 min)
+- Posts per run: 3 articles (revert to 1)
+- Council diversity: Round-robin across councils
 - Overnight: Post-only mode (no scraping)
+- Health monitoring: Healthchecks.io alerts if workflow stops
 
 ### Council Categories
 - **Enabled (27)**: Direct HTTP access, working scrapers
@@ -96,7 +101,9 @@ Published: [Date if available]
 - Runs on schedule + manual dispatch
 - Concurrency control prevents duplicate posts
 - Commits state changes back to repo
-- Secrets: `BLUESKY_HANDLE`, `BLUESKY_PASSWORD`
+- Secrets: `BLUESKY_HANDLE`, `BLUESKY_PASSWORD`, `HEALTHCHECK_URL`
+- Health monitoring: Pings healthchecks.io on success/failure
+- Alert if no ping received within 15 minutes (5 min period + 10 min grace)
 
 ### Common Issues
 1. **Title/excerpt merged**: Check scraper parsing - some sites wrap both in one `<a>` tag
@@ -117,17 +124,23 @@ client.delete_post("at://did:plc:.../app.bsky.feed.post/...")
 
 ## TODO / Next Session
 
-1. **REVERT TEMPORARY SETTINGS** once backlog cleared (~575 articles at 5-min intervals = ~48 hours)
+1. **REVERT TEMPORARY SETTINGS** once backlog cleared (~530 articles at ~10/hour = ~53 hours)
    - Change schedule from `*/5 * * * *` to `0,15,30,45 18-23,0-10 * * *`
-   - Change post gap from 5 minutes to 15 minutes
+   - Change `--limit 3` back to `--limit 1`
    - Re-enable business hours only check
    - Remove `--post-only` overnight mode
+   - Keep council diversity (round-robin) - it's a good feature
 
 2. **Enable more councils** - 52 still disabled
    - Test WAF-protected councils with curl_scraper
    - Fix URL issues for 2 councils
 
 3. **State expansion** - Potential to expand to NSW, QLD, SA, WA, TAS, NT, ACT
+   - Hashtag format: `#LGNewsRoundup #[StateLGA] #[StateCouncils] #[CouncilName]`
+   - BlueSky accounts: `roundupnewsbotnsw.bsky.social`, etc.
+   - Email aliases: `REDACTED@example.com`, etc.
+
+4. **Improve date parsing** - 74% of articles lack dates
    - Hashtag format: `#LGNewsRoundup #[StateLGA] #[StateCouncils] #[CouncilName]`
    - BlueSky accounts: `roundupnewsbotnsw.bsky.social`, etc.
    - Email aliases: `REDACTED@example.com`, etc.
