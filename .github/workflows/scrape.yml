@@ -2,11 +2,9 @@ name: Council News Bot
 
 on:
   schedule:
-    # Run every 15 mins during Melbourne business hours only (5am-10pm AEDT)
-    # AEDT is UTC+11: 5am Melb = 18:00 UTC, 10pm Melb = 11:00 UTC
-    # Split into two cron expressions to cover the UTC day boundary:
-    - cron: '0,15,30,45 18-23 * * *'  # 5am-midnight Melbourne (UTC 18-23)
-    - cron: '0,15,30,45 0-10 * * *'   # midnight-9pm Melbourne (UTC 0-10)
+    # TEMPORARY: Run every 5 mins 24/7 to clear backlog
+    # Once backlog is cleared, revert to 15-min business hours only
+    - cron: '*/5 * * * *'  # Every 5 minutes, 24/7
   workflow_dispatch:
     inputs:
       mode:
@@ -77,8 +75,9 @@ jobs:
             echo "Running post only..."
             python main.py --limit 1
           elif [ "$WITHIN_HOURS" = "false" ]; then
-            echo "Outside Melbourne business hours (5am-10pm). Skipping."
-            exit 0
+            # TEMPORARY: Post overnight to clear backlog, but don't scrape
+            echo "Outside business hours - posting only (no scrape)..."
+            python main.py --post-only --limit 1
           else
             echo "Running scrape and post..."
             python main.py --limit 1
