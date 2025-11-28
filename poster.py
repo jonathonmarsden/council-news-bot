@@ -124,11 +124,8 @@ class BlueSkyPoster:
         council_hashtag = self._council_to_hashtag(council_name)
         hashtags = f"#LGNewsRoundup #VLGA #VicCouncils {council_hashtag}"
         
-        # Format date
-        if date:
-            date_str = date.strftime("%d %B %Y")
-        else:
-            date_str = datetime.now().strftime("%d %B %Y")
+        # Format date (None if no date available)
+        date_str = date.strftime("%d %B %Y") if date else None
         
         # Start with title - we'll track its position for the link facet
         working_title = title
@@ -137,7 +134,7 @@ class BlueSkyPoster:
         # 1. Title (clickable)
         # 2. Excerpt (optional)
         # 3. Council Name
-        # 4. Published date
+        # 4. Published date (only if available)
         # 5. Hashtags
         
         parts = [working_title]
@@ -148,7 +145,8 @@ class BlueSkyPoster:
             parts.append(excerpt)
         
         parts.append(council_name)
-        parts.append(f"Published: {date_str}")
+        if date_str:
+            parts.append(f"Published: {date_str}")
         parts.append(hashtags)
         
         # Join with newlines
@@ -158,12 +156,10 @@ class BlueSkyPoster:
         if len(post) > self.MAX_POST_LENGTH:
             # Try without excerpt
             include_excerpt = False
-            parts_no_excerpt = [
-                working_title,
-                council_name,
-                f"Published: {date_str}",
-                hashtags,
-            ]
+            parts_no_excerpt = [working_title, council_name]
+            if date_str:
+                parts_no_excerpt.append(f"Published: {date_str}")
+            parts_no_excerpt.append(hashtags)
             post = "\n".join(parts_no_excerpt)
         
         if len(post) > self.MAX_POST_LENGTH:
@@ -171,12 +167,10 @@ class BlueSkyPoster:
             overhead = len(post) - len(working_title)
             available = self.MAX_POST_LENGTH - overhead - 3
             working_title = title[:available] + "..."
-            parts_truncated = [
-                working_title,
-                council_name,
-                f"Published: {date_str}",
-                hashtags,
-            ]
+            parts_truncated = [working_title, council_name]
+            if date_str:
+                parts_truncated.append(f"Published: {date_str}")
+            parts_truncated.append(hashtags)
             post = "\n".join(parts_truncated)
         
         # Create facet for the title link (first line)
