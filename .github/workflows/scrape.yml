@@ -78,14 +78,14 @@ jobs:
             python main.py --dry-run
           elif [ "$MODE" = "post-only" ]; then
             echo "Running post only..."
-            python main.py --limit 1
+            python main.py --limit 3
           elif [ "$WITHIN_HOURS" = "false" ]; then
             # TEMPORARY: Post overnight to clear backlog, but don't scrape
             echo "Outside business hours - posting only (no scrape)..."
-            python main.py --post-only --limit 1
+            python main.py --post-only --limit 3
           else
             echo "Running scrape and post..."
-            python main.py --limit 1
+            python main.py --limit 3
           fi
       
       - name: Commit updated data
