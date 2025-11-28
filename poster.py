@@ -5,9 +5,11 @@ Handles authentication and posting news articles to BlueSky.
 """
 
 import os
-from typing import Optional
+import re
+from datetime import datetime
+from typing import Optional, List, Dict, Any
 
-from atproto import Client
+from atproto import Client, models
 
 
 class BlueSkyPoster:
@@ -50,7 +52,8 @@ class BlueSkyPoster:
             print(f"Authentication failed: {e}")
             return False
     
-    def post_article(self, council_name: str, title: str, url: str) -> bool:
+    def post_article(self, council_name: str, title: str, url: str, 
+                     date: Optional[datetime] = None, excerpt: Optional[str] = None) -> bool:
         """
         Post a news article to BlueSky.
         
@@ -58,6 +61,8 @@ class BlueSkyPoster:
             council_name: Name of the council
             title: Article title
             url: Article URL
+            date: Publication date (optional)
+            excerpt: Article excerpt/subtitle (optional)
             
         Returns:
             True if posted successfully, False otherwise
@@ -66,44 +71,138 @@ class BlueSkyPoster:
             if not self.authenticate():
                 return False
         
-        # Format the post text
-        post_text = self._format_post(council_name, title, url)
+        # Format the post text and get facets for clickable links
+        post_text, facets = self._format_post_with_facets(council_name, title, url, date, excerpt)
         
         try:
-            self.client.send_post(text=post_text)
+            self.client.send_post(text=post_text, facets=facets)
             print(f"Posted: {title[:50]}...")
             return True
         except Exception as e:
             print(f"Failed to post: {e}")
             return False
     
-    def _format_post(self, council_name: str, title: str, url: str) -> str:
+    def _council_to_hashtag(self, council_name: str) -> str:
         """
-        Format a post for BlueSky.
+        Convert council name to hashtag format.
         
-        Format: "📰 [Council Name]: [Title] [URL]"
-        Truncates title if necessary to fit within character limit.
+        E.g., "Cardinia Shire Council" -> "#CardiniaShireCouncil"
+        """
+        # Remove special characters and spaces, keep alphanumeric
+        cleaned = re.sub(r'[^a-zA-Z0-9\s]', '', council_name)
+        # Convert to PascalCase by capitalizing each word and joining
+        words = cleaned.split()
+        hashtag = ''.join(word.capitalize() for word in words)
+        return f"#{hashtag}"
+    
+    def _format_post_with_facets(self, council_name: str, title: str, url: str,
+                                  date: Optional[datetime] = None, 
+                                  excerpt: Optional[str] = None) -> tuple:
+        """
+        Format a post for BlueSky with clickable link facets.
+        
+        The title on the first line will be clickable, linking to the article URL.
+        
+        Format:
+        [Title - clickable link to article]
+        Published: [Date]
+        [Excerpt if exists]
+        [Council Name]
+        #VicCouncils #LGNewsRoundup #VLGA #CouncilHashtag
         
         Args:
             council_name: Name of the council
             title: Article title
             url: Article URL
+            date: Publication date (optional)
+            excerpt: Article excerpt/subtitle (optional)
             
         Returns:
-            Formatted post text
+            Tuple of (post_text, facets_list)
         """
-        # Base format with emoji and council name
-        prefix = f"📰 {council_name}: "
-        suffix = f" {url}"
+        # Build hashtags
+        council_hashtag = self._council_to_hashtag(council_name)
+        hashtags = f"#VicCouncils #LGNewsRoundup #VLGA {council_hashtag}"
         
-        # Calculate available space for title
-        available_length = self.MAX_POST_LENGTH - len(prefix) - len(suffix)
+        # Format date
+        if date:
+            date_str = date.strftime("%d %B %Y")
+        else:
+            date_str = datetime.now().strftime("%d %B %Y")
         
-        # Truncate title if needed
-        if len(title) > available_length:
-            title = title[:available_length - 3] + "..."
+        # Start with title - we'll track its position for the link facet
+        working_title = title
         
-        return f"{prefix}{title}{suffix}"
+        # Build post parts (without URL at end since title is the link)
+        parts = [
+            working_title,
+            f"Published: {date_str}",
+        ]
+        
+        # Add excerpt if it exists and is meaningful
+        include_excerpt = excerpt and len(excerpt) > 10
+        if include_excerpt:
+            parts.append(excerpt)
+        
+        parts.append(council_name)
+        parts.append(hashtags)
+        
+        # Join with newlines
+        post = "\n".join(parts)
+        
+        # If too long, truncate excerpt first, then title
+        if len(post) > self.MAX_POST_LENGTH:
+            # Try without excerpt
+            include_excerpt = False
+            parts_no_excerpt = [
+                working_title,
+                f"Published: {date_str}",
+                council_name,
+                hashtags,
+            ]
+            post = "\n".join(parts_no_excerpt)
+        
+        if len(post) > self.MAX_POST_LENGTH:
+            # Truncate title
+            overhead = len(post) - len(working_title)
+            available = self.MAX_POST_LENGTH - overhead - 3
+            working_title = title[:available] + "..."
+            parts_truncated = [
+                working_title,
+                f"Published: {date_str}",
+                council_name,
+                hashtags,
+            ]
+            post = "\n".join(parts_truncated)
+        
+        # Create facet for the title link (first line)
+        # Byte positions are needed for facets
+        title_bytes = working_title.encode('utf-8')
+        title_byte_end = len(title_bytes)
+        
+        facets = [
+            models.AppBskyRichtextFacet.Main(
+                index=models.AppBskyRichtextFacet.ByteSlice(
+                    byte_start=0,
+                    byte_end=title_byte_end,
+                ),
+                features=[
+                    models.AppBskyRichtextFacet.Link(uri=url)
+                ],
+            )
+        ]
+        
+        return post, facets
+    
+    def _format_post(self, council_name: str, title: str, url: str,
+                     date: Optional[datetime] = None, excerpt: Optional[str] = None) -> str:
+        """
+        Format a post for BlueSky (plain text, no facets).
+        
+        Used for previewing posts.
+        """
+        post, _ = self._format_post_with_facets(council_name, title, url, date, excerpt)
+        return post
     
     def test_connection(self) -> bool:
         """
