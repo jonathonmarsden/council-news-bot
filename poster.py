@@ -105,10 +105,10 @@ class BlueSkyPoster:
         
         Format:
         [Title - clickable link to article]
-        Published: [Date]
         [Excerpt if exists]
         [Council Name]
-        #VicCouncils #LGNewsRoundup #VLGA #CouncilHashtag
+        Published: [Date]
+        #LGNewsRoundup #VLGA #VicCouncils #CouncilHashtag
         
         Args:
             council_name: Name of the council
@@ -120,9 +120,9 @@ class BlueSkyPoster:
         Returns:
             Tuple of (post_text, facets_list)
         """
-        # Build hashtags
+        # Build hashtags - new order: #LGNewsRoundup #VLGA #VicCouncils #CouncilName
         council_hashtag = self._council_to_hashtag(council_name)
-        hashtags = f"#VicCouncils #LGNewsRoundup #VLGA {council_hashtag}"
+        hashtags = f"#LGNewsRoundup #VLGA #VicCouncils {council_hashtag}"
         
         # Format date
         if date:
@@ -133,11 +133,14 @@ class BlueSkyPoster:
         # Start with title - we'll track its position for the link facet
         working_title = title
         
-        # Build post parts (without URL at end since title is the link)
-        parts = [
-            working_title,
-            f"Published: {date_str}",
-        ]
+        # Build post parts in new order:
+        # 1. Title (clickable)
+        # 2. Excerpt (optional)
+        # 3. Council Name
+        # 4. Published date
+        # 5. Hashtags
+        
+        parts = [working_title]
         
         # Add excerpt if it exists and is meaningful
         include_excerpt = excerpt and len(excerpt) > 10
@@ -145,6 +148,7 @@ class BlueSkyPoster:
             parts.append(excerpt)
         
         parts.append(council_name)
+        parts.append(f"Published: {date_str}")
         parts.append(hashtags)
         
         # Join with newlines
@@ -156,8 +160,8 @@ class BlueSkyPoster:
             include_excerpt = False
             parts_no_excerpt = [
                 working_title,
-                f"Published: {date_str}",
                 council_name,
+                f"Published: {date_str}",
                 hashtags,
             ]
             post = "\n".join(parts_no_excerpt)
@@ -169,8 +173,8 @@ class BlueSkyPoster:
             working_title = title[:available] + "..."
             parts_truncated = [
                 working_title,
-                f"Published: {date_str}",
                 council_name,
+                f"Published: {date_str}",
                 hashtags,
             ]
             post = "\n".join(parts_truncated)

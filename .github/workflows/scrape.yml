@@ -1,13 +1,29 @@
-name: Scrape and Post Council News
+name: Council News Bot
 
 on:
   schedule:
-    # Run every 6 hours
-    - cron: '0 */6 * * *'
-  workflow_dispatch:  # Allow manual trigger
+    # Scrape every 2 hours
+    - cron: '0 */2 * * *'
+    # Post backlog every 15 mins during Melbourne business hours (5am-10pm AEDT = 18:00-11:00 UTC)
+    # AEDT is UTC+11, so 5am Melbourne = 18:00 UTC (previous day), 10pm Melbourne = 11:00 UTC
+    - cron: '15,30,45 */2 * * *'  # Every 15 mins on the quarter-hours
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Run mode'
+        required: false
+        default: 'auto'
+        type: choice
+        options:
+          - auto
+          - scrape-only
+          - post-only
+
+env:
+  TZ: Australia/Melbourne
 
 jobs:
-  scrape-and-post:
+  run-bot:
     runs-on: ubuntu-latest
     
     steps:
@@ -24,11 +40,44 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       
-      - name: Run scraper
+      - name: Check Melbourne time
+        id: check-time
+        run: |
+          # Get current Melbourne hour
+          MELBOURNE_HOUR=$(TZ=Australia/Melbourne date +%H)
+          echo "Melbourne hour: $MELBOURNE_HOUR"
+          
+          # Business hours: 5am (05) to 10pm (22)
+          if [ "$MELBOURNE_HOUR" -ge 5 ] && [ "$MELBOURNE_HOUR" -lt 22 ]; then
+            echo "within_hours=true" >> $GITHUB_OUTPUT
+          else
+            echo "within_hours=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Run bot
         env:
           BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
           BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
-        run: python main.py
+        run: |
+          MODE="${{ github.event.inputs.mode || 'auto' }}"
+          WITHIN_HOURS="${{ steps.check-time.outputs.within_hours }}"
+          
+          echo "Mode: $MODE"
+          echo "Within Melbourne business hours: $WITHIN_HOURS"
+          
+          if [ "$MODE" = "scrape-only" ]; then
+            echo "Running scrape only (dry-run)..."
+            python main.py --dry-run
+          elif [ "$MODE" = "post-only" ]; then
+            echo "Running post only..."
+            python main.py --limit 1
+          elif [ "$WITHIN_HOURS" = "false" ]; then
+            echo "Outside Melbourne business hours (5am-10pm). Skipping."
+            exit 0
+          else
+            echo "Running scrape and post..."
+            python main.py --limit 1
+          fi
       
       - name: Commit updated data
         run: |
