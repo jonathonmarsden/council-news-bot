@@ -330,7 +330,7 @@ class CardScraper(BaseScraper):
         # Structure: div.card > a > div.card__title > h2
         # Note: Requires date element to filter out promotional cards (e.g., "GB news and magazine")
         if item.name == 'div' and 'card' in item.get('class', []):
-            card_link = item.select_one('a[href*="/news/"]')
+            card_link = item.select_one('a[href*="/news/"], a[href*="/news-and-media/"]')
             if card_link:
                 url = card_link.get('href', '')
                 # Look for title in card__title div
@@ -345,8 +345,8 @@ class CardScraper(BaseScraper):
                             date = self.parse_date(datetime_attr)
                         else:
                             date = self.parse_date(date_elem.get_text(strip=True))
-                        # Get excerpt if present (some card layouts have it)
-                        excerpt_elem = item.select_one('.card__excerpt, .card__summary, .card__description')
+                        # Get excerpt from card__desc if present
+                        excerpt_elem = item.select_one('.card__excerpt, .card__summary, .card__description, .card__desc')
                         if excerpt_elem:
                             excerpt = excerpt_elem.get_text(strip=True)
                         # Only return if we have date (filters out promo cards like "GB news and magazine")
@@ -538,5 +538,11 @@ class CardScraper(BaseScraper):
         excerpt_elem = item.select_one('a.views-field-body, .excerpt, .summary, .description, .field--name-body, .teaser')
         if excerpt_elem and excerpt_elem != title_elem:
             excerpt = excerpt_elem.get_text(strip=True)
+        
+        # Filter out promotional/category cards (no date) for news-and-media URLs
+        # These are often static pages like "GB news and magazine" on Greater Bendigo
+        # Actual news articles should have a publication date
+        if not date and '/news-and-media/' in url:
+            return None
         
         return self.create_article(title, url, date, excerpt)
