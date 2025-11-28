@@ -364,6 +364,25 @@ class CardScraper(BaseScraper):
                     return self.create_article(title, url, date, excerpt)
         
         # Strategy 1: Look for specific title class patterns (most reliable)
+        # First check for heading elements inside - Cardinia-style (listing__link wraps h2 + p)
+        title_elem = item.select_one('h2.listing__heading, h3.listing__heading, .listing__heading')
+        if title_elem:
+            title = title_elem.get_text(strip=True)
+            # URL is on the parent link
+            parent_link = title_elem.find_parent('a')
+            if parent_link and parent_link.get('href'):
+                url = parent_link.get('href', '')
+                # Get excerpt from sibling summary element
+                excerpt_elem = item.select_one('p.listing__summary, .listing__summary')
+                if excerpt_elem:
+                    excerpt = excerpt_elem.get_text(strip=True)
+                # Get date from listing__meta
+                date_elem = item.select_one('.listing__meta--date, .listing__meta')
+                if date_elem:
+                    date = self.parse_date(date_elem.get_text(strip=True))
+                if title and url and len(title) >= 10:
+                    return self.create_article(title, url, date, excerpt)
+        
         title_elem = item.select_one('a.views-field-title, .title a, a.title, h2 a, h3 a, .field--name-title a, .news-title a')
         
         # Strategy 2: If not found, look for link with longest text (usually the title)
