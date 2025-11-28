@@ -342,6 +342,27 @@ class CardScraper(BaseScraper):
                 
                 return self.create_article(title, url, date, excerpt)
         
+        # Strategy 0.5: Title NOT in link, but separate "Read more" link exists
+        # Common in GovCMS sites like Latrobe (.teaser__title + .read-more link)
+        title_elem = item.select_one('.teaser__title, h3.teaser__title')
+        if title_elem:
+            title_text = title_elem.get_text(strip=True)
+            # Look for read-more or similar link
+            read_more = item.select_one('a.read-more-overlay-visible, a.read-more, a[href*="/news-and-media/"], a[href*="/media-release"]')
+            if read_more and title_text and len(title_text) >= 10:
+                url = read_more.get('href', '')
+                if url:
+                    title = title_text
+                    # Find date
+                    date_elem = item.select_one('.teaser__info, .node-post-date, ' + self.DATE_SELECTOR)
+                    if date_elem:
+                        date = self.parse_date(date_elem.get_text(strip=True))
+                    # Find excerpt
+                    excerpt_elem = item.select_one('.teaser__summary, .field--name-body')
+                    if excerpt_elem:
+                        excerpt = excerpt_elem.get_text(strip=True)
+                    return self.create_article(title, url, date, excerpt)
+        
         # Strategy 1: Look for specific title class patterns (most reliable)
         title_elem = item.select_one('a.views-field-title, .title a, a.title, h2 a, h3 a, .field--name-title a, .news-title a')
         
@@ -363,7 +384,7 @@ class CardScraper(BaseScraper):
                 if '?page=' in href:
                     continue
                 # Prefer links with news URL pattern
-                if '/news/' in href and len(text) > best_length:
+                if ('/news/' in href or '/news-and-media/' in href) and len(text) > best_length:
                     best_link = link
                     best_length = len(text)
                 elif not best_link and len(text) > best_length:
