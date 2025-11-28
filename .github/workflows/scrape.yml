@@ -23,6 +23,11 @@ env:
 permissions:
   contents: write
 
+# Prevent concurrent runs to avoid duplicate posts
+concurrency:
+  group: council-news-bot
+  cancel-in-progress: false
+
 jobs:
   run-bot:
     runs-on: ubuntu-latest
