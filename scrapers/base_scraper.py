@@ -227,7 +227,8 @@ class CardScraper(BaseScraper):
     # Note: .article-item with a.article-link is Webflow pattern (East Gippsland, etc)
     # Note: .media-item with a.media-link is Webflow pattern (Wellington, etc)
     # Note: article.news-item is Greater Shepparton pattern (use specific class to avoid generic articles)
-    ARTICLE_SELECTOR = 'article.news-item, .news-card, .listing-item, .views-row, .content-card, .article-container, .media-item, a.card--news, a.card__news-listing, a.card[href*="/news/"], div.card, .article-item'
+    # Note: article.listing is Cardinia pattern (listing__heading + listing__summary)
+    ARTICLE_SELECTOR = 'article.news-item, article.listing, .news-card, .listing-item, .views-row, .content-card, .article-container, .media-item, a.card--news, a.card__news-listing, a.card[href*="/news/"], div.card, .article-item'
     TITLE_SELECTOR = 'h2 a, h3 a, .title a, a.title, .field--name-title a, .news-title a, a[href*="/news/"]'
     DATE_SELECTOR = '.date, .published, time, .meta-date, .field--name-created, .news-date'
     EXCERPT_SELECTOR = '.excerpt, .summary, .description, .field--name-body, .teaser, p'
@@ -415,6 +416,27 @@ class CardScraper(BaseScraper):
                         if read_more:
                             read_more.decompose()
                         excerpt = excerpt_elem.get_text(strip=True)
+                    if title and url and len(title) >= 10:
+                        return self.create_article(title, url, date, excerpt)
+        
+        # Strategy 0d: Cardinia listing pattern
+        # Structure: article.listing > a.listing__link > h2.listing__heading + p.listing__summary
+        if item.name == 'article' and 'listing' in item.get('class', []):
+            listing_link = item.select_one('a.listing__link')
+            if listing_link:
+                url = listing_link.get('href', '')
+                # Title is in h2.listing__heading
+                title_elem = item.select_one('h2.listing__heading, .listing__heading')
+                if title_elem:
+                    title = title_elem.get_text(strip=True)
+                    # Excerpt is in p.listing__summary
+                    excerpt_elem = item.select_one('p.listing__summary, .listing__summary')
+                    if excerpt_elem:
+                        excerpt = excerpt_elem.get_text(strip=True)
+                    # Date is in .listing__meta--date
+                    date_elem = item.select_one('.listing__meta--date, .listing__meta')
+                    if date_elem:
+                        date = self.parse_date(date_elem.get_text(strip=True))
                     if title and url and len(title) >= 10:
                         return self.create_article(title, url, date, excerpt)
         
