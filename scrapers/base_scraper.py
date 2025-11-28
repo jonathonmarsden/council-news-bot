@@ -224,7 +224,8 @@ class CardScraper(BaseScraper):
     # CSS selectors - override these in subclasses for different structures
     # Note: Some sites wrap entire cards in <a> tags (e.g., a.card--news, a.card__news-listing)
     # Note: div.card with a > .card__title is common GovCMS pattern (Golden Plains, etc)
-    ARTICLE_SELECTOR = 'article, .news-item, .news-card, .listing-item, .views-row, .content-card, .article-container, .media-item, a.card--news, a.card__news-listing, a.card[href*="/news/"], div.card'
+    # Note: .article-item with a.article-link is Webflow pattern (East Gippsland, etc)
+    ARTICLE_SELECTOR = 'article, .news-item, .news-card, .listing-item, .views-row, .content-card, .article-container, .media-item, a.card--news, a.card__news-listing, a.card[href*="/news/"], div.card, .article-item'
     TITLE_SELECTOR = 'h2 a, h3 a, .title a, a.title, .field--name-title a, .news-title a, a[href*="/news/"]'
     DATE_SELECTOR = '.date, .published, time, .meta-date, .field--name-created, .news-date'
     EXCERPT_SELECTOR = '.excerpt, .summary, .description, .field--name-body, .teaser, p'
@@ -339,6 +340,27 @@ class CardScraper(BaseScraper):
                             date = self.parse_date(date_elem.get_text(strip=True))
                     # Get excerpt if present (some card layouts have it)
                     excerpt_elem = item.select_one('.card__excerpt, .card__summary, .card__description')
+                    if excerpt_elem:
+                        excerpt = excerpt_elem.get_text(strip=True)
+                    if title and url and len(title) >= 10:
+                        return self.create_article(title, url, date, excerpt)
+        
+        # Strategy 0a: Webflow article-item pattern (East Gippsland, etc)
+        # Structure: div.article-item > a.article-link > div.article-inner > h4 (title)
+        if item.name == 'div' and 'article-item' in item.get('class', []):
+            article_link = item.select_one('a.article-link')
+            if article_link:
+                url = article_link.get('href', '')
+                # Title is in h4 or h3
+                title_elem = item.select_one('h4, h3, h2')
+                if title_elem:
+                    title = title_elem.get_text(strip=True)
+                    # Date is in .small-text before the title (often with .teal.caps class)
+                    date_elem = item.select_one('.small-text.teal, .small-text.caps, .article-date')
+                    if date_elem:
+                        date = self.parse_date(date_elem.get_text(strip=True))
+                    # Excerpt is in .article-body-wrap or similar
+                    excerpt_elem = item.select_one('.article-body-wrap .small-text, .article-body-wrap, .article-excerpt')
                     if excerpt_elem:
                         excerpt = excerpt_elem.get_text(strip=True)
                     if title and url and len(title) >= 10:
