@@ -2,11 +2,11 @@ name: Council News Bot
 
 on:
   schedule:
-    # Scrape every 2 hours
-    - cron: '0 */2 * * *'
-    # Post backlog every 15 mins during Melbourne business hours (5am-10pm AEDT = 18:00-11:00 UTC)
-    # AEDT is UTC+11, so 5am Melbourne = 18:00 UTC (previous day), 10pm Melbourne = 11:00 UTC
-    - cron: '15,30,45 */2 * * *'  # Every 15 mins on the quarter-hours
+    # Run every 15 mins during Melbourne business hours only (5am-10pm AEDT)
+    # AEDT is UTC+11: 5am Melb = 18:00 UTC, 10pm Melb = 11:00 UTC
+    # Split into two cron expressions to cover the UTC day boundary:
+    - cron: '0,15,30,45 18-23 * * *'  # 5am-midnight Melbourne (UTC 18-23)
+    - cron: '0,15,30,45 0-10 * * *'   # midnight-9pm Melbourne (UTC 0-10)
   workflow_dispatch:
     inputs:
       mode:
