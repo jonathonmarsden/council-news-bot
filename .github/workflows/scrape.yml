@@ -95,3 +95,16 @@ jobs:
           git add data/posted_articles.json
           git diff --staged --quiet || git commit -m "chore: update posted articles [skip ci]"
           git push
+      
+      - name: Ping health check
+        if: always()
+        run: |
+          # Ping healthchecks.io to confirm workflow ran
+          # Will alert if no ping received within grace period
+          if [ -n "${{ secrets.HEALTHCHECK_URL }}" ]; then
+            if [ "${{ job.status }}" = "success" ]; then
+              curl -fsS --retry 3 "${{ secrets.HEALTHCHECK_URL }}" > /dev/null
+            else
+              curl -fsS --retry 3 "${{ secrets.HEALTHCHECK_URL }}/fail" > /dev/null
+            fi
+          fi
