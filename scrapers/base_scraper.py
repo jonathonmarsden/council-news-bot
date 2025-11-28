@@ -225,7 +225,9 @@ class CardScraper(BaseScraper):
     # Note: Some sites wrap entire cards in <a> tags (e.g., a.card--news, a.card__news-listing)
     # Note: div.card with a > .card__title is common GovCMS pattern (Golden Plains, etc)
     # Note: .article-item with a.article-link is Webflow pattern (East Gippsland, etc)
-    ARTICLE_SELECTOR = 'article, .news-item, .news-card, .listing-item, .views-row, .content-card, .article-container, .media-item, a.card--news, a.card__news-listing, a.card[href*="/news/"], div.card, .article-item'
+    # Note: .media-item with a.media-link is Webflow pattern (Wellington, etc)
+    # Note: article.news-item is Greater Shepparton pattern (use specific class to avoid generic articles)
+    ARTICLE_SELECTOR = 'article.news-item, .news-card, .listing-item, .views-row, .content-card, .article-container, .media-item, a.card--news, a.card__news-listing, a.card[href*="/news/"], div.card, .article-item'
     TITLE_SELECTOR = 'h2 a, h3 a, .title a, a.title, .field--name-title a, .news-title a, a[href*="/news/"]'
     DATE_SELECTOR = '.date, .published, time, .meta-date, .field--name-created, .news-date'
     EXCERPT_SELECTOR = '.excerpt, .summary, .description, .field--name-body, .teaser, p'
@@ -366,7 +368,51 @@ class CardScraper(BaseScraper):
                     if title and url and len(title) >= 10:
                         return self.create_article(title, url, date, excerpt)
         
-        # Strategy 0b: Check if the item itself is a link (whole card is clickable)
+        # Strategy 0b: Webflow media-item pattern (Wellington, etc)
+        # Structure: div.media-item > a.media-link > .media-inner > .media-title
+        if item.name == 'div' and 'media-item' in item.get('class', []):
+            media_link = item.select_one('a.media-link')
+            if media_link:
+                url = media_link.get('href', '')
+                # Title is in .media-title
+                title_elem = item.select_one('.media-title')
+                if title_elem:
+                    title = title_elem.get_text(strip=True)
+                    # Date is in .media-date
+                    date_elem = item.select_one('.media-date')
+                    if date_elem:
+                        date = self.parse_date(date_elem.get_text(strip=True))
+                    if title and url and len(title) >= 10:
+                        return self.create_article(title, url, date, excerpt)
+        
+        # Strategy 0c: Greater Shepparton news-item pattern
+        # Structure: article.news-item > a.news-item-link > .news-item-details > h1.news-item-heading
+        if item.name == 'article' and 'news-item' in item.get('class', []):
+            news_link = item.select_one('a.news-item-link')
+            if news_link:
+                url = news_link.get('href', '')
+                # Title is in h1.news-item-heading
+                title_elem = item.select_one('h1.news-item-heading, .news-item-heading')
+                if title_elem:
+                    title = title_elem.get_text(strip=True)
+                    # Date is in time[datetime]
+                    time_elem = item.select_one('time[datetime]')
+                    if time_elem:
+                        datetime_attr = time_elem.get('datetime')
+                        if datetime_attr:
+                            date = self.parse_date(datetime_attr)
+                    # Excerpt is in .news-item-description (excluding "Read more")
+                    excerpt_elem = item.select_one('.news-item-description')
+                    if excerpt_elem:
+                        # Get text but remove "Read more" span
+                        read_more = excerpt_elem.select_one('.news-item-more')
+                        if read_more:
+                            read_more.decompose()
+                        excerpt = excerpt_elem.get_text(strip=True)
+                    if title and url and len(title) >= 10:
+                        return self.create_article(title, url, date, excerpt)
+        
+        # Strategy 0e: Check if the item itself is a link (whole card is clickable)
         if item.name == 'a' and item.get('href'):
             url = item.get('href', '')
             # Look for title inside
