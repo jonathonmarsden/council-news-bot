@@ -290,6 +290,10 @@ class CardScraper(BaseScraper):
             if href.rstrip('/').endswith('/news'):
                 continue
             
+            # Skip category pages (e.g., /news/20026/news_and_events - has /news/NNNNN/ but no /article/)
+            if re.search(r'/news/\d+/', href) and '/article/' not in href:
+                continue
+            
             url = self.make_absolute_url(href)
             
             # Skip duplicates
@@ -324,6 +328,7 @@ class CardScraper(BaseScraper):
         
         # Strategy 0: Card div with link inside containing .card__title (Golden Plains/GovCMS pattern)
         # Structure: div.card > a > div.card__title > h2
+        # Note: Requires date element to filter out promotional cards (e.g., "GB news and magazine")
         if item.name == 'div' and 'card' in item.get('class', []):
             card_link = item.select_one('a[href*="/news/"]')
             if card_link:
@@ -332,7 +337,7 @@ class CardScraper(BaseScraper):
                 title_elem = item.select_one('.card__title h2, .card__title h3, .card__title')
                 if title_elem:
                     title = title_elem.get_text(strip=True)
-                    # Get date from card__date or time element
+                    # Get date from card__date or time element - REQUIRED for news articles
                     date_elem = item.select_one('.card__date time, .card__date, time[datetime]')
                     if date_elem:
                         datetime_attr = date_elem.get('datetime')
@@ -340,12 +345,13 @@ class CardScraper(BaseScraper):
                             date = self.parse_date(datetime_attr)
                         else:
                             date = self.parse_date(date_elem.get_text(strip=True))
-                    # Get excerpt if present (some card layouts have it)
-                    excerpt_elem = item.select_one('.card__excerpt, .card__summary, .card__description')
-                    if excerpt_elem:
-                        excerpt = excerpt_elem.get_text(strip=True)
-                    if title and url and len(title) >= 10:
-                        return self.create_article(title, url, date, excerpt)
+                        # Get excerpt if present (some card layouts have it)
+                        excerpt_elem = item.select_one('.card__excerpt, .card__summary, .card__description')
+                        if excerpt_elem:
+                            excerpt = excerpt_elem.get_text(strip=True)
+                        # Only return if we have date (filters out promo cards like "GB news and magazine")
+                        if title and url and len(title) >= 10:
+                            return self.create_article(title, url, date, excerpt)
         
         # Strategy 0a: Webflow article-item pattern (East Gippsland, etc)
         # Structure: div.article-item > a.article-link > div.article-inner > h4 (title)
