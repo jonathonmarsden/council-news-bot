@@ -230,8 +230,8 @@ class CardScraper(BaseScraper):
     # Note: article.listing is Cardinia pattern (listing__heading + listing__summary)
     ARTICLE_SELECTOR = 'article.news-item, article.listing, .news-card, .listing-item, .views-row, .content-card, .article-container, .media-item, a.card--news, a.card__news-listing, a.card[href*="/news/"], div.card, .article-item'
     TITLE_SELECTOR = 'h2 a, h3 a, .title a, a.title, .field--name-title a, .news-title a, a[href*="/news/"]'
-    DATE_SELECTOR = '.date, .published, time, .meta-date, .field--name-created, .news-date'
-    EXCERPT_SELECTOR = '.excerpt, .summary, .description, .field--name-body, .teaser, p'
+    DATE_SELECTOR = '.date, .published, time, .meta-date, .field--name-created, .news-date, .card__meta'
+    EXCERPT_SELECTOR = '.card__description, .excerpt, .summary, .description, .field--name-body, .teaser, p'
     
     def scrape(self) -> List[NewsArticle]:
         """Scrape news articles from the news page."""
@@ -458,7 +458,15 @@ class CardScraper(BaseScraper):
                     date = self.parse_date(date_elem.get_text(strip=True))
                 
                 # Find excerpt
-                excerpt_elem = item.select_one('.preview, .excerpt, .summary, .description, p')
+                # Try specific selectors first to avoid matching date p tags
+                excerpt_elem = item.select_one('.card__description, .preview, .excerpt, .summary, .description')
+                if not excerpt_elem:
+                    # Fallback to generic p, but ensure it's not the date element
+                    for p in item.select('p'):
+                        if p != date_elem:
+                            excerpt_elem = p
+                            break
+                
                 if excerpt_elem:
                     excerpt = excerpt_elem.get_text(strip=True)
                 
