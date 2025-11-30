@@ -2,9 +2,8 @@ name: Council News Bot
 
 on:
   schedule:
-    # TEMPORARY: Run every 5 mins 24/7 to clear backlog
-    # Once backlog is cleared, revert to 15-min business hours only
-    - cron: '*/5 * * * *'  # Every 5 minutes, 24/7
+    # Run every 15 minutes
+    - cron: '*/15 * * * *'
   workflow_dispatch:
     inputs:
       mode:
