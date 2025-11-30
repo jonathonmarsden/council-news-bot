@@ -165,6 +165,28 @@ class BaseScraper(ABC):
         """Clean and normalize text content."""
         if not text:
             return ""
+            
+        # Fix common mojibake (UTF-8 bytes interpreted as Windows-1252/Latin-1)
+        replacements = {
+            'â': "'",
+            'â\x80\x99': "'",
+            'â': "-",
+            'â\x80\x93': "-",
+            'â': "-",
+            'â\x80\x94': "-",
+            'â': '"',
+            'â\x80\x9c': '"',
+            'â': '"',
+            'â\x80\x9d': '"',
+            'â¦': '...',
+            'â\x80\xa6': '...',
+            'Â': '',  # Non-breaking space artifact
+            '\xa0': ' ', # Non-breaking space
+        }
+        
+        for bad, good in replacements.items():
+            text = text.replace(bad, good)
+            
         # Normalize whitespace
         text = re.sub(r'\s+', ' ', text)
         return text.strip()
