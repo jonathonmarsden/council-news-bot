@@ -135,7 +135,8 @@ class BlueSkyPoster:
         # 1. Title (clickable)
         # 2. Excerpt (optional)
         # 3. Date (e.g. "30 November 2025")
-        # 4. Hashtags
+        # 4. Council Name
+        # 5. Hashtags
         
         parts = [working_title]
         
@@ -146,6 +147,8 @@ class BlueSkyPoster:
         
         if date_str:
             parts.append(date_str)
+        
+        parts.append(council_name)
         parts.append(hashtags)
         
         # Join with newlines
@@ -158,6 +161,7 @@ class BlueSkyPoster:
             parts_no_excerpt = [working_title]
             if date_str:
                 parts_no_excerpt.append(date_str)
+            parts_no_excerpt.append(council_name)
             parts_no_excerpt.append(hashtags)
             post = "\n".join(parts_no_excerpt)
         
@@ -169,6 +173,7 @@ class BlueSkyPoster:
             parts_truncated = [working_title]
             if date_str:
                 parts_truncated.append(date_str)
+            parts_truncated.append(council_name)
             parts_truncated.append(hashtags)
             post = "\n".join(parts_truncated)
         
