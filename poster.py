@@ -125,7 +125,8 @@ class BlueSkyPoster:
         hashtags = f"#LGNewsRoundup #VLGA #VicCouncils {council_hashtag}"
         
         # Format date (None if no date available)
-        date_str = date.strftime("%d %B %Y") if date else None
+        # Use {date.day} to avoid leading zeros (platform independent)
+        date_str = f"{date.day} {date.strftime('%B %Y')}" if date else None
         
         # Start with title - we'll track its position for the link facet
         working_title = title
@@ -133,9 +134,8 @@ class BlueSkyPoster:
         # Build post parts in new order:
         # 1. Title (clickable)
         # 2. Excerpt (optional)
-        # 3. Council Name
-        # 4. Published date (only if available)
-        # 5. Hashtags
+        # 3. Date (e.g. "30 November 2025")
+        # 4. Hashtags
         
         parts = [working_title]
         
@@ -144,9 +144,8 @@ class BlueSkyPoster:
         if include_excerpt:
             parts.append(excerpt)
         
-        parts.append(council_name)
         if date_str:
-            parts.append(f"Published: {date_str}")
+            parts.append(date_str)
         parts.append(hashtags)
         
         # Join with newlines
@@ -156,9 +155,9 @@ class BlueSkyPoster:
         if len(post) > self.MAX_POST_LENGTH:
             # Try without excerpt
             include_excerpt = False
-            parts_no_excerpt = [working_title, council_name]
+            parts_no_excerpt = [working_title]
             if date_str:
-                parts_no_excerpt.append(f"Published: {date_str}")
+                parts_no_excerpt.append(date_str)
             parts_no_excerpt.append(hashtags)
             post = "\n".join(parts_no_excerpt)
         
@@ -167,9 +166,9 @@ class BlueSkyPoster:
             overhead = len(post) - len(working_title)
             available = self.MAX_POST_LENGTH - overhead - 3
             working_title = title[:available] + "..."
-            parts_truncated = [working_title, council_name]
+            parts_truncated = [working_title]
             if date_str:
-                parts_truncated.append(f"Published: {date_str}")
+                parts_truncated.append(date_str)
             parts_truncated.append(hashtags)
             post = "\n".join(parts_truncated)
         
