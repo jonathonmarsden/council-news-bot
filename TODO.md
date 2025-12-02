@@ -16,6 +16,8 @@
 - [ ] **South Australia Expansion**: Create `states/sa/councils.json` (68 councils).
 - [ ] **Western Australia Expansion**: Create `states/wa/councils.json` (137 councils).
 - [ ] **Northern Territory Expansion**: Create `states/nt/councils.json` (17 councils).
+- [x] **ACT Expansion**: Create `states/act/councils.json` (1 council).
+- [ ] **Bluesky Credentials**: Obtain and configure Bluesky handles/app passwords for TAS, SA, WA, NT, ACT.
 
 ## 🟡 Improvements (Robustness)
 - [ ] **RSS Migration**: Run `scripts/find_rss_feeds.py` against NSW and QLD to switch eligible councils to `rss_scraper`.
