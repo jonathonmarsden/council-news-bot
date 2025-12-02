@@ -49,6 +49,21 @@ def run_post(state):
     except subprocess.CalledProcessError as e:
         log(f"Error posting for {state}: {e}")
 
+def get_available_states():
+    """Discover available states from the states/ directory."""
+    states_dir = os.path.join(os.path.dirname(__file__), 'states')
+    if not os.path.exists(states_dir):
+        return []
+    
+    states = []
+    for item in os.listdir(states_dir):
+        item_path = os.path.join(states_dir, item)
+        if os.path.isdir(item_path):
+            # Check if it has a councils.json
+            if os.path.exists(os.path.join(item_path, 'councils.json')):
+                states.append(item)
+    return sorted(states)
+
 def main():
     log(f"Starting Scheduler (Timezone: {TZ_NAME if TZ else 'System Default'})...")
     
@@ -59,17 +74,19 @@ def main():
     if TZ:
         last_scrape_time = last_scrape_time.replace(tzinfo=TZ)
     
-    # States to manage
-    STATES = ["vic", "nsw", "qld", "tas"]
-    
     while True:
         now = datetime.now(TZ) if TZ else datetime.now()
+        
+        # Discover states dynamically
+        states = get_available_states()
+        if not states:
+            log("No states found in states/ directory!")
         
         # 1. Scrape Check (Every 3 hours)
         # We check if 3 hours have passed since last scrape
         if (now - last_scrape_time).total_seconds() >= 3 * 3600:
-            log("Executing scheduled scrape...")
-            for state in STATES:
+            log(f"Executing scheduled scrape for states: {states}")
+            for state in states:
                 run_scrape(state)
             last_scrape_time = now
             
@@ -78,8 +95,8 @@ def main():
             # Check if we are at a 5-minute mark (0, 5, 10, 15, ...)
             # We allow a small window (e.g., first minute of the block)
             if now.minute % 5 == 0:
-                log("Executing scheduled post...")
-                for state in STATES:
+                log(f"Executing scheduled post for states: {states}")
+                for state in states:
                     run_post(state)
                 
                 # Sleep for 65 seconds to ensure we don't trigger again in the same minute
