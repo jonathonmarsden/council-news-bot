@@ -16,34 +16,35 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 # Add project root to path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Go up 3 levels: scripts/maintenance/health_check.py -> scripts/maintenance -> scripts -> root
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(project_root)
+
+from core.config import DB_PATH, CONFIG_PATHS
 
 def get_db_connection():
-    # Respect the DB_PATH env var, similar to main.py
-    default_db_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'bot.db')
-    db_path = os.environ.get('DB_PATH', default_db_path)
-    
-    if not os.path.exists(db_path):
-        print(f"Database not found at {db_path}")
+    if not DB_PATH.exists():
+        print(f"Database not found at {DB_PATH}")
         sys.exit(1)
         
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(str(DB_PATH))
     conn.row_factory = sqlite3.Row
     return conn
 
 def load_all_councils():
     """Load all configured councils from JSON files."""
     councils = {}
-    states_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'states')
     
-    for state in ['vic', 'nsw', 'qld']:
-        config_path = os.path.join(states_dir, state, 'councils.json')
-        if os.path.exists(config_path):
+    for state, config_path in CONFIG_PATHS.items():
+        if config_path.exists():
             with open(config_path, 'r') as f:
-                data = json.load(f)
-                for c in data.get('councils', []):
-                    c['state'] = state
-                    councils[c['id']] = c
+                try:
+                    data = json.load(f)
+                    for c in data.get('councils', []):
+                        c['state'] = state
+                        councils[c['id']] = c
+                except json.JSONDecodeError:
+                    print(f"Warning: Could not decode {config_path}")
     return councils
 
 def generate_report():
@@ -102,7 +103,8 @@ def generate_report():
             healthy.append(info)
             
     # Output Report
-    report_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'HEALTH_REPORT.md')
+    from core.config import PROJECT_ROOT
+    report_file = PROJECT_ROOT / 'HEALTH_REPORT.md'
     
     with open(report_file, 'w') as f:
         f.write(f"# 🏥 Bot Health Report ({now.strftime('%Y-%m-%d')})\n\n")

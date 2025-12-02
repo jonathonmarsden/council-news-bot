@@ -1,0 +1,3 @@
+HOST = "170.64.186.16"
+USER = "root"
+PASS = "j8Iu6R25sNaUY1MSJV0f3yy7KKrGDEsx"
