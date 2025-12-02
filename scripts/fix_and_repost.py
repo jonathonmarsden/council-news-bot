@@ -1,3 +1,22 @@
+"""
+Bluesky Bookmark Maintenance Tool
+=================================
+
+This script implements a workflow for fixing broken or malformed posts using Bluesky bookmarks.
+
+Workflow:
+1. The user bookmarks a problematic post (e.g. duplicate, bad formatting, wrong link).
+2. This script fetches the user's bookmarks using undocumented XRPC endpoints.
+3. It identifies the original council and article.
+4. It re-scrapes the council website to get fresh, correct data.
+5. It reposts the article using the correct Bot account.
+6. It deletes the old broken post and the bookmark.
+
+Undocumented API Endpoints Used:
+- app.bsky.bookmark.getBookmarks (Query)
+- app.bsky.bookmark.deleteBookmark (Procedure)
+"""
+
 import os
 import sys
 import re
@@ -5,6 +24,8 @@ import time
 from datetime import datetime
 from dotenv import load_dotenv
 from atproto import Client, models
+import json
+from urllib.parse import urlparse
 
 # Add project root to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -12,29 +33,53 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from main import load_state_config, get_scraper
 from core.poster import BlueSkyPoster
 
+class ParamsModel:
+    """
+    A mock model to satisfy atproto library requirements.
+    
+    The atproto client's `_invoke` method expects input parameters to be 
+    Pydantic models or objects with `model_dump` methods. Since we are 
+    using undocumented endpoints without official models, we use this 
+    wrapper to pass raw dictionaries.
+    """
+    def __init__(self, data):
+        self.data = data
+    def model_dump(self, exclude_none=True, by_alias=True):
+        return self.data
+    def model_dump_json(self, exclude_none=True, by_alias=True):
+        return json.dumps(self.data)
+
 def get_council_from_text(text, councils):
+    """
+    Attempt to identify the council from the post text.
+    
+    Args:
+        text (str): The text content of the post.
+        councils (list): List of council configuration dictionaries.
+        
+    Returns:
+        dict or None: The matching council config or None.
+    """
     # Try to match council name in text
     for council in councils:
         if council['name'] in text:
             return council
     
-    # Try hashtags
-    hashtags = re.findall(r'#(\w+)', text)
-    for tag in hashtags:
-        # Convert PascalCase to space separated (approximate)
-        # This is fuzzy, but might work.
-        pass
-        
+    # Future improvement: Add fuzzy matching or hashtag parsing here if needed.
     return None
 
 def fix_and_repost():
+    """
+    Main execution function.
+    Iterates through bookmarks, fixes posts, and cleans up.
+    """
     load_dotenv()
     
-    # User credentials
+    # User credentials (The human operator's account)
     user_handle = os.environ.get('BLUESKY_HANDLE_DEBUG', "jonathonmarsden.com")
     user_password = os.environ.get('BLUESKY_PASSWORD_DEBUG', "gars-eqs3-ruay-ym35")
     
-    # Bot credentials
+    # Bot credentials configuration
     bots = {
         'VIC': {
             'handle': os.environ.get('BLUESKY_HANDLE_VIC'),
@@ -53,7 +98,7 @@ def fix_and_repost():
         }
     }
     
-    # Load all councils
+    # Load all councils from config files
     all_councils = []
     for state in ['vic', 'nsw', 'qld']:
         data = load_state_config(state)
@@ -69,9 +114,50 @@ def fix_and_repost():
     user_client.login(user_handle, user_password)
     print("Authenticated.")
     
-    # Get Bookmarks
-    response = user_client.app.bsky.bookmark.get_bookmarks()
-    bookmarks = response.bookmarks
+    # --- Fetch Bookmarks ---
+    print("Fetching bookmarks...")
+    bookmarks = []
+    cursor = None
+    while True:
+        try:
+            print(f"Requesting bookmarks batch... Cursor: {cursor}")
+            # Use ParamsModel to pass the query parameters
+            params = ParamsModel({'limit': 100, 'cursor': cursor} if cursor else {'limit': 100})
+            
+            # Call undocumented endpoint: app.bsky.bookmark.getBookmarks
+            response = user_client.invoke_query('app.bsky.bookmark.getBookmarks', params=params)
+            
+            # Handle response content
+            if hasattr(response, 'content'):
+                data = response.content
+            else:
+                print(f"Unexpected response type: {type(response)}")
+                break
+            
+            batch = data.get('bookmarks', [])
+            if not batch:
+                print("No more bookmarks in batch.")
+                break
+                
+            bookmarks.extend(batch)
+            print(f"Fetched {len(batch)} bookmarks. Total: {len(bookmarks)}")
+            
+            new_cursor = data.get('cursor')
+            if not new_cursor:
+                print("No cursor returned. End of list.")
+                break
+            
+            if new_cursor == cursor:
+                print("Cursor did not change. Breaking loop.")
+                break
+                
+            cursor = new_cursor
+                
+        except Exception as e:
+            print(f"Error fetching bookmarks: {e}")
+            import traceback
+            traceback.print_exc()
+            break
     
     if not bookmarks:
         print("No bookmarks found.")
@@ -79,67 +165,108 @@ def fix_and_repost():
 
     print(f"Found {len(bookmarks)} bookmarks to process.")
     
-    for i, bookmark in enumerate(bookmarks):
+    # --- Process Bookmarks ---
+    for i, b in enumerate(bookmarks):
         print(f"\n--- Processing Bookmark {i+1} ---")
-        uri = bookmark.subject.uri
+        
+        # 1. Check for Orphaned Bookmarks (Post deleted)
+        item = b.get('item')
+        if not item or item.get('notFound'):
+            print("Post not found (deleted). Deleting bookmark...")
+            subject_uri = b.get('subject', {}).get('uri')
+            if subject_uri:
+                try:
+                    # Call undocumented endpoint: app.bsky.bookmark.deleteBookmark
+                    # CRITICAL: Must include Content-Type: application/json header
+                    user_client.invoke_procedure(
+                        'app.bsky.bookmark.deleteBookmark', 
+                        data=ParamsModel({'uri': subject_uri}), 
+                        headers={'Content-Type': 'application/json'}
+                    )
+                    print("Deleted bookmark for missing post.")
+                except Exception as e:
+                    print(f"Failed to delete bookmark: {e}")
+            continue
+
+        # 2. Extract Post Details
+        uri = item.get('uri')
         print(f"URI: {uri}")
         
-        # Get post details
-        item = bookmark.item
-        if not hasattr(item, 'record'):
-            print("Skipping: No record found.")
-            continue
-            
-        text = item.record.text
-        author_did = item.author.did
-        author_handle = item.author.handle
-        
+        author = item.get('author', {})
+        author_handle = author.get('handle', '')
         print(f"Author: {author_handle}")
-        # print(f"Text: {text[:50]}...")
         
-        # Determine State from Author
+        record = item.get('record', {})
+        text = record.get('text', '')
+        
+        # 3. Determine State/Bot from Author Handle
         state = None
+        bot_key = None
         if 'vic' in author_handle.lower():
             state = 'VIC'
+            bot_key = 'VIC'
         elif 'nsw' in author_handle.lower():
             state = 'NSW'
+            bot_key = 'NSW'
         elif 'qld' in author_handle.lower():
             state = 'QLD'
+            bot_key = 'QLD'
             
         if not state:
-            print(f"Could not determine state from handle {author_handle}")
+            print(f"Could not determine state from handle {author_handle}. Skipping.")
             continue
             
-        # Find Council
+        # 4. Initialize Bot Poster (Lazy Loading)
+        if bots[bot_key]['poster'] is None:
+            print(f"Initializing poster for {state}...")
+            try:
+                bots[bot_key]['poster'] = BlueSkyPoster(bots[bot_key]['handle'], bots[bot_key]['password'])
+                bots[bot_key]['poster'].authenticate()
+            except Exception as e:
+                print(f"Failed to login bot {state}: {e}")
+                continue
+
+        # 5. Identify Council
+        # First try text match
         council = get_council_from_text(text, [c for c in all_councils if c['state'] == state])
         
-        if not council:
-            print("Could not identify council from text.")
-            # Try to extract URL and match against council news_urls
-            # Extract URL from facets
-            url = None
-            if item.record.facets:
-                for facet in item.record.facets:
-                    for feature in facet.features:
-                        if hasattr(feature, 'uri'):
-                            url = feature.uri
-                            break
+        # 6. Extract Article URL
+        article_url = None
+        
+        # Check embed first (most reliable for shared links)
+        embed = item.get('embed')
+        if embed and embed.get('$type') == 'app.bsky.embed.external#view':
+             article_url = embed.get('external', {}).get('uri')
+        
+        # Fallback to facets (links in text)
+        if not article_url and record.get('facets'):
+            for facet in record['facets']:
+                for feature in facet.get('features', []):
+                    if feature.get('$type') == 'app.bsky.richtext.facet#link':
+                        article_url = feature.get('uri')
+                        break
+                if article_url: break
+        
+        if not article_url:
+            print("No article URL found. Skipping.")
+            continue
             
-            if url:
-                print(f"Found URL: {url}")
-                # Try to match domain
+        print(f"Article URL: {article_url}")
+
+        # 7. Fallback Council Identification (URL Match)
+        if not council:
+            print("Could not identify council from text. Trying URL match...")
+            try:
+                u_domain = urlparse(article_url).netloc.replace('www.', '')
+                
                 for c in all_councils:
-                    if c['state'] == state and c['news_url'] in url: # Very rough check
-                         council = c
-                         break
-                    # Better: check if news_url domain matches
-                    from urllib.parse import urlparse
                     if c['state'] == state:
-                        c_domain = urlparse(c['news_url']).netloc
-                        u_domain = urlparse(url).netloc
-                        if c_domain == u_domain:
+                        c_domain = urlparse(c['news_url']).netloc.replace('www.', '')
+                        if c_domain in u_domain or u_domain in c_domain:
                             council = c
                             break
+            except:
+                pass
         
         if not council:
             print("Still could not identify council. Skipping.")
@@ -147,116 +274,58 @@ def fix_and_repost():
             
         print(f"Identified Council: {council['name']}")
         
-        # Extract Article URL
-        article_url = None
-        if item.record.facets:
-            for facet in item.record.facets:
-                for feature in facet.features:
-                    if hasattr(feature, 'uri'):
-                        article_url = feature.uri
-                        break
-        
-        if not article_url:
-            print("No article URL found in facets. Skipping.")
-            continue
-            
-        print(f"Article URL: {article_url}")
-        
-        # Re-scrape
+        # 8. Re-scrape to get fresh data
         print("Re-scraping...")
-        scraper = get_scraper(council)
-        articles = scraper.scrape()
-        
-        # Find matching article
-        found_article = None
-        for art in articles:
-            # Compare URLs (ignoring query params or slight differences)
-            if art.url == article_url or art.url.rstrip('/') == article_url.rstrip('/'):
-                found_article = art
-                break
-        
-        if not found_article:
-            print("Article not found on index page. Trying direct fetch (fallback)...")
-            # Fallback: Create a dummy article and try to fetch details
-            # But we need the Title and Excerpt which are on the page.
-            # We can try to fetch the article page and parse it.
-            # But CardScraper doesn't have a generic 'parse_article_page' method.
-            # However, we can try to use the scraper's internal methods if we hack it.
-            # Or just skip for now.
-            print("Skipping re-post (not found on index).")
-            continue
+        try:
+            scraper = get_scraper(council)
+            articles = scraper.scrape()
             
-        print(f"Found Article: {found_article.title}")
-        print(f"Date: {found_article.date}")
-        print(f"Excerpt: {found_article.excerpt}")
-        
-        # Initialize Bot Poster if needed
-        if not bots[state]['poster']:
-            print(f"Initializing {state} poster...")
-            poster = BlueSkyPoster(bots[state]['handle'], bots[state]['password'])
-            if poster.authenticate():
-                bots[state]['poster'] = poster
-            else:
-                print(f"Failed to authenticate {state} bot.")
-                continue
-                
-        poster = bots[state]['poster']
-        
-        # Post
-        print("Posting fixed article...")
-        hashtags = load_state_config(state.lower())['config']['hashtags']
-        # Add council specific hashtag
-        council_tag = poster._council_to_hashtag(council['name'])
-        if council_tag not in hashtags:
-            hashtags.append(council_tag)
+            found_article = None
+            for art in articles:
+                # Fuzzy match URL
+                if art.url == article_url:
+                    found_article = art
+                    break
+                # Try without query params
+                if art.url.split('?')[0] == article_url.split('?')[0]:
+                    found_article = art
+                    break
             
-        success = poster.post_article(
-            council_name=council['name'],
-            title=found_article.title,
-            url=found_article.url,
-            date=found_article.date,
-            excerpt=found_article.excerpt,
-            hashtags=hashtags
-        )
-        
-        if success:
-            print("Post successful. Deleting bookmark...")
-            # Find the bookmark record rkey
-            # We have to list all bookmarks and find the one pointing to this URI
-            try:
-                # Fetch all bookmark records
-                # Note: This might be paginated, but for 19 items it's fine
-                records = user_client.com.atproto.repo.list_records(
-                    collection='app.bsky.bookmark',
-                    repo=user_client.me.did,
-                    limit=100
-                )
+            if found_article:
+                print(f"Found fresh article data: {found_article.title}")
                 
-                bookmark_rkey = None
-                for record in records.records:
-                    # record.value is the record data
-                    if record.value.subject.uri == uri:
-                        bookmark_rkey = record.uri.split('/')[-1]
-                        break
-                
-                if bookmark_rkey:
-                    user_client.com.atproto.repo.delete_record(
-                        collection='app.bsky.bookmark',
-                        repo=user_client.me.did,
-                        rkey=bookmark_rkey
+                # 9. Repost Corrected Article
+                print("Reposting...")
+                try:
+                    bots[bot_key]['poster'].post_article(
+                        council_name=council['name'],
+                        title=found_article.title,
+                        url=found_article.url,
+                        date=found_article.date,
+                        excerpt=found_article.excerpt
                     )
-                    print(f"Deleted bookmark {bookmark_rkey}")
-                else:
-                    print("Could not find bookmark record to delete.")
+                    print("Successfully reposted.")
                     
-            except Exception as e:
-                print(f"Error deleting bookmark: {e}")
-            
-        else:
-            print("Post failed.")
-            
-        # Sleep to avoid rate limits
-        time.sleep(2)
+                    # 10. Cleanup (Delete old post and bookmark)
+                    print("Deleting old post...")
+                    bots[bot_key]['poster'].client.delete_post(uri)
+                    print("Deleted old post.")
+                    
+                    print("Deleting bookmark...")
+                    user_client.invoke_procedure(
+                        'app.bsky.bookmark.deleteBookmark', 
+                        data=ParamsModel({'uri': uri}), 
+                        headers={'Content-Type': 'application/json'}
+                    )
+                    print("Deleted bookmark.")
+                
+                except Exception as e:
+                    print(f"Error during repost/delete: {e}")
+            else:
+                print("Could not find article in fresh scrape. Maybe it's too old?")
+                
+        except Exception as e:
+            print(f"Error during scraping: {e}")
 
 if __name__ == "__main__":
     fix_and_repost()
