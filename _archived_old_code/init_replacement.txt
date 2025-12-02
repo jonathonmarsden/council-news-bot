@@ -1,0 +1,18 @@
+    def __init__(self, council_id: str, council_name: str, news_url: str, use_curl: bool = False, mobile_mode: bool = False):
+        """
+        Initialize the scraper.
+        
+        Args:
+            council_id: Unique identifier for the council (kebab-case)
+            council_name: Human-readable council name
+            news_url: URL of the council's news page
+            use_curl: Whether to use curl for WAF bypass
+            mobile_mode: Whether to impersonate a mobile device (iPhone)
+        """
+        self.council_id = council_id
+        self.council_name = council_name
+        self.news_url = news_url
+        self.use_curl = use_curl
+        self.mobile_mode = mobile_mode
+        self.session = requests.Session()
+        self.session.headers.update(self.HEADERS)

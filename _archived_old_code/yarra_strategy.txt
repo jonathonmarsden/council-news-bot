@@ -1,0 +1,21 @@
+        # Strategy 0j: Yarra pattern
+        # Structure: a.card-y
+        if item.name == 'a' and 'card-y' in item.get('class', []):
+            url = item.get('href', '')
+            title_elem = item.select_one('h3')
+            if title_elem:
+                title = title_elem.get_text(strip=True)
+            
+            # Date is in the second div inside the absolute div in the media div
+            # <div class="absolute ..."><div ...>News</div><div ...>Date</div></div>
+            # We can look for text that parses as date
+            date = None
+            for div in item.select('div.absolute div'):
+                d = self.parse_date(div.get_text(strip=True))
+                if d:
+                    date = d
+                    break
+            
+            if title and url and len(title) >= 10:
+                return self.create_article(title, url, date, None)
+

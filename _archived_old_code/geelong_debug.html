@@ -1,0 +1,1644 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head id="ctl00_Head1"><meta charset="utf-8" /><meta http-equiv="X-UA-Compatible" content="IE=edge" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="author" content="City of Greater Geelong" />
+    <!-- Bootstrap core CSS -->
+    <link href="/Library/css/bootstrap3/bootstrap.min.css" rel="stylesheet" /><link href="/Library/css/ga_fonts.css" rel="stylesheet" /><link href="/Library/css/ga_core.css" rel="stylesheet" />
+    <!-- Font-Awesome -->
+    <link href="/Library/css/font-awesome.min.css" rel="stylesheet" />
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <style type="text/css">
+        /*!
+        * IE10 viewport hack for Surface/desktop Windows 8 bug
+        * Copyright 2014-2015 Twitter, Inc.
+        * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+        */
+
+        /*
+        * See the Getting Started docs for more information:
+        * http://getbootstrap.com/getting-started/#support-ie10-width
+        */
+        @-ms-viewport {
+            width: device-width;
+        }
+        @-o-viewport {
+            width: device-width;
+        }
+        @viewport {
+            width: device-width;
+        }
+    </style>
+    <!--[if lt IE 9]>
+        <script src="/library/js/html5shiv.js"></script>
+    <![endif]-->
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/common/public/icons/apple-touch-icon-144.png" /><link rel="apple-touch-icon-precomposed" sizes="114x114" href="/common/public/icons/apple-touch-icon-114.png" /><link rel="apple-touch-icon-precomposed" sizes="72x72" href="/common/public/icons/apple-touch-icon-72.png" /><link rel="apple-touch-icon-precomposed" href="/common/public/icons/touch-icon-iphone.png" /><link rel="shortcut icon" href="/favicon.ico" />
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-WLLTWZ2');</script>
+    <!-- End Google Tag Manager -->
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-80CBPZ3P1W"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-80CBPZ3P1W');
+    </script>
+    <script>
+        window.CreateNewScriptReference = function (url) {
+            var s = document.createElement("script");
+            s.type = "text/javascript";
+            s.src = url;
+            $("head").append(s);
+        }
+    </script>
+    <!-- Hotjar Tracking Code for https://www.geelongaustralia.com.au/ -->
+    <script>
+        (function(h,o,t,j,a,r){
+            h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+            h._hjSettings={hjid:2588143,hjsv:6};
+            a=o.getElementsByTagName('head')[0];
+            r=o.createElement('script');r.async=1;
+            r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+            a.appendChild(r);
+        })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+    </script>
+    
+    <meta name="keywords" content="geelong, council" />
+    <meta name="description" content="Geelong community news and updates" />
+    <meta name="author" content="eServices" />
+    <meta name="dc.title" content="Community news and updates - City of Greater Geelong" />
+    <meta name="dc.subject" content="Community news and updates, geelong; council; greater geelong; community." />
+    <meta name="dc.description" content="" />
+    <meta name="dc.date.created" scheme="ISO8601" content="2013-08-15" />
+    <meta name="dc.identifier" scheme="URL" content="https://www.geelongaustralia.com.au/news/" />
+    <meta name="dc.creator.CorporateName" content="City of Greater Geelong" />
+    <meta name="dc.creator.CorporateName.Address" content="publishing@geelongcity.vic.gov.au" />
+    <meta name="dc.language" scheme="RFC1766" content="en" />
+    <meta name="dcc.audience" content="Business; Education; Government; Public" />
+    <meta name="dc.format" scheme="IMT" content="text/html" />
+    <meta name="dc.publisher" content="City of Greater Geelong" />
+   
+    <style>
+        .loader-overlay {
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 3000;
+            text-align: center;
+            pointer-events: none;
+        }
+        .loader-overlay:before {
+            content: "";
+            display: inline-block;
+            vertical-align: middle;
+            height: 100%;
+        }
+        .loader-wrapper {
+            display: inline-block;
+            position: relative;
+            vertical-align: middle;
+            padding: 10px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0, 51, 102, 0.4);
+        }
+        .loader-inner {
+            position: relative;
+            width: 40px;
+            padding-top: 100%;
+        }
+        .loader-circle {
+            animation: loaderRotate 2s linear infinite;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .path-back {
+            stroke: #c8e3ed;
+        }
+        .path-front {
+            stroke-dasharray: 1, 200;
+            stroke-dashoffset: 0;
+            animation: loaderDash 1.5s ease-in-out infinite;
+            stroke-linecap: square;
+            stroke: #003263;
+        }
+        @media (min-width: 768px) {
+            .loader-inner {
+                width: 50px;
+            }
+        }
+        @keyframes loaderRotate {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        @keyframes loaderDash {
+            0% {
+                stroke-dasharray: 1, 200;
+                stroke-dashoffset: 0;
+            }
+            50% {
+                stroke-dasharray: 89, 200;
+                stroke-dashoffset: -35px;
+            }
+            100% {
+                stroke-dasharray: 89, 200;
+                stroke-dashoffset: -124px;
+            }
+        }
+    </style>
+    <style type="text/css">
+        .cont-item-tags {
+            margin: 0 -2px;
+            overflow: hidden;
+        }
+        .cont-item-tags:before, .cont-item-tags:after {
+            display: table;
+            content: " ";
+        }
+        .cont-item-tags:after {
+            clear: both;
+        }
+        .cont-item-tags .label {
+            display: block;
+            float: left;
+            max-width: calc(100% - 4px);
+            margin: 0 2px 2px;
+            background: #003361;
+            color: #fff;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .col-news {
+            position: relative;
+            float: left;
+            width: 100%;
+            padding: 0 15px;
+        }
+        .col-news .cont-item-news {
+            position: relative;
+        }
+        @media (min-width: 768px) {
+            .cont-item-tags {
+                margin: 0 -4px;
+            }
+            .cont-item-tags .label {
+                max-width: calc(100% - 8px);
+                padding: 4px 6px;
+                margin: 0 4px 8px;
+            }
+            .news-cont .cont-item-news {
+                margin: 0 0 60px;
+            }
+            .row-news {
+                margin-right: -5px;
+                margin-left: -5px;
+                margin-bottom: 60px;
+            }
+            .col-news {
+                padding: 5px;
+            }
+            .col-news-l {
+                width: 50%;
+            }
+            .col-news-s,
+            .col-news-s + .col-news-l:nth-child(3),
+            .col-news-l + .col-news-s + .col-news-l:nth-child(4),
+            .col-news-s + .col-news-l:nth-child(5) {
+                width: 25%;
+            }
+            .col-news-s:first-child {
+                width: 50%;
+            }
+            .col-news .cont-item-news {
+                margin: 0;
+            }
+            .col-news .cont-item-news .cont-item-right {
+                position: absolute;
+                left: 0;
+                bottom: 0;
+                z-index: 5;
+                padding: 15px;
+            }
+            .col-news .cont-item-news .objFit-wrap {
+                padding-top: 200px;
+            }
+            .col-news:first-child .cont-item-news .objFit-wrap {
+                padding-top: 410px;
+            }
+            .col-news .cont-item-news .objFit-wrap:before {
+                content: "";
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                z-index: 3;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(0deg, rgba(46, 48, 51, 0.6) 0%, rgba(46, 48, 51, 0) 100%);
+            }
+            .col-news:first-child .cont-item-news .objFit-wrap:before {
+                background: linear-gradient(0deg, rgba(46, 48, 51, 0.6) 0%, rgba(46, 48, 51, 0) 75%, rgba(46, 48, 51, 0) 100%);
+            }
+            .col-news a.cont-item-news .objFit-wrap:after {
+                z-index: 4;
+            }
+            .col-news .cont-item-news .cont-item-title {
+                max-height: 147px;
+                font-size: 18px;
+                color: #fff;
+                line-height: 1.2;
+                text-shadow: 0 4px 8px rgba(46, 48, 51, 0.6);
+                overflow: hidden;
+            }
+            .col-news:first-child .cont-item-news .cont-item-title {
+                max-height: 330px;
+                font-size: 26px;
+                line-height: 1.3;
+            }
+            .col-news .cont-item-news .cont-item-desc {
+                display: none;
+            }
+            .col-news .cont-item-news .cont-item-tags .label {
+                box-shadow: 0 4px 8px rgba(46, 48, 51, 0.6);
+            }
+            .related .featured-cont .col-xs-12:nth-child(4),
+            .related .featured-cont .col-xs-12:nth-child(5) {
+                display: none;
+            }
+        }
+        @media (min-width: 992px) {
+            .row-news-l .col-news-l {
+                width: 40%;
+            }
+            .row-news-l .col-news-l:first-child {
+                width: 60%;
+            }
+            .row-news-l .col-news-s,
+            .row-news-l .col-news-s + .col-news-l:nth-child(3),
+            .row-news-l .col-news-l + .col-news-s + .col-news-l:nth-child(4),
+            .row-news-l .col-news-s + .col-news-l:nth-child(5) {
+                width: 20%;
+            }
+            .related .featured-cont .col-xs-12:nth-child(4) {
+                display: block;
+            }
+        }
+        @media (min-width: 1200px) {
+            .related .featured-cont .col-xs-12:nth-child(5) {
+                display: block;
+            }
+        }
+        @media (max-width: 767px) {
+            .cont-item-tags {
+                max-height: 20px;
+            }
+            .col-news:first-child .cont-item-news .cont-item-left,
+            .col-news:first-child .cont-item-news .cont-item-right {
+                width: 100%;
+            }
+            .col-news:first-child .cont-item-news {
+                position: relative;
+            }
+            .col-news:first-child .cont-item-news .cont-item-right {
+                position: absolute;
+                left: 0;
+                bottom: 0;
+                z-index: 5;
+                max-height: none;
+                padding: 15px;
+            }
+            .col-news:first-child .cont-item-news .objFit-wrap {
+                padding-top: 200px;
+            }
+            .col-news:first-child .cont-item-news .objFit-wrap:before {
+                content: "";
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                z-index: 3;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(0deg, rgba(46, 48, 51, 0.6) 0%, rgba(46, 48, 51, 0) 100%);
+            }
+            .col-news:first-child a.cont-item-news .objFit-wrap:after {
+                z-index: 4;
+            }
+            .col-news:first-child .cont-item-news .cont-item-title {
+                max-height: 147px;
+                font-size: 18px;
+                color: #fff;
+                line-height: 1.2;
+                text-shadow: 0 4px 8px rgba(46, 48, 51, 0.6);
+                overflow: hidden;
+            }
+            .col-news:first-child .cont-item-news .cont-item-desc {
+                display: none;
+            }
+            .col-news:first-child .cont-item-news .cont-item-tags {
+                max-height: 26px;
+                margin: 0 -2px;
+            }
+            .col-news:first-child .cont-item-news .cont-item-tags .label {
+                margin: 0 2px 8px;
+                box-shadow: 0 4px 8px rgba(46, 48, 51, 0.6);
+            }
+        }
+    </style>
+    <style type="text/css">
+        .filter-panel {
+            width: 100%;
+            max-width: 450px;
+            padding: 10px;
+            border: 1px solid #d9dde0;
+        }
+        .filter-panel .row {
+            margin: 0 -5px;
+        }
+        .col-filter {
+            float: left;
+            width: 40%;
+            width: 50%;
+            padding: 0 5px;
+        }
+        .col-filter:first-child {
+            width: 20%;
+            width: 100%;
+            padding: 9px 5px;
+            padding: 0 5px 6px;
+        }
+        .alert-filter {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            padding: 10px 34px 10px 10px;
+            margin: 5px 0 0;
+        }
+        .alert-filter .close {
+            position: absolute;
+            top: 9px;
+            right: 10px;
+            color: #004085;
+            opacity: 0.4;
+        }
+        .alert-filter .close:focus,
+        .alert-filter .close:hover {
+            color: #004085;
+            filter: alpha(opacity=80);
+            opacity: .8;
+        }
+        .alert-info .form-group {
+            margin: 0;
+        }
+        .alert-info .input-group {
+            max-width: 450px;
+            margin-top: 10px;
+        }
+        .alert-info input[type="text"],
+        .alert-info input[type="text"]:hover {
+            border-color: #90aece;
+        }
+        .alert-info input[type="text"]:focus {
+            border-color: #1484c6;
+        }
+        @media (min-width: 768px) {
+            .filter-panel {
+                float: right;
+                margin-top: 13px;
+            }
+            .alert-filter {
+                float: right;
+            }
+        }
+        @media (min-width: 992px) {
+            .filter-panel {
+                margin-top: 0;
+            }
+            .col-filter {
+                width: 40%;
+            }
+            .col-filter:first-child {
+                width: 20%;
+                padding-top: 9px;
+                padding-bottom: 9px;
+            }
+        }
+        @media (max-width: 767px) {
+            .col-filter {
+                width: 40%;
+            }
+            .col-filter:first-child {
+                width: 20%;
+                padding-top: 9px;
+                padding-bottom: 9px;
+            }
+        }
+        @media (max-width: 400px) {
+            .col-filter {
+                width: 50%;
+            }
+            .col-filter:first-child {
+                width: 100%;
+                padding-top: 0;
+                padding-bottom: 6px;
+            }
+        }
+    </style>
+    <style type="text/css">
+        .filter-labels {
+            margin: 0 -2px;
+        }
+        .filter-labels:after, .filter-labels:before {
+            display: table;
+            content: " ";
+        }
+        .filter-labels:after {
+            clear: both;
+        }
+        .filter-labels .label {
+            display: block;
+            position: relative;
+            float: left;
+            max-width: calc(100% - 4px);
+            padding: 4px 20px 4px 6px;
+            margin: 0 2px 4px;
+            background: #003361;
+            color: #fff;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: right;
+        }
+        .filter-labels .label a {
+            display: block;
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            color: #fff;
+        }
+        @media (min-width: 768px) {
+            .filter-labels {
+                margin: 0 -4px;
+            }
+            .filter-labels .label {
+                max-width: calc(100% - 8px);
+                margin: 0 4px 8px;
+            }
+        }
+    </style>
+    <style type="text/css">
+        .twitter-timeline {
+            margin-bottom: 30px !important;
+        }
+    </style>
+<title>
+	Community news and updates - City of Greater Geelong
+</title></head>
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WLLTWZ2"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    <form name="aspnetForm" method="post" action="/news/default.aspx" id="aspnetForm">
+<div>
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="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" />
+</div>
+
+
+<script src="/ScriptResource.axd?d=oQgncFOSoZWREq8t4nLiwW_ohIANo1eeIXIyZW2wmdItKCLntk6-D1jOqM6LSoFw-CujrjcCo2q2_68cLlGbpfRn96q9Lia9XsykQ42N84-1WTuxlPVZk9TA_SPDMHXvlWGPn0ZWk5qHBJxBEx3PyO8_CqFQ7WLbeM2Iuotp73A1&amp;t=5c0e0825" type="text/javascript"></script>
+<script src="/Library/js/jquery-3.6.1.min.js" type="text/javascript"></script>
+<script src="https://maps.google.com/maps/api/js?key=AIzaSyBKLgkhmbLlCSUwpMP-5YHzHCxNtpCFdpA&amp;sensor=false" type="text/javascript"></script>
+<script src="/Library/js/main.js" type="text/javascript"></script>
+<div>
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="D32BB407" />
+	<input type="hidden" name="__VIEWSTATEENCRYPTED" id="__VIEWSTATEENCRYPTED" value="" />
+	<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="j6Bh/JJUHlLtu2AOXnA6qGgZNZYZDzxBRxkrkawRW3u16aIeMc5HgjTshze9JWdFd84xN7widxVWIgQO3BqlAjw201VJ8OzW6n4+wzRznGK/EA0l7NUzYOA6ubGBbq4igZyORToS+mwI5q4Ttip9f0v3gsJ2ir1el2yK6F1S1HplGerb8cZnHpfdT1X83EpHJBWAEPKGfahOWqG+KKCoptg+MjcN3k9m3VMoCWobQlwpdA2ojVME5uTSYgCuw6wabMc1ClonpiUsZSUyROnZLVnu5JRsobSH1XiOU4Ov1TeTiRUvBTcWNPw5FA15L6KH14Z+ivoOpwUHtgNi2kzgwlFqYi4TTIVJcTCbi+1sFu8peFIHWPJrky42GOElvjyOy8ZmA3dDY91wXcZTAP07kQs8lxY9cNoUSm6ya312ysq+RY02sayOJ/s3Lj0izM7l0VOUnhsFN1nMTgmVc2bc+Tcye71AdqVYJmvavizGwNuOu4HmsZ/w9Rsvuxx5RkxMTtso2z3LZP4GwffdbNKX3dpae7CYKBYfXVDPapR/RiR1gIJ5KkCNqzxGPvYEIkgACwep0oypWWq8nfjdNUgYQhOdX77qfOg5YCz1y2Osl46BgOYrUmWT/poOmz4fJ6o5QUYoOCoUjOosGFcfTybwwVF5/HGtdE7PGnH52qs7L38VRlT9oId2D7dZexUXTIwbfw1/tucsMZK1KN0eTSVu7Pukw1wYzAqO7UurgNkgXHmzh3nzz5OhAX6AdeUj0tCiIQQcq67XZkdR71qN6T4KCMmvC3g7N6Z4/4SqENEJhgvjSlD6dTIRlcTC2hmL7fbdC48ljVfXgLkYPSXYaCB5w4TKm5RqW4IqVjdFkqUTHgCpFldGXABRKYGsYAd6F62iHvs+hDdh4yqw9qN/T4Wpo8hC/UM3LPXm5LdO/SEdWnwk6SclO+cObDM6fmmfaE9bYDpVeNIaHMsEZOk9DM/OakcZKVJ1uiBKtuPujvqWP4rHJMkEH5jKKCoTZxCinO4SmJzh6BRgRe1N5Dv1FodngLVD9T9JMVA5MQn57ivBP40S1+2BMLEs3f0YTCmqtzvYH5B387C8fWNGn/tVQqO1b0egVWayiAS3ApUGxg8YbrP1SYHW4aEc6Z0aI9FOymYGKGaQmzE9A0wE0d9zu0GBsi6XNTdZ5Liv/Fkb0jAXH1GdofjUS+OY8iy1NQJqkOUdCZVwgLQFlybzWFM3Wh5OA85VOnssZiIKez78RpTUlat3vfDWGiaSGiT9bdJbqB5SXJDGThsOF9FCQZPA6r4esi1MjKdR9uuhaU072kSlBPrxN5ig7GTjtJbAuqrPCx2x1IJ/3pKWp9n4M4XgWM+1eGoL9tZSshQRdRcoqd0+94IQkN5KYazIa53p0Qi4uF1ILbSMtgxbKtQYdLB0cZcT8Hfz3DaxEDIDEt2NcBrWfSBfty5wb/1+hBzzm1cafQdViKkRJ2Q6+9S/WZIRM9magmX9hCdjOogG7ZcfjXuvuYeX6ZSAnom+JGNxd4B3U97FKSt9kXPgVfouoYm3ihDpBWKztMjKXM98xnAmyQPhCLFcFTD7MYQnT+Sr9ox+uMDXmA850722YwsPbQ+Tfy+FcdoYn+iLIzCTeB1+xMJHE+flct0hvidbjAX0SB+wz80wiSj+CbDrTUmm99TWPOLb4P6gfgXfCnIXCnKlsb+S9uKkJxnK5fCQk1ztUFd6Gp0bBZYDLUhqXUPG1gX/5OExFhZMw7+csSNgUp/AB5oqYYuOtqnFIeCh7HIG+NHpETk2t4KYjKJjh+Gw1Bt/7cZ6VBgu34kN7/I2Zi44hBPDp7/P1Cmf6iOEaZuZ2LeNXOTFEOdTV/9eTPiQSM6AXsjoy5kXteZC6oIhTD4xe5FqGC+7lHmxEFIvpccVbrTB6Gii" />
+</div>
+        
+        
+
+<div class="navbar navbar-global">
+    <div class="container">
+        <a class="navbar-brand" href="/default.aspx" title="City of Greater Geelong">
+            <img src="/common/public/navimages/cogg_WHT.png" alt="City of Greater Geelong" />
+        </a>
+        <div class="pull-right">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#NB_Top" aria-expanded="false" aria-controls="NB_Top">
+                <div class="close" aria-hidden="true">&times;</div>
+                <div class="icon-bar-container">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </div>
+                <span class="navbar-toggle-text">
+                    Menu
+                </span>
+            </button>
+            <div id="ctl00_ctl13_P_Search" class="form-group form-group-search pull-right hidden-xs">
+	
+                <div class="input-group">
+                    <div class="form-input">
+                        <input name="ctl00$ctl13$TB_Search" type="text" id="ctl00_ctl13_TB_Search" title="Enter a keyword" placeholder="Enter a keyword" />
+                    </div>
+                    <div class="input-group-btn">
+                        <a id="ctl00_ctl13_LB_Search" title="Search Geelong Austalia" class="btn btn-warning" href="javascript:__doPostBack(&#39;ctl00$ctl13$LB_Search&#39;,&#39;&#39;)">
+                            Search
+                        </a>
+                    </div>
+                </div>
+            
+</div>
+        </div>
+        <div id="NB_Top" class="navbar-collapse collapse">
+            <div id="ctl00_ctl13_P_Search_M" class="form-group form-group-search visible-xs">
+	
+                <div class="input-group">
+                    <div class="form-input">
+                        <input name="ctl00$ctl13$TB_Search_M" type="text" id="ctl00_ctl13_TB_Search_M" title="Enter a keyword" placeholder="Enter a keyword" />
+                    </div>
+                    <div class="input-group-btn">
+                        <a id="ctl00_ctl13_LB_Search_M" title="Search Geelong Austalia" class="btn btn-warning" href="javascript:__doPostBack(&#39;ctl00$ctl13$LB_Search_M&#39;,&#39;&#39;)">
+                            <span class="fa fa-search"></span>
+                        </a>
+                    </div>
+                </div>
+            
+</div>
+            <ul class="nav navbar-nav">
+                <li class="dropdown visible-xs visible-sm">
+                    <a href="/contact/">
+                        <span class="fa fa-phone"></span>
+                        <span>Contact us</span>
+                    </a>
+                </li>
+                <li class="dropdown">
+                    <a href="#" data-toggle="dropdown">City Council<span class="fa fa-caret-down"></span></a>
+                    <ul class="dropdown-menu">
+                        <li class="hidden-xs hidden-sm"><a href="/contact/"><span class="fa fa-phone"></span>Contact information</a></li>
+                        <li><a href="/Council/" title="About Council">About the City Council</a></li>
+                        <li><a href="/councillors/" title="Mayor and Councillors">Mayor and Councillors</a></li>
+                        <li><a href="/meetings/" title="Council meetings">Council meetings</a></li>
+                        <li><a href="/employment/" title="Employment">Employment</a></li>
+                        <li><a href="/governance/" title="Governance">Governance</a></li>
+                        <li><a href="/yoursay/" title="Have your say">Have your say</a></li>
+                        <li><a href="/news/" title="News and updates">News and updates</a></li>
+                        <li><a href="/documents/" title="Reports and documents">Reports and documents</a></li>
+                        <li><a href="/ourfuturetogether/" title="Vision and strategy">Vision and strategy</a></li>
+                    </ul>
+                </li>
+                
+                <li class="dropdown hidden-xs hidden-sm">
+                    <a class="collapsed" role="button" data-toggle="collapse" href="#P_NAVBAR_SERVICES" aria-expanded="false" aria-controls="P_NAVBAR_SERVICES">
+                        Services (A-Z)<span class="fa fa-caret-down"></span>
+                    </a>
+                </li>
+                <li class="dropdown hidden-md hidden-lg">
+                    <a href="#" data-toggle="dropdown">
+                        Services and topics (A-Z)<span class="fa fa-caret-down"></span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-services">
+                        <ul>
+                            <li><a href="/services/default.aspx?browseby=A">A</a></li>
+                            <li><a href="/services/default.aspx?browseby=B">B</a></li>
+                            <li><a href="/services/default.aspx?browseby=C">C</a></li>
+                            <li><a href="/services/default.aspx?browseby=D">D</a></li>
+                            <li><a href="/services/default.aspx?browseby=E">E</a></li>
+                            <li><a href="/services/default.aspx?browseby=F">F</a></li>
+                            <li><a href="/services/default.aspx?browseby=G">G</a></li>
+                            <li><a href="/services/default.aspx?browseby=H">H</a></li>
+                            <li><a href="/services/default.aspx?browseby=I">I</a></li>
+                            <li><a href="/services/default.aspx?browseby=J">J</a></li>
+                            <li><a href="/services/default.aspx?browseby=K">K</a></li>
+                            <li><a href="/services/default.aspx?browseby=L">L</a></li>
+                            <li><a href="/services/default.aspx?browseby=M">M</a></li>
+                            <li><a href="/services/default.aspx?browseby=N">N</a></li>
+                            <li><a href="/services/default.aspx?browseby=O">O</a></li>
+                            <li><a href="/services/default.aspx?browseby=P">P</a></li>
+                            <li><a href="/services/default.aspx?browseby=Q">Q</a></li>
+                            <li><a href="/services/default.aspx?browseby=R">R</a></li>
+                            <li><a href="/services/default.aspx?browseby=S">S</a></li>
+                            <li><a href="/services/default.aspx?browseby=T">T</a></li>
+                            <li><a href="/services/default.aspx?browseby=U">U</a></li>
+                            <li><a href="/services/default.aspx?browseby=V">V</a></li>
+                            <li><a href="/services/default.aspx?browseby=W">W</a></li>
+                            <li><a href="/services/default.aspx?browseby=X">X</a></li>
+                            <li><a href="/services/default.aspx?browseby=Y">Y</a></li>
+                            <li><a href="/services/default.aspx?browseby=Z">Z</a></li>
+                        </ul>
+                        <div class="btn-group">
+                            <a href="/arts/" title="Arts and culture"><span class="fa fa-paint-brush"></span>Arts and culture</a>
+                            <a href="/planning/" title="Building and planning"><span class="fa fa-building"></span>Building and planning</a>
+                            <a href="/business/" title="Business and investment"><span class="fa fa-briefcase"></span>Business and investment</a>
+                            <a href="/family/" title="Children, teens and families"><span class="fa fa-child"></span>Children, teens and families</a>
+                            <a href="/council/" title="Have you say"><span class="fa fa-university"></span>Council and local laws</a>
+                            <a href="/environment/" title="Environment"><span class="fa fa-leaf"></span>Environment</a>
+                            <a href="/grants/" title="Grants and funding"><span class="fa fa-handshake-o"></span>Grants and funding</a>
+                            <a href="/pets/" title="Pets and animals"><span class="fa fa-paw"></span>Pets and animals</a>
+                            <a href="/rates/" title="Rates and property"><span class="fa fa-home"></span>Rates and property</a>
+                            <a href="/parking/" title="Parking"><span class="fa fa-car"></span>Parking</a>
+                            <a href="/parks/" title="Parks and reserves"><span class="fa fa-tree"></span>Parks and reserves</a>
+                            <a href="/recycling/" title="Rubbish and recycling"><span class="fa fa-trash"></span>Rubbish and recycling</a>
+                            <a href="/roads/" title="Roads and streets"><span class="fa fa-road"></span>Roads and streets</a>
+                            
+                            <a href="/seniors/" title="Seniors"><span class="fa fa-universal-access"></span>Seniors</a>
+                            <a href="/venues/" title="Venues and facilities"><span class="fa fa-map-marker"></span>Venues and facilities</a>
+                            <a href="/services/tasks/default.aspx?browseby=pay"><span class="fa fa-dollar"></span>Pay</a>
+                            <a href="/services/tasks/default.aspx?browseby=book"><span class="fa fa-calendar-check-o"></span>Book</a>
+                            <a href="/services/tasks/default.aspx?browseby=report"><span class="fa fa-commenting"></span>Report</a>
+                        </div>
+                        <a href="/services/default.aspx">All council services and topics</a>
+                    </div>
+                </li>
+                <li class="dropdown">
+                    <a href="#" data-toggle="dropdown">Greater Geelong<span class="fa fa-caret-down"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/geelong/" title="About Greater Geelong">About Greater Geelong</a></li>
+                        <li><a href="/directory/" title="Community directory">Community directory</a></li>
+                        <li><a href="/events/" title="Events">Events</a></li>
+                        <li><a href="/maps/" title="Move to Geelong">Maps</a></li>
+                        <li><a href="/movetogeelong/" title="Move to Geelong">Move to Geelong</a></li>
+                        <li><a href="/parks/" title="Parks and reserves">Parks and reserves</a></li>
+                        <li><a href="/places/" title="Suburbs and towns">Suburbs and towns</a></li>
+                        <li><a href="/venues/" title="Venues and facilities">Venues and facilities</a></li>
+                        <li><a href="/visiting/" title="Visiting">Visiting</a></li>
+                    </ul>
+                </li>
+                <li id="ctl00_ctl13_LI_Login" class="dropdown dropdown-login">
+                    <a href="/mygeelong/login.aspx" onclick="ga('send', 'event', 'link click', 'myGeelong Login');" title="Login to myGeelong">
+                        <span class="fa fa-user-circle-o"></span>
+                        <span class="visible-xs visible-sm">Login to myGeelong</span>
+                        <span class="visible-md visible-lg">myGeelong</span>
+                    </a>
+                </li>
+                
+                <li class="dropdown visible-md visible-lg">
+                    <a href="/contact/">
+                        <span class="fa fa-phone"></span>
+                        <span>Contact</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div id="P_NAVBAR_SERVICES" class="navbar-global-services hidden-xs hidden-sm collapse">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-md-10 col-lg-9">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-4">
+                        <a href="/arts/" title="Arts and culture" class="cont-item"><span class="fa fa-paint-brush"></span>Arts and culture</a>
+                    </div>
+                    <div class="col-xs-12 col-sm-4">
+                        <a href="/planning/" title="Building and planning" class="cont-item"><span class="fa fa-building"></span>Building and planning</a>
+                    </div>
+                    <div class="col-xs-12 col-sm-4">
+                        <a href="/business/" title="Business and investment" class="cont-item"><span class="fa fa-briefcase"></span>Business and investment</a>
+                    </div>
+                    <div class="col-xs-12 col-sm-4">
+                        <a href="/family/" title="Children, teens and families" class="cont-item"><span class="fa fa-child"></span>Children, teens and families</a>
+                    </div>
+                    <div class="col-xs-12 col-sm-4">
+                        <a href="/council/" title="Have you say" class="cont-item"><span class="fa fa-university"></span>Council and local laws</a>
+                    </div>
+                    <div class="col-xs-12 col-sm-4">
+                        <a href="/environment/" title="Environment" class="cont-item"><span class="fa fa-leaf"></span>Environment</a>
+                    </div>
+                    <div class="col-xs-12 col-sm-4">
+                        <a href="/grants/" title="Grants and funding" class="cont-item"><span class="fa fa-handshake-o"></span>Grants and funding</a>
+                    </div>
+                    <div class="col-xs-12 col-sm-4">
+                        <a href="/pets/" title="Pets and animals" class="cont-item"><span class="fa fa-paw"></span>Pets and animals</a>
+                    </div>
+                    <div class="col-xs-12 col-sm-4">
+                        <a href="/rates/" title="Rates and property" class="cont-item"><span class="fa fa-home"></span>Rates and property</a>
+                    </div>
+                    <div class="col-xs-12 col-sm-4">
+                        <a href="/parking/" title="Parking" class="cont-item"><span class="fa fa-car"></span>Parking</a>
+                    </div>
+                    <div class="col-xs-12 col-sm-4">
+                        <a href="/parks/" title="Parks and reserves" class="cont-item"><span class="fa fa-tree"></span>Parks and reserves</a>
+                    </div>
+                    <div class="col-xs-12 col-sm-4">
+                        <a href="/recycling/" title="Recycling and rubbish" class="cont-item"><span class="fa fa-trash"></span>Rubbish and recycling</a>
+                    </div>
+                    <div class="col-xs-12 col-sm-4">
+                        <a href="/roads/" title="Roads and streets" class="cont-item cont-item-borderless"><span class="fa fa-road"></span>Roads and streets</a>
+                    </div>
+                    
+                    <div class="col-xs-12 col-sm-4">
+                        <a href="/seniors/" title="Seniors" class="cont-item cont-item-borderless"><span class="fa fa-universal-access"></span>Seniors</a>
+                    </div>
+                    <div class="col-xs-12 col-sm-4">
+                        <a href="/venues/" title="Venues and facilities" class="cont-item cont-item-borderless"><span class="fa fa-map-marker"></span>Venues and facilities</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-md-2 col-lg-offset-1">
+                <a href="/services/tasks/default.aspx?browseby=pay" class="service-item"><span class="fa fa-dollar"></span>Pay</a>
+                <a href="/services/tasks/default.aspx?browseby=book" class="service-item"><span class="fa fa-calendar-check-o"></span>Book</a>
+                <a href="/services/tasks/default.aspx?browseby=report" class="service-item"><span class="fa fa-commenting"></span>Report</a>
+            </div>
+        </div>
+        <br />
+        <ul class="navbar-global-services-az">
+            <li><a href="/services/default.aspx?browseby=A">A</a></li>
+            <li><a href="/services/default.aspx?browseby=B">B</a></li>
+            <li><a href="/services/default.aspx?browseby=C">C</a></li>
+            <li><a href="/services/default.aspx?browseby=D">D</a></li>
+            <li><a href="/services/default.aspx?browseby=E">E</a></li>
+            <li><a href="/services/default.aspx?browseby=F">F</a></li>
+            <li><a href="/services/default.aspx?browseby=G">G</a></li>
+            <li><a href="/services/default.aspx?browseby=H">H</a></li>
+            <li><a href="/services/default.aspx?browseby=I">I</a></li>
+            <li><a href="/services/default.aspx?browseby=J">J</a></li>
+            <li><a href="/services/default.aspx?browseby=K">K</a></li>
+            <li><a href="/services/default.aspx?browseby=L">L</a></li>
+            <li><a href="/services/default.aspx?browseby=M">M</a></li>
+            <li><a href="/services/default.aspx?browseby=N">N</a></li>
+            <li><a href="/services/default.aspx?browseby=O">O</a></li>
+            <li><a href="/services/default.aspx?browseby=P">P</a></li>
+            <li><a href="/services/default.aspx?browseby=Q">Q</a></li>
+            <li><a href="/services/default.aspx?browseby=R">R</a></li>
+            <li><a href="/services/default.aspx?browseby=S">S</a></li>
+            <li><a href="/services/default.aspx?browseby=T">T</a></li>
+            <li><a href="/services/default.aspx?browseby=U">U</a></li>
+            <li><a href="/services/default.aspx?browseby=V">V</a></li>
+            <li><a href="/services/default.aspx?browseby=W">W</a></li>
+            <li><a href="/services/default.aspx?browseby=X">X</a></li>
+            <li><a href="/services/default.aspx?browseby=Y">Y</a></li>
+            <li><a href="/services/default.aspx?browseby=Z">Z</a></li>
+        </ul>
+        <a href="/services/default.aspx" style="text-decoration: underline;"><strong>All council services and topics</strong></a>
+    </div>
+</div>
+
+        
+
+        
+        
+            <div class="breadcrumb-container">
+                <div class="container">
+                    <ul id="ctl00_bread" class="breadcrumb">
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                                <li><a href="/council/">Council</a></li>
+                            
+                        
+                        
+                        
+                        
+                        
+                        
+                    </ul>
+                </div>
+            </div>
+        
+        
+        
+        
+    <div id="fb-root"></div>
+    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v4.0"></script>
+
+        <div class="container" role="main">
+            
+    <div id="ctl00_ContentBody_UP_PROGRESS" style="display:none;">
+	
+            <div class="loader-overlay">
+                <div class="loader-wrapper">
+                    <div class="loader-inner">
+                    <svg class="loader-circle" viewBox="25 25 50 50">
+                        <circle class="path-back" cx="50" cy="50" r="20" fill="none" stroke-width="5" stroke-miterlimit="10"/>
+                        <circle class="path-front" cx="50" cy="50" r="20" fill="none" stroke-width="5" stroke-miterlimit="10"/>
+                    </svg>
+                    </div>
+                </div>
+            </div>
+        
+</div>
+    
+    
+    <div id="ctl00_ContentBody_UP_NEWS">
+	
+            
+                    
+                    
+                
+            
+            
+            
+            
+            
+            
+            
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            <div class="row">
+                <div class="col-xs-12 col-sm-6 col-md-7">
+                    <h1 style="margin-top: 0;">Community news and updates</h1>
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-5" style="padding-bottom: 20px;">
+                    <div class="filter-panel">
+                        <div class="row">
+                            <div class="col-filter">
+                                <strong>Filter by:</strong>
+                            </div>
+                            <div class="col-filter">
+                                <select name="ctl00$ContentBody$DDL_PLACES" id="ctl00_ContentBody_DDL_PLACES">
+		<option selected="selected" value="">Places</option>
+		<option value="8208">Anakie</option>
+		<option value="3084">Armstrong Creek</option>
+		<option value="3591">Avalon</option>
+		<option value="3287">Barwon Heads</option>
+		<option value="9366">Batesford</option>
+		<option value="9485">Bell Park</option>
+		<option value="2589">Bell Post Hill</option>
+		<option value="1996">Bellarine</option>
+		<option value="14069">Belmont</option>
+		<option value="9440">Breakwater</option>
+		<option value="9017">Breamlea</option>
+		<option value="20610">Ceres</option>
+		<option value="19701">Charlemont</option>
+		<option value="2580">Clifton Springs</option>
+		<option value="6177">Connewarre</option>
+		<option value="1871">Corio</option>
+		<option value="9200">Curlewis</option>
+		<option value="9491">Drumcondra</option>
+		<option value="1426">Drysdale</option>
+		<option value="12260">East Geelong</option>
+		<option value="4393">Fyansford</option>
+		<option value="2070">Geelong</option>
+		<option value="4329">Geelong West</option>
+		<option value="9301">Grovedale</option>
+		<option value="3409">Hamlyn Heights</option>
+		<option value="9488">Herne Hill</option>
+		<option value="9302">Highton</option>
+		<option value="3481">Indented Head</option>
+		<option value="2535">Lara</option>
+		<option value="2031">Leopold</option>
+		<option value="12086">Little River</option>
+		<option value="9378">Lovely Banks</option>
+		<option value="9489">Manifold Heights</option>
+		<option value="9197">Mannerim</option>
+		<option value="9198">Marcus Hill</option>
+		<option value="6187">Marshall</option>
+		<option value="558">Moolap</option>
+		<option value="2038">Moorabool</option>
+		<option value="11918">Mount Duneed</option>
+		<option value="9280">Newcomb</option>
+		<option value="2736">Newtown</option>
+		<option value="8476">Norlane</option>
+		<option value="4356">North Geelong</option>
+		<option value="6050">North Shore</option>
+		<option value="1864">Ocean Grove</option>
+		<option value="1886">Point Lonsdale</option>
+		<option value="13876">Point Wilson</option>
+		<option value="2739">Portarlington</option>
+		<option value="9490">Rippleside</option>
+		<option value="11000">South Geelong</option>
+		<option value="3171">St Albans Park</option>
+		<option value="6632">St Leonards</option>
+		<option value="21275">Swan Bay</option>
+		<option value="9487">Thomson</option>
+		<option value="9199">Wallington</option>
+		<option value="7568">Wandana Heights</option>
+		<option value="3222">Waurn Ponds</option>
+		<option value="3080">Whittington</option>
+
+	</select>
+                                
+                            </div>
+                            <div class="col-filter">
+                                <select name="ctl00$ContentBody$DDL_TOPICS" id="ctl00_ContentBody_DDL_TOPICS">
+		<option selected="selected" value="">Topics</option>
+		<option value="67">Animals</option>
+		<option value="314">Arts</option>
+		<option value="1021">Business</option>
+		<option value="144">Children</option>
+		<option value="25266">Climate change</option>
+		<option value="1856">Community Update</option>
+		<option value="3088">Environment</option>
+		<option value="141">Families</option>
+		<option value="3117">Governance</option>
+		<option value="23398">Health</option>
+		<option value="311">Infrastructure</option>
+		<option value="11430">Media Releases</option>
+		<option value="7847">Multicultural</option>
+		<option value="379">Parks</option>
+		<option value="631">Recycling</option>
+		<option value="2095">Seniors</option>
+		<option value="1403">Sports and recreation</option>
+		<option value="319">Tourism</option>
+		<option value="154">Transport</option>
+		<option value="85">Youth</option>
+
+	</select>
+                                
+                            </div>
+                        </div>
+                    </div>
+                  
+                </div>
+            </div>
+            
+            <br />
+            
+            <div id="ctl00_ContentBody_P_NEWS" class="featured-cont">
+		
+                <div id="ctl00_ContentBody_P_NEWS_TOP_ROW" class="row row-news row-news-s">
+			
+                    
+                            <div id="ctl00_ContentBody_R_NEWS_TOP_ctl00_P_COL" class="col-news col-news-s">
+				
+                                <a id="ctl00_ContentBody_R_NEWS_TOP_ctl00_HL_NEWS" title="Museum welcomes Geelong for a festive preview of Wildlife Photographer of the Year" class="cont-item cont-item-news" href="/news/item/8de2e65be4b2646.aspx">
+                                    <div class="cont-item-left">
+                                        <div class="objFit-wrap">
+                                            <img id="ctl00_ContentBody_R_NEWS_TOP_ctl00_I_NEWS" class="objFit" src="/common/public/images/638999226590808169_570x400.jpg" alt="Museum welcomes Geelong for a festive preview of Wildlife Photographer of the Year" style="border-width:0px;" />
+                                        </div>
+                                    </div>
+                                    <div class="cont-item-right">
+                                        <div class="cont-item-tags">
+                                            
+                                        </div>
+                                        <div class="cont-item-title">
+                                            Museum welcomes Geelong for a festive preview of Wildlife Photographer of the Year
+                                        </div>
+                                        
+                                        <div class="cont-item-desc">
+                                            Celebrate Christmas
+at the National Wool Museum with free entry and an exclusive look at the
+internationally acclaimed Wildlife Photographer of the Year, direct from
+the Natural History Museum, London.
+                                        </div>
+                                    </div>
+                                </a>
+                            
+			</div>
+                        
+                            <div id="ctl00_ContentBody_R_NEWS_TOP_ctl01_P_COL" class="col-news col-news-l">
+				
+                                <a id="ctl00_ContentBody_R_NEWS_TOP_ctl01_HL_NEWS" title="Creativity shines bright for Christmas in Geelong" class="cont-item cont-item-news" href="/news/item/8de2dd33fd609a7.aspx">
+                                    <div class="cont-item-left">
+                                        <div class="objFit-wrap">
+                                            <img id="ctl00_ContentBody_R_NEWS_TOP_ctl01_I_NEWS" class="objFit" src="/common/public/images/638998591625471085_1170x500.jpg" alt="Creativity shines bright for Christmas in Geelong" style="border-width:0px;" />
+                                        </div>
+                                    </div>
+                                    <div class="cont-item-right">
+                                        <div class="cont-item-tags">
+                                            
+                                        </div>
+                                        <div class="cont-item-title">
+                                            Creativity shines bright for Christmas in Geelong
+                                        </div>
+                                        
+                                        <div class="cont-item-desc">
+                                            Christmas and creativity go hand-in-hand in Geelong this festive season.
+                                        </div>
+                                    </div>
+                                </a>
+                            
+			</div>
+                        
+                            <div id="ctl00_ContentBody_R_NEWS_TOP_ctl02_P_COL" class="col-news col-news-s">
+				
+                                <a id="ctl00_ContentBody_R_NEWS_TOP_ctl02_HL_NEWS" title="New Victorian opposition leader visits Greater Geelong" class="cont-item cont-item-news" href="/news/item/8de2dd2c41d5b72.aspx">
+                                    <div class="cont-item-left">
+                                        <div class="objFit-wrap">
+                                            <img id="ctl00_ContentBody_R_NEWS_TOP_ctl02_I_NEWS" class="objFit" src="/common/public/images/638998587056506337_570x400.jpg" alt="New Victorian opposition leader visits Greater Geelong" style="border-width:0px;" />
+                                        </div>
+                                    </div>
+                                    <div class="cont-item-right">
+                                        <div class="cont-item-tags">
+                                            
+                                        </div>
+                                        <div class="cont-item-title">
+                                            New Victorian opposition leader visits Greater Geelong
+                                        </div>
+                                        
+                                        <div class="cont-item-desc">
+                                            Mayor Stretch Kontelj OAM and Committee for
+Geelong chief executive Michael Johnston have welcomed the new Victorian Leader
+of the Opposition Jess Wilson MP to Geelong today.
+                                        </div>
+                                    </div>
+                                </a>
+                            
+			</div>
+                        
+                            <div id="ctl00_ContentBody_R_NEWS_TOP_ctl03_P_COL" class="col-news col-news-l">
+				
+                                <a id="ctl00_ContentBody_R_NEWS_TOP_ctl03_HL_NEWS" title="Students take stand against gender-based violence through sport and storytelling" class="cont-item cont-item-news" href="/news/item/8de2dc5f95e3dfa.aspx">
+                                    <div class="cont-item-left">
+                                        <div class="objFit-wrap">
+                                            <img id="ctl00_ContentBody_R_NEWS_TOP_ctl03_I_NEWS" class="objFit" src="/common/public/images/638998547950979246_1170x500.jpg" alt="Students take stand against gender-based violence through sport and storytelling" style="border-width:0px;" />
+                                        </div>
+                                    </div>
+                                    <div class="cont-item-right">
+                                        <div class="cont-item-tags">
+                                            
+                                        </div>
+                                        <div class="cont-item-title">
+                                            Students take stand against gender-based violence through sport and storytelling
+                                        </div>
+                                        
+                                        <div class="cont-item-desc">
+                                            Around 150 students from 10
+Barwon-region schools participated in today&rsquo;s 2025 Barwon Respect Cup,
+as part of 16 Days of Activism against Gender-Based
+Violence activities.
+                                        </div>
+                                    </div>
+                                </a>
+                            
+			</div>
+                        
+                
+		</div>
+                <div class="row">
+                    <div class="col-xs-12 col-md-9 col-lg-8">
+                        <div class="row row-grid news-cont">
+                            
+                                    <div class="col-xs-12 col-sm-4">
+                                        <a id="ctl00_ContentBody_R_NEWS_LEFT_ctl00_HL_NEWS" title="Footpaths delivered for a better Ocean Grove" class="cont-item cont-item-news" href="/news/item/8de2d0c834609e8.aspx">
+                                            <div class="cont-item-left">
+                                                <div class="objFit-wrap">
+                                                    <img id="ctl00_ContentBody_R_NEWS_LEFT_ctl00_I_NEWS" class="objFit" src="/common/public/images/638997736299673094_th_570x400.jpg" alt="Footpaths delivered for a better Ocean Grove" style="border-width:0px;" />
+                                                </div>
+                                            </div>
+                                            <div class="cont-item-right">
+                                                <div class="cont-item-tags">
+                                                    
+                                                </div>
+                                                <div class="cont-item-title">
+                                                    Footpaths delivered for a better Ocean Grove
+                                                </div>
+                                                
+                                                <div class="cont-item-desc">
+                                                    Ocean Grove residents are now
+better connected thanks to the ongoing delivery of new footpaths under the
+Ocean Grove Principal Pedestrian Network.
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                
+                                    <div class="col-xs-12 col-sm-4">
+                                        <a id="ctl00_ContentBody_R_NEWS_LEFT_ctl01_HL_NEWS" title="Geelong Major Events deliver $93 million boost and world-class recognition" class="cont-item cont-item-news" href="/news/item/8de2d0bce1cb89e.aspx">
+                                            <div class="cont-item-left">
+                                                <div class="objFit-wrap">
+                                                    <img id="ctl00_ContentBody_R_NEWS_LEFT_ctl01_I_NEWS" class="objFit" src="/common/public/images/638997727450217956_th_570x400.jpg" alt="Geelong Major Events deliver $93 million boost and world-class recognition" style="border-width:0px;" />
+                                                </div>
+                                            </div>
+                                            <div class="cont-item-right">
+                                                <div class="cont-item-tags">
+                                                    
+                                                </div>
+                                                <div class="cont-item-title">
+                                                    Geelong Major Events deliver $93 million boost and world-class recognition
+                                                </div>
+                                                
+                                                <div class="cont-item-desc">
+                                                    The Greater Geelong economy
+received a $93 million boost in 2024-25 from hosting 12 major events sponsored
+by Geelong Major Events (GME).
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                
+                                    <div class="col-xs-12 col-sm-4">
+                                        <a id="ctl00_ContentBody_R_NEWS_LEFT_ctl02_HL_NEWS" title="City continues successful business visitation program in Lara" class="cont-item cont-item-news" href="/news/item/8de2d0616b381de.aspx">
+                                            <div class="cont-item-left">
+                                                <div class="objFit-wrap">
+                                                    <img id="ctl00_ContentBody_R_NEWS_LEFT_ctl02_I_NEWS" class="objFit" src="/common/public/images/638997703260214536_th_570x400.jpg" alt="City continues successful business visitation program in Lara" style="border-width:0px;" />
+                                                </div>
+                                            </div>
+                                            <div class="cont-item-right">
+                                                <div class="cont-item-tags">
+                                                    
+                                                </div>
+                                                <div class="cont-item-title">
+                                                    City continues successful business visitation program in Lara
+                                                </div>
+                                                
+                                                <div class="cont-item-desc">
+                                                    Mayor Stretch Kontelj OAM and You Yangs Ward Councillor Chris
+Burson joined the City&rsquo;s successful business visitation program in Lara, supporting
+its ongoing engagement with local businesses.
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                
+                                    <div class="col-xs-12 col-sm-4">
+                                        <a id="ctl00_ContentBody_R_NEWS_LEFT_ctl03_HL_NEWS" title="Support for community members to encourage responsible pet ownership" class="cont-item cont-item-news" href="/news/item/8de2cd20ea7ab19.aspx">
+                                            <div class="cont-item-left">
+                                                <div class="objFit-wrap">
+                                                    <img id="ctl00_ContentBody_R_NEWS_LEFT_ctl03_I_NEWS" class="objFit" src="/common/public/images/638997481986701149_th_570x400.jpg" alt="Support for community members to encourage responsible pet ownership" style="border-width:0px;" />
+                                                </div>
+                                            </div>
+                                            <div class="cont-item-right">
+                                                <div class="cont-item-tags">
+                                                    
+                                                </div>
+                                                <div class="cont-item-title">
+                                                    Support for community members to encourage responsible pet ownership
+                                                </div>
+                                                
+                                                <div class="cont-item-desc">
+                                                    Two new dog parks and targeted educational
+campaigns about doggy etiquette and the benefits of cat desexing are among a
+comprehensive list of actions the City will commit to delivering over the next
+four years.
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                
+                                    <div class="col-xs-12 col-sm-4">
+                                        <a id="ctl00_ContentBody_R_NEWS_LEFT_ctl04_HL_NEWS" title="National Wool Museum celebrates 160 years of Godfrey Hirst with new exhibition." class="cont-item cont-item-news" href="/news/item/8de2c22f283be08.aspx">
+                                            <div class="cont-item-left">
+                                                <div class="objFit-wrap">
+                                                    <img id="ctl00_ContentBody_R_NEWS_LEFT_ctl04_I_NEWS" class="objFit" src="/common/public/images/638996730353386417_th_570x400.jpg" alt="National Wool Museum celebrates 160 years of Godfrey Hirst with new exhibition." style="border-width:0px;" />
+                                                </div>
+                                            </div>
+                                            <div class="cont-item-right">
+                                                <div class="cont-item-tags">
+                                                    
+                                                </div>
+                                                <div class="cont-item-title">
+                                                    National Wool Museum celebrates 160 years of Godfrey Hirst with new exhibition.
+                                                </div>
+                                                
+                                                <div class="cont-item-desc">
+                                                    The
+National Wool Museum is proud to announce the opening of Made in Geelong:
+Godfrey Hirst, an exhibition honouring the legacy of Geelong&rsquo;s first
+textile company and its founder, Godfrey Hirst.&nbsp;
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                
+                                    <div class="col-xs-12 col-sm-4">
+                                        <a id="ctl00_ContentBody_R_NEWS_LEFT_ctl05_HL_NEWS" title="Geelong Laneways: Malop Arcade project awarded prize at 2025 Australian Institute of Architects National Awards " class="cont-item cont-item-news" href="/news/item/8de2c0668f50bfd.aspx">
+                                            <div class="cont-item-left">
+                                                <div class="objFit-wrap">
+                                                    <img id="ctl00_ContentBody_R_NEWS_LEFT_ctl05_I_NEWS" class="objFit" src="/common/public/images/638996651386454441_th_570x400.jpg" alt="Geelong Laneways: Malop Arcade project awarded prize at 2025 Australian Institute of Architects National Awards " style="border-width:0px;" />
+                                                </div>
+                                            </div>
+                                            <div class="cont-item-right">
+                                                <div class="cont-item-tags">
+                                                    
+                                                </div>
+                                                <div class="cont-item-title">
+                                                    Geelong Laneways: Malop Arcade project awarded prize at 2025 Australian Institute of Architects National Awards 
+                                                </div>
+                                                
+                                                <div class="cont-item-desc">
+                                                    <p>The Geelong Laneways: Malop Arcade project has been awarded the 2025 Australian Institute of Architects National Award for Small Project Architecture, recognising the innovative transformation of central Geelong laneways.</p>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                
+                                    <div class="col-xs-12 col-sm-4">
+                                        <a id="ctl00_ContentBody_R_NEWS_LEFT_ctl06_HL_NEWS" title="Carols and tree unite for sparkling Christmas in Geelong opening night" class="cont-item cont-item-news" href="/news/item/8de2c077b6bf2b6.aspx">
+                                            <div class="cont-item-left">
+                                                <div class="objFit-wrap">
+                                                    <img id="ctl00_ContentBody_R_NEWS_LEFT_ctl06_I_NEWS" class="objFit" src="/common/public/images/638996612629041614_th_1170x500.jpg" alt="Carols and tree unite for sparkling Christmas in Geelong opening night" style="border-width:0px;" />
+                                                </div>
+                                            </div>
+                                            <div class="cont-item-right">
+                                                <div class="cont-item-tags">
+                                                    
+                                                </div>
+                                                <div class="cont-item-title">
+                                                    Carols and tree unite for sparkling Christmas in Geelong opening night
+                                                </div>
+                                                
+                                                <div class="cont-item-desc">
+                                                    A picture-perfect pairing of music and lights made for a joyous opening of the Christmas in Geelong program on Saturday night.
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                
+                                    <div class="col-xs-12 col-sm-4">
+                                        <a id="ctl00_ContentBody_R_NEWS_LEFT_ctl07_HL_NEWS" title="New footpath works to enhance Pakington Street precinct" class="cont-item cont-item-news" href="/news/item/8de291e2561c7a9.aspx">
+                                            <div class="cont-item-left">
+                                                <div class="objFit-wrap">
+                                                    <img id="ctl00_ContentBody_R_NEWS_LEFT_ctl07_I_NEWS" class="objFit" src="/common/public/images/638993411126946908_th_1170x500.jpg" alt="New footpath works to enhance Pakington Street precinct" style="border-width:0px;" />
+                                                </div>
+                                            </div>
+                                            <div class="cont-item-right">
+                                                <div class="cont-item-tags">
+                                                    
+                                                </div>
+                                                <div class="cont-item-title">
+                                                    New footpath works to enhance Pakington Street precinct
+                                                </div>
+                                                
+                                                <div class="cont-item-desc">
+                                                    Work to renew the footpath
+along Pakington Street&rsquo;s bustling shopping precinct is set to begin after Pako
+Festa 2026.
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                
+                                    <div class="col-xs-12 col-sm-4">
+                                        <a id="ctl00_ContentBody_R_NEWS_LEFT_ctl08_HL_NEWS" title="A new chapter in capital projects and service delivery" class="cont-item cont-item-news" href="/news/item/8de2915daf45a6e.aspx">
+                                            <div class="cont-item-left">
+                                                <div class="objFit-wrap">
+                                                    <img id="ctl00_ContentBody_R_NEWS_LEFT_ctl08_I_NEWS" class="objFit" src="/common/public/images/638993376872397063_th_1170x500.jpg" alt="A new chapter in capital projects and service delivery" style="border-width:0px;" />
+                                                </div>
+                                            </div>
+                                            <div class="cont-item-right">
+                                                <div class="cont-item-tags">
+                                                    
+                                                </div>
+                                                <div class="cont-item-title">
+                                                    A new chapter in capital projects and service delivery
+                                                </div>
+                                                
+                                                <div class="cont-item-desc">
+                                                    A chapter defined by major project investment and delivery tells the story of a growing and engaged community in Greater Geelong.
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-3 col-lg-offset-1">
+                        <div class="row row-grid news-cont">
+                            
+                                    <div class="col-xs-12 col-sm-4 col-md-12">
+                                        <a id="ctl00_ContentBody_R_NEWS_MORE_ctl00_HL_NEWS" title="Council adopts two plans to support asset management" class="cont-item cont-item-news" href="/news/item/8de1d45d6ce084d.aspx">
+                                            <div class="cont-item-tags">
+                                                
+                                            </div>
+                                            <div class="cont-item-title">
+                                                Council adopts two plans to support asset management
+                                            </div>
+                                            
+                                            <div class="cont-item-desc">
+                                                Council has adopted two plans to guide the sustainable management of its extensive infrastructure portfolio: the Asset Plan 2025&ndash;35, and the reviewed Municipal Road Management Plan.
+                                            </div>
+                                        </a>
+                                    </div>
+                                
+                                    <div class="col-xs-12 col-sm-4 col-md-12">
+                                        <a id="ctl00_ContentBody_R_NEWS_MORE_ctl01_HL_NEWS" title="Help shape the future of the Geelong West Community Hub" class="cont-item cont-item-news" href="/news/item/8de1c7749f6fde1.aspx">
+                                            <div class="cont-item-tags">
+                                                
+                                            </div>
+                                            <div class="cont-item-title">
+                                                Help shape the future of the Geelong West Community Hub
+                                            </div>
+                                            
+                                            <div class="cont-item-desc">
+                                                We&rsquo;re calling on the Geelong West community to give feedback on a draft concept plan for the Geelong West Community Hub.
+                                            </div>
+                                        </a>
+                                    </div>
+                                
+                                    <div class="col-xs-12 col-sm-4 col-md-12">
+                                        <a id="ctl00_ContentBody_R_NEWS_MORE_ctl02_HL_NEWS" title="Local creatives receive support through Creative Seed grants" class="cont-item cont-item-news" href="/news/item/8de1ac6119a769c.aspx">
+                                            <div class="cont-item-tags">
+                                                
+                                            </div>
+                                            <div class="cont-item-title">
+                                                Local creatives receive support through Creative Seed grants
+                                            </div>
+                                            
+                                            <div class="cont-item-desc">
+                                                The City of Greater Geelong has awarded over $19,000 in Creative Seed grants to eight recipients for projects that will enrich Greater Geelong&rsquo;s creative and cultural landscape.
+                                            </div>
+                                        </a>
+                                    </div>
+                                
+                                    <div class="col-xs-12 col-sm-4 col-md-12">
+                                        <a id="ctl00_ContentBody_R_NEWS_MORE_ctl03_HL_NEWS" title="Council adopts financial plan for the next decade" class="cont-item cont-item-news" href="/news/item/8de17946ab2758f.aspx">
+                                            <div class="cont-item-tags">
+                                                
+                                            </div>
+                                            <div class="cont-item-title">
+                                                Council adopts financial plan for the next decade
+                                            </div>
+                                            
+                                            <div class="cont-item-desc">
+                                                Council has voted to adopt the Long Term Financial Plan 2025-35 at this month's Council Meeting, establishing a roadmap to ensure financial sustainability for the long term.
+                                            </div>
+                                        </a>
+                                    </div>
+                                
+                                    <div class="col-xs-12 col-sm-4 col-md-12">
+                                        <a id="ctl00_ContentBody_R_NEWS_MORE_ctl04_HL_NEWS" title="Help shape our Special Rates and Charges Policy" class="cont-item cont-item-news" href="/news/item/8de1251d4c84550.aspx">
+                                            <div class="cont-item-tags">
+                                                
+                                            </div>
+                                            <div class="cont-item-title">
+                                                Help shape our Special Rates and Charges Policy
+                                            </div>
+                                            
+                                            <div class="cont-item-desc">
+                                                The City of
+Greater Geelong is seeking community input on an update to the Special Rates
+and Charges (SRC) Policy to ensure it is clear, practical and easy to
+understand.
+                                            </div>
+                                        </a>
+                                    </div>
+                                
+                                    <div class="col-xs-12 col-sm-4 col-md-12">
+                                        <a id="ctl00_ContentBody_R_NEWS_MORE_ctl05_HL_NEWS" title="City welcomes state floodplain management reforms " class="cont-item cont-item-news" href="/news/item/8de121822322887.aspx">
+                                            <div class="cont-item-tags">
+                                                
+                                            </div>
+                                            <div class="cont-item-title">
+                                                City welcomes state floodplain management reforms 
+                                            </div>
+                                            
+                                            <div class="cont-item-desc">
+                                                The
+City of Greater Geelong has welcomed an announcement from the Victorian
+Government on reforms to strengthen floodplain management across the state.
+                                            </div>
+                                        </a>
+                                    </div>
+                                
+                        </div>
+                    </div>
+                </div>
+                <p><a href="/news/all/default.aspx"><strong>View all news and updates</strong></a>
+					
+
+                </p>
+                <br />
+                <br class="hidden-xs" />
+            
+	</div>
+            
+            
+            
+            
+            
+            
+            
+            
+        
+</div>
+
+	 <div class="row">
+   
+	
+			
+ <div class="col-sm-12"> 
+	 <div class="related">
+	 <h3>Follow us</h3>
+
+	 </div>
+      
+	 <br /><br />
+</div>
+ 
+ </div> 
+        <div class="row">
+
+
+           
+            <div class="col-xs-12 col-sm-6 col-md-4">
+                <a class="twitter-timeline" data-height="500" href="https://twitter.com/GreaterGeelong?ref_src=twsrc%5Etfw">Tweets by GreaterGeelong</a>
+                <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-4">
+                <div class="fb-page" data-href="https://www.facebook.com/cityofgreatergeelong" data-tabs="timeline" data-width="500px" data-height="500px" data-small-header="true" data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="false">
+                    <blockquote cite="https://www.facebook.com/cityofgreatergeelong" class="fb-xfbml-parse-ignore">
+                        <a href="https://www.facebook.com/cityofgreatergeelong">City of Greater Geelong</a>
+                    </blockquote>
+                </div>
+            </div>
+			  <div class="col-xs-12 col-sm-6 col-md-4">
+				    <div class="panel" style="background-color:#a6e0e8;" >
+       
+      
+					
+				 <h4 class="read-text"><span class="fa fa-envelope" aria-hidden="true" style="margin-right:8px;"></span>eNewsletter </h4><p>Get our weekly CITY NEWS email.</p><br/><a href="https://comms.geelongcity.vic.gov.au/citynewssubscribe" class="btn" style="">Subscribe</a>
+				 </div> 
+			  </div>
+        </div>
+   
+
+        </div>
+        
+        
+        
+<div class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-md-8">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-7 col-md-12">
+                        <div id="ctl00_global_footer_P_Out">
+	
+                            <ul class="footer-list">
+                                <li>
+                                    <a href="/contact/default.aspx" title="Contact information">Contact information</a>
+                                </li>
+                                <li>
+                                    <a href="/mygeelong/login.aspx" title="MyGeelong">MyGeelong</a>
+                                </li>
+                                <li>
+                                    <a href="/conditions/" title="Conditions and privacy">Conditions and privacy</a>
+                                </li>
+                            </ul>
+                        
+</div>
+                        
+                    </div>
+                    <div class="col-sm-5 visible-sm">
+                        <a class="footer-brand" href="https://geelongaustralia.com.au/" title="City of Greater Geelong">
+                            <img src="https://www.geelongaustralia.com.au/common/public/navimages/cogg_WHT.png" id="ctl00_global_footer_IMG_WHT_SM" alt="City of Greater Geelong - logo" />
+                            
+                        </a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-translate">
+                        <h4><span class="fa fa-language"></span>Translate</h4>
+                        <div class="form-translate">
+                            
+
+<div id="google_translate_element"></div>
+<script type="text/javascript">
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({
+        pageLanguage: 'en',
+        //autoDisplay: false,
+        multilanguagePage: true,
+        gaTrack: true,
+	    layout: google.translate.TranslateElement.InlineLayout.HORIZONTAL,
+        gaId: 'UA-8181773-1'
+      }, 'google_translate_element');
+    }
+</script>
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" type="text/javascript"></script>
+                        </div>
+                    </div>
+                    <div class="col-tis">
+                        <a class="btn-tis" href="/contact/languages.aspx" title="Translating and Interpreting Service" onclick="ga('send', 'event', 'link click', 'footer', 'Translating and Interpreting Service');">
+                            <img src="/common/public/icons/translate-o.svg" alt="Translating and Interpreting Service - logo" />
+                        </a>
+                    </div>
+                    <div class="col-follow">
+                        <h4>Follow</h4>
+                        <ul class="footer-icons">
+                            <li>
+                                <a href="https://www.facebook.com/cityofgreatergeelong" target="_blank" title="Our Facebook page" onclick="ga('send', 'event', 'link click', 'footer', 'facebook - Geelong Australia');">
+                                    <div class="fa fa-facebook-f"></div>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://twitter.com/greatergeelong" target="_blank" title="Our Twitter" onclick="ga('send', 'event', 'link click', 'footer', 'twitter - Geelong Australia');">
+                                    <div class="fa fa-twitter"></div>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://www.youtube.com/user/CityofGreaterGeelong" target="_blank" title="Our Youtube channel" onclick="ga('send', 'event', 'link click', 'footer', 'youtube - Geelong Australia');">
+                                    <div class="fa fa-youtube-play"></div>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://www.instagram.com/cityofgreatergeelong" target="_blank" title="Our Instagram" onclick="ga('send', 'event', 'link click', 'footer', 'instagram - Geelong Australia');">
+                                    <div class="fa fa-instagram"></div>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://www.linkedin.com/company/cityofgreatergeelong" target="_blank" title="Our Linked in" onclick="ga('send', 'event', 'link click', 'footer', 'linkedin - Geelong Australia');">
+                                    <div class="fa fa-linkedin"></div>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-app">
+                        <h4>App</h4>
+                        <ul class="footer-icons">
+                            <li>
+                                <a href="https://play.google.com/store/apps/details?id=mobi.geelongcity&hl=en" target="_blank" title="Geelong City app on the Google Play store" onclick="ga('send', 'event', 'link click', 'footer', 'Google Play - Geelong Australia');">
+                                    <div class="fa fa-android"></div>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://itunes.apple.com/au/app/geelong-city/id553730452?mt=8" target="_blank" title="Geelong City app on the Apple App store" onclick="ga('send', 'event', 'link click', 'footer', 'Apple App store - Geelong Australia');">
+                                    <div class="fa fa-apple"></div>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-md-4 hidden-xs hidden-sm">
+                <a class="footer-brand" href="https://geelongaustralia.com.au/" title="City of Greater Geelong">
+                    <img src="https://www.geelongaustralia.com.au/common/public/navimages/cogg_WHT.png" id="ctl00_global_footer_IMG_WHT" alt="City of Greater Geelong - logo" />
+                    
+                </a>
+            </div>
+        </div>
+        <div class="cont-atsi">
+            <img src="https://www.geelongaustralia.com.au/common/public/icons/atsi-flags.png" alt="Aboriginal and Torres Strait Islander flags"/>
+           We Acknowledge the Wadawurrung People as the Traditional Owners of the Land, Waterways and Skies. We pay our respects to their Elders, past, present and emerging. We Acknowledge all Aboriginal and Torres Strait Islander people who are part of our Greater Geelong community today. </div>
+        <a class="footer-brand visible-xs" href="https://geelongaustralia.com.au/" title="City of Greater Geelong">
+            <img src="https://www.geelongaustralia.com.au/common/public/navimages/cogg_WHT.png" id="ctl00_global_footer_IMG_WHT_XS" alt="City of Greater Geelong - logo" />
+            
+        </a>
+    </div>
+</div>
+
+    </form>
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    
+    <script type="text/javascript" src="/Library/js/bootstrap3/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script type="text/javascript">
+        /*!
+        * IE10 viewport hack for Surface/desktop Windows 8 bug
+        * Copyright 2014-2015 Twitter, Inc.
+        * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+        */
+
+        // See the Getting Started docs for more information:
+        // http://getbootstrap.com/getting-started/#support-ie10-width
+
+        (function () {
+            'use strict';
+
+            if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
+                var msViewportStyle = document.createElement('style')
+                msViewportStyle.appendChild(
+                    document.createTextNode(
+                    '@-ms-viewport{width:auto!important}'
+                    )
+                )
+                document.querySelector('head').appendChild(msViewportStyle)
+            }
+
+        })();
+    </script>
+    <script type="text/javascript" src="/Library/js/bootstrap3/respond.min.js"></script>
+    <script type="text/javascript" src="/Library/js/rs/ReadSpeaker.js?pids=embhl"></script>
+    <script type="text/javascript" src="/Library/js/ga_gallery.js"></script>
+    <script type="text/javascript" src="/Library/js/ga_stepLoad.js"></script>
+    <script type="text/javascript" src="/Library/js/ga_validatorCheck.js"></script>
+    <script type="text/javascript" src="/Library/js/ga_objFit.js"></script>
+    <script type="text/javascript" src="/Library/js/ga_core.js"></script>
+    <script type="text/javascript">
+        (function (i, s, o, g, r, a, m) {
+            i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date(); a = s.createElement(o),
+            m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+        ga('create', 'UA-8181773-1', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <svg xmlns="http://www.w3.org/2000/svg" width="1140" height="500" viewbox="0 0 1140 500"
+        preserveaspectratio="none" style="display: none; visibility: hidden; position: absolute; top: -100%; left: -100%;">
+        <defs>
+            <style type="text/css"></style>
+        </defs>
+        <text x="0" y="57" style="font-weight: bold; font-size: 57pt; font-family: Arial, Helvetica, Open Sans, sans-serif">Thirdslide</text>
+    </svg>
+</body>
+</html>

@@ -6,10 +6,11 @@ Provides common functionality for scraping news articles from Victorian council 
 
 import re
 import subprocess
+import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from urllib.parse import urljoin
 
 import requests
@@ -59,7 +60,7 @@ class BaseScraper(ABC):
         'Upgrade-Insecure-Requests': '1',
     }
     
-    def __init__(self, council_id: str, council_name: str, news_url: str, use_curl: bool = False):
+    def __init__(self, council_id: str, council_name: str, news_url: str, use_curl: bool = False, mobile_mode: bool = False, limit: Optional[int] = None, proxy: Optional[str] = None):
         """
         Initialize the scraper.
         
@@ -68,17 +69,27 @@ class BaseScraper(ABC):
             council_name: Human-readable council name
             news_url: URL of the council's news page
             use_curl: Whether to use curl for WAF bypass
+            mobile_mode: Whether to impersonate a mobile device (iPhone)
+            limit: Maximum number of articles to scrape
+            proxy: Proxy URL (e.g. http://user:pass@host:port)
         """
         self.council_id = council_id
         self.council_name = council_name
         self.news_url = news_url
         self.use_curl = use_curl
+        self.mobile_mode = mobile_mode
+        self.limit = limit
+        self.proxy = proxy
         self.session = requests.Session()
         self.session.headers.update(self.HEADERS)
+        
+        # Don't set proxies immediately - we'll try direct first in fetch_page
+        # unless we decide otherwise later.
     
     def fetch_page(self, url: str) -> Optional[str]:
         """
         Fetch a web page, handling WAF protection if needed.
+        Try direct connection first, then fallback to proxy if configured.
         
         Args:
             url: URL to fetch
@@ -86,9 +97,33 @@ class BaseScraper(ABC):
         Returns:
             HTML content as string, or None if fetch failed
         """
+        # 1. Try Direct First
+        # Clear proxies for direct attempt
+        self.session.proxies = {}
+        
+        content = None
         if self.use_curl:
-            return self._fetch_with_curl(url)
-        return self._fetch_with_requests(url)
+            content = self._fetch_with_curl(url, use_proxy=False)
+        else:
+            content = self._fetch_with_requests(url)
+            
+        if content:
+            return content
+            
+        # 2. Fallback to Proxy
+        if self.proxy:
+            print(f"Direct fetch failed for {url}, retrying with proxy...")
+            self.session.proxies = {
+                'http': self.proxy,
+                'https': self.proxy
+            }
+            
+            if self.use_curl:
+                return self._fetch_with_curl(url, use_proxy=True)
+            else:
+                return self._fetch_with_requests(url)
+                
+        return None
     
     def _fetch_with_requests(self, url: str) -> Optional[str]:
         """Fetch page using requests library."""
@@ -97,27 +132,50 @@ class BaseScraper(ABC):
             response.raise_for_status()
             return response.text
         except requests.RequestException as e:
-            print(f"Error fetching {url}: {e}")
+            # Only print error if we're not going to retry or if it's a proxy failure
+            if self.session.proxies:
+                print(f"Error fetching {url} (with proxy): {e}")
+            else:
+                # Don't spam logs for direct failures if we have a proxy fallback
+                if not self.proxy:
+                    print(f"Error fetching {url}: {e}")
             return None
     
-    def _fetch_with_curl(self, url: str) -> Optional[str]:
+    def _fetch_with_curl(self, url: str, use_proxy: bool = False) -> Optional[str]:
         """Fetch page using curl for WAF bypass."""
+        print(f"DEBUG: Fetching with curl (Proxy: {use_proxy}): {url}")
         try:
+            # Try simple curl first (often works better than spoofed headers for Akamai)
+            cmd = [
+                'curl', '-s', '-L',
+                # '-A', self.HEADERS['User-Agent'],
+                # '-H', f"Accept: {self.HEADERS['Accept']}",
+                # '-H', f"Accept-Language: {self.HEADERS['Accept-Language']}",
+                '--connect-timeout', '30',
+                '--max-time', '60'
+            ]
+            
+            if self.mobile_mode:
+                cmd.extend([
+                    '-A', 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+                    '--http1.1'
+                ])
+            
+            if use_proxy and self.proxy:
+                cmd.extend(['--proxy', self.proxy])
+                
+            cmd.append(url)
+            
             result = subprocess.run(
-                [
-                    'curl', '-s', '-L',
-                    '-A', self.HEADERS['User-Agent'],
-                    '-H', f"Accept: {self.HEADERS['Accept']}",
-                    '-H', f"Accept-Language: {self.HEADERS['Accept-Language']}",
-                    '--connect-timeout', '30',
-                    '--max-time', '60',
-                    url
-                ],
+                cmd,
                 capture_output=True,
                 text=True,
                 timeout=90
             )
             if result.returncode == 0 and result.stdout:
+                print(f"DEBUG: Curl success, length: {len(result.stdout)}")
+                if len(result.stdout) < 1000:
+                    print(f"DEBUG: Short content: {result.stdout}")
                 return result.stdout
             print(f"Curl error for {url}: {result.stderr}")
             return None
@@ -153,19 +211,26 @@ class BaseScraper(ABC):
             return None
         
         # Clean up common prefixes
-        date_str = re.sub(r'^(Published|Updated|Posted)\s*', '', date_str, flags=re.IGNORECASE)
+        date_str = re.sub(r'^(Published|Updated|Posted|Last updated|News|Media Release)( on)?[:\s/|-]*', '', date_str, flags=re.IGNORECASE)
         date_str = date_str.strip()
         
         try:
             return date_parser.parse(date_str, dayfirst=True)
         except (ValueError, TypeError):
-            return None
+            # Try fuzzy parsing as a fallback
+            try:
+                return date_parser.parse(date_str, dayfirst=True, fuzzy=True)
+            except (ValueError, TypeError):
+                return None
     
     def clean_text(self, text: str) -> str:
         """Clean and normalize text content."""
-        if not text:
+        if text is None:
             return ""
             
+        if not isinstance(text, str):
+            return str(text)
+
         # Fix common mojibake (UTF-8 bytes interpreted as Windows-1252/Latin-1)
         replacements = {
             'â': "'",
@@ -185,11 +250,14 @@ class BaseScraper(ABC):
         }
         
         for bad, good in replacements.items():
-            text = text.replace(bad, good)
+            if text:
+                text = text.replace(bad, good)
             
         # Normalize whitespace
-        text = re.sub(r'\s+', ' ', text)
-        return text.strip()
+        if text:
+            text = re.sub(r'\s+', ' ', text)
+            return text.strip()
+        return ""
     
     @abstractmethod
     def scrape(self) -> List[NewsArticle]:
@@ -250,11 +318,56 @@ class CardScraper(BaseScraper):
     # Note: .media-item with a.media-link is Webflow pattern (Wellington, etc)
     # Note: article.news-item is Greater Shepparton pattern (use specific class to avoid generic articles)
     # Note: article.listing is Cardinia pattern (listing__heading + listing__summary)
-    ARTICLE_SELECTOR = 'article.news-item, article.listing, .news-card, .listing-item, .views-row, .content-card, .article-container, .media-item, a.card--news, a.card__news-listing, a.card[href*="/news/"], div.card, .article-item'
+    # Note: a.cont-item-news is Greater Geelong pattern
+    # Note: .card-medium is Melbourne City Council pattern
+    # Note: .i-tile is Port Phillip pattern
+    # Note: .list-item-container is Darebin pattern
+    ARTICLE_SELECTOR = 'article.news-item, article.listing, .news-card, .listing-item, .views-row, .content-card, .article-container, .media-item, a.card--news, a.card__news-listing, a.card[href*="/news/"], div.card, .article-item, a.cont-item-news, .card-medium, .i-tile, .list-item-container, a.card-y'
     TITLE_SELECTOR = 'h2 a, h3 a, .title a, a.title, .field--name-title a, .news-title a, a[href*="/news/"]'
     DATE_SELECTOR = '.date, .published, time, .meta-date, .field--name-created, .news-date, .card__meta'
     EXCERPT_SELECTOR = '.card__description, .excerpt, .summary, .description, .field--name-body, .teaser, p'
     
+    def __init__(self, council_id: str, council_name: str, news_url: str, use_curl: bool = False, mobile_mode: bool = False, selectors: Optional[Dict[str, str]] = None, limit: Optional[int] = None, proxy: Optional[str] = None):
+        super().__init__(council_id, council_name, news_url, use_curl, mobile_mode, limit, proxy)
+        self.selectors = selectors or {}
+
+    def _get_clean_title(self, element) -> str:
+        """Extract title text from an element, excluding date/metadata elements."""
+        if not element:
+            return ""
+            
+        # If element has no children (just text), return it
+        if not hasattr(element, 'children'):
+            # Ensure we use a separator if it's a Tag that somehow got here
+            if hasattr(element, 'get_text'):
+                return element.get_text(" ", strip=True)
+            return str(element).strip()
+            
+        text_parts = []
+        for child in element.children:
+            if child.name:
+                # Check classes
+                classes = child.get('class', [])
+                if isinstance(classes, list):
+                    classes_str = ' '.join(classes)
+                else:
+                    classes_str = str(classes)
+                
+                # Skip known metadata elements
+                # 'label' is used by Warren Shire for date
+                # 'date', 'time', 'published' are common
+                if any(c in classes_str for c in ['date', 'published', 'time', 'meta', 'label', 'right']):
+                    continue
+                if child.name == 'time':
+                    continue
+                    
+                # Recursively get text from child
+                text_parts.append(child.get_text(" ", strip=True))
+            elif child.string:
+                text_parts.append(child.string.strip())
+                
+        return " ".join(filter(None, text_parts))
+
     def scrape(self) -> List[NewsArticle]:
         """Scrape news articles from the news page."""
         articles = []
@@ -266,7 +379,12 @@ class CardScraper(BaseScraper):
         soup = self.parse_html(html)
         
         # First try structured article elements
-        for item in soup.select(self.ARTICLE_SELECTOR):
+        # Use configured selector if available, otherwise use default list
+        article_selector = self.selectors.get('item_selector') or self.ARTICLE_SELECTOR
+        
+        for item in soup.select(article_selector):
+            if self.limit and len(articles) >= self.limit:
+                break
             article = self._parse_article(item)
             if article:
                 articles.append(article)
@@ -274,9 +392,43 @@ class CardScraper(BaseScraper):
         # If no articles found, try finding news links directly
         if not articles:
             articles = self._scrape_links_directly(soup)
+            if self.limit:
+                articles = articles[:self.limit]
+            
+        # If we have articles but missing dates, and a date_selector is configured,
+        # try fetching the detail page to find the date.
+        # This handles sites where the date is only on the detail page (e.g. Geelong, Melbourne).
+        if self.selectors.get('date_selector'):
+            # Limit to first 10 to avoid excessive requests
+            for article in articles[:10]:
+                if not article.date:
+                    self._fetch_article_details(article)
+                    # Be polite
+                    time.sleep(0.2)
         
         return articles
     
+    def _fetch_article_details(self, article: NewsArticle):
+        """Fetch article page to find the date."""
+        try:
+            html = self.fetch_page(article.url)
+            if not html:
+                return
+                
+            soup = self.parse_html(html)
+            
+            # Try configured date_selector
+            date_selector = self.selectors.get('date_selector')
+            if date_selector:
+                date_elem = soup.select_one(date_selector)
+                if date_elem:
+                    text = date_elem.get_text(strip=True)
+                    # Remove common prefixes
+                    text = re.sub(r'^(Published|Date|Posted|Updated):\s*', '', text, flags=re.IGNORECASE)
+                    article.date = self.parse_date(text)
+        except Exception as e:
+            print(f"Error fetching details for {article.url}: {e}")
+
     def _scrape_links_directly(self, soup) -> List[NewsArticle]:
         """
         Fallback scraper that looks for news links directly.
@@ -291,7 +443,7 @@ class CardScraper(BaseScraper):
         
         for link in soup.find_all('a', href=True):
             href = link.get('href', '')
-            text = link.get_text(strip=True)
+            text = self._get_clean_title(link)
             
             # Skip if no text or too short (but allow longer titles)
             if not text or len(text) < 15:
@@ -303,6 +455,10 @@ class CardScraper(BaseScraper):
             
             # Check if URL matches news patterns
             if not any(pattern in href.lower() for pattern in news_patterns):
+                continue
+            
+            # Skip mailto links
+            if href.startswith('mailto:'):
                 continue
             
             # Skip pagination, category, and tag links
@@ -326,16 +482,31 @@ class CardScraper(BaseScraper):
             
             # Try to find date near the link
             date = None
-            parent = link.find_parent()
-            if parent:
-                # Look for date text in parent or siblings
-                date_text = parent.get_text()
-                date_match = re.search(
-                    r'(\d{1,2}\s+\w+\s+\d{4}|\w+\s+\d{1,2},?\s+\d{4})',
-                    date_text
-                )
-                if date_match:
-                    date = self.parse_date(date_match.group(1))
+            
+            # 1. Check inside the link itself (e.g. Warren Shire)
+            link_text_full = link.get_text(" ", strip=True)
+            date_match = re.search(
+                r'(\d{1,2}\s+\w+\s+\d{4}|\w+\s+\d{1,2},?\s+\d{4})',
+                link_text_full
+            )
+            if date_match:
+                date = self.parse_date(date_match.group(1))
+            
+            # 2. Check parent/siblings if not found
+            if not date:
+                parent = link.find_parent()
+                if parent:
+                    # Look for date text in parent or siblings
+                    # Be careful if parent has multiple links (likely a list container)
+                    links_in_parent = parent.find_all('a', recursive=False)
+                    if len(links_in_parent) <= 1:
+                        date_text = parent.get_text()
+                        date_match = re.search(
+                            r'(\d{1,2}\s+\w+\s+\d{4}|\w+\s+\d{1,2},?\s+\d{4})',
+                            date_text
+                        )
+                        if date_match:
+                            date = self.parse_date(date_match.group(1))
             
             article = self.create_article(text, url, date)
             articles.append(article)
@@ -349,6 +520,44 @@ class CardScraper(BaseScraper):
         date = None
         excerpt = None
         
+        # Strategy -1: Configured selectors
+        if self.selectors:
+            # Link
+            link_selector = self.selectors.get('link_selector')
+            if link_selector:
+                if link_selector == 'self' or link_selector == 'this':
+                    link_elem = item if item.name == 'a' else None
+                else:
+                    link_elem = item.select_one(link_selector)
+                
+                if link_elem:
+                    url = link_elem.get('href', '')
+            
+            # Title
+            title_selector = self.selectors.get('title_selector')
+            if title_selector:
+                title_elem = item.select_one(title_selector)
+                if title_elem:
+                    title = self._get_clean_title(title_elem)
+            
+            # Date
+            date_selector = self.selectors.get('date_selector')
+            if date_selector:
+                date_elem = item.select_one(date_selector)
+                if date_elem:
+                    date_text = date_elem.get_text(" ", strip=True)
+                    date = self.parse_date(date_text)
+            
+            # Excerpt (optional)
+            excerpt_selector = self.selectors.get('content_selector') # Using content_selector as excerpt for now
+            if excerpt_selector:
+                excerpt_elem = item.select_one(excerpt_selector)
+                if excerpt_elem:
+                    excerpt = excerpt_elem.get_text(" ", strip=True)
+            
+            if title and url:
+                return self.create_article(title, url, date, excerpt)
+
         # Strategy 0: Card div with link inside containing .card__title (Golden Plains/GovCMS pattern)
         # Structure: div.card > a > div.card__title > h2
         # Note: Requires date element to filter out promotional cards (e.g., "GB news and magazine")
@@ -359,7 +568,7 @@ class CardScraper(BaseScraper):
                 # Look for title in card__title div
                 title_elem = item.select_one('.card__title h2, .card__title h3, .card__title')
                 if title_elem:
-                    title = title_elem.get_text(strip=True)
+                    title = self._get_clean_title(title_elem)
                     # Get date from card__date or time element - REQUIRED for news articles
                     date_elem = item.select_one('.card__date time, .card__date, time[datetime]')
                     if date_elem:
@@ -385,7 +594,7 @@ class CardScraper(BaseScraper):
                 # Title is in h4 or h3
                 title_elem = item.select_one('h4, h3, h2')
                 if title_elem:
-                    title = title_elem.get_text(strip=True)
+                    title = self._get_clean_title(title_elem)
                     # Date is in .small-text before the title (often with .teal.caps class)
                     date_elem = item.select_one('.small-text.teal, .small-text.caps, .article-date')
                     if date_elem:
@@ -406,7 +615,7 @@ class CardScraper(BaseScraper):
                 # Title is in .media-title
                 title_elem = item.select_one('.media-title')
                 if title_elem:
-                    title = title_elem.get_text(strip=True)
+                    title = self._get_clean_title(title_elem)
                     # Date is in .media-date
                     date_elem = item.select_one('.media-date')
                     if date_elem:
@@ -423,7 +632,7 @@ class CardScraper(BaseScraper):
                 # Title is in h1.news-item-heading
                 title_elem = item.select_one('h1.news-item-heading, .news-item-heading')
                 if title_elem:
-                    title = title_elem.get_text(strip=True)
+                    title = self._get_clean_title(title_elem)
                     # Date is in time[datetime]
                     time_elem = item.select_one('time[datetime]')
                     if time_elem:
@@ -450,7 +659,7 @@ class CardScraper(BaseScraper):
                 # Title is in h2.listing__heading
                 title_elem = item.select_one('h2.listing__heading, .listing__heading')
                 if title_elem:
-                    title = title_elem.get_text(strip=True)
+                    title = self._get_clean_title(title_elem)
                     # Excerpt is in p.listing__summary
                     excerpt_elem = item.select_one('p.listing__summary, .listing__summary')
                     if excerpt_elem:
@@ -461,7 +670,114 @@ class CardScraper(BaseScraper):
                         date = self.parse_date(date_elem.get_text(strip=True))
                     if title and url and len(title) >= 10:
                         return self.create_article(title, url, date, excerpt)
+
+        # Strategy 0f: Greater Geelong pattern
+        # Structure: a.cont-item-news > .cont-item-right > .cont-item-title + .cont-item-desc
+        if item.name == 'a' and 'cont-item-news' in item.get('class', []):
+            url = item.get('href', '')
+            title_elem = item.select_one('.cont-item-title')
+            if title_elem:
+                title = title_elem.get_text(strip=True)
+                excerpt_elem = item.select_one('.cont-item-desc')
+                if excerpt_elem:
+                    excerpt = excerpt_elem.get_text(strip=True)
+                
+                # Date is often missing in listing for Geelong, but check tags just in case
+                # or try to find a date-like string in the description if it starts with one
+                
+                if title and url and len(title) >= 10:
+                    return self.create_article(title, url, date, excerpt)
+
+        # Strategy 0g: Melbourne City Council pattern
+        # Structure: div.card-medium > div.card-medium--content > a > h3.card-medium--content-title
+        if item.name == 'div' and 'card-medium' in item.get('class', []):
+            content_div = item.select_one('.card-medium--content')
+            if content_div:
+                link = content_div.find('a')
+                if link:
+                    url = link.get('href', '')
+                    title_elem = link.select_one('.card-medium--content-title')
+                    if title_elem:
+                        title = title_elem.get_text(strip=True)
+                        excerpt_elem = link.select_one('.content p')
+                        if excerpt_elem:
+                            excerpt = excerpt_elem.get_text(strip=True)
+                        
+                        if title and url and len(title) >= 10:
+                            return self.create_article(title, url, date, excerpt)
+
+        # Strategy 0h: Port Phillip pattern
+        # Structure: div.i-tile > a.i-tile__link > h2.i-tile__text--title
+        if item.name == 'div' and 'i-tile' in item.get('class', []):
+            link = item.select_one('a.i-tile__link')
+            if link:
+                url = link.get('href', '')
+                title_elem = link.select_one('.i-tile__text--title')
+                if title_elem:
+                    title = title_elem.get_text(strip=True)
+                    
+                    # Date is in .i-tile__text--subtitle
+                    date_elem = link.select_one('.i-tile__text--subtitle')
+                    if date_elem:
+                        date = self.parse_date(date_elem.get_text(strip=True))
+                    
+                    # Excerpt is in the next p tag
+                    # Find all p tags and take the one that isn't the subtitle
+                    for p in link.select('p'):
+                        if 'i-tile__text--subtitle' not in p.get('class', []):
+                            excerpt = p.get_text(strip=True)
+                            break
+                    
+                    if title and url and len(title) >= 10:
+                        return self.create_article(title, url, date, excerpt)
+
+        # Strategy 0i: Darebin pattern
+        # Structure: div.list-item-container > article > a
+        if item.name == 'div' and 'list-item-container' in item.get('class', []):
+            link = item.select_one('article > a')
+            if link:
+                url = link.get('href', '')
+                title_elem = link.select_one('.list-item-title')
+                if title_elem:
+                    title = title_elem.get_text(strip=True)
+                
+                date_elem = link.select_one('.published-on')
+                if date_elem:
+                    # "Published on 28 November 2025"
+                    date_text = date_elem.get_text(strip=True).replace('Published on', '').strip()
+                    date = self.parse_date(date_text)
+                
+                # Excerpt is a <p> tag that is NOT .oc-thumbnail-image, .published-on, or .tagged-as-list
+                # In the HTML: <p>The draft...</p> (no class)
+                for p in link.select('p'):
+                    if not p.get('class'):
+                        excerpt = p.get_text(strip=True)
+                        break
+                
+                if title and url and len(title) >= 10:
+                    return self.create_article(title, url, date, excerpt)
         
+        # Strategy 0j: Yarra pattern
+        # Structure: a.card-y
+        if item.name == 'a' and 'card-y' in item.get('class', []):
+            url = item.get('href', '')
+            title_elem = item.select_one('h3')
+            if title_elem:
+                title = title_elem.get_text(strip=True)
+            
+            # Date is in the second div inside the absolute div in the media div
+            # <div class="absolute ..."><div ...>News</div><div ...>Date</div></div>
+            # We can look for text that parses as date
+            date = None
+            for div in item.select('div.absolute div'):
+                d = self.parse_date(div.get_text(strip=True))
+                if d:
+                    date = d
+                    break
+            
+            if title and url and len(title) >= 10:
+                return self.create_article(title, url, date, None)
+
         # Strategy 0e: Check if the item itself is a link (whole card is clickable)
         if item.name == 'a' and item.get('href'):
             url = item.get('href', '')
@@ -586,6 +902,17 @@ class CardScraper(BaseScraper):
             if date_elem:
                 date = self.parse_date(date_elem.get_text(strip=True))
         
+        # Fallback: Try to parse date from URL
+        if not date and url:
+            # Look for YYYY/MM/DD or YYYY-MM-DD
+            url_date_match = re.search(r'/(\d{4})[/-](\d{1,2})[/-](\d{1,2})', url)
+            if url_date_match:
+                try:
+                    year, month, day = url_date_match.groups()
+                    date = datetime(int(year), int(month), int(day))
+                except ValueError:
+                    pass
+        
         # Find excerpt
         excerpt_elem = item.select_one('a.views-field-body, .excerpt, .summary, .description, .field--name-body, .teaser')
         if excerpt_elem and excerpt_elem != title_elem:
@@ -598,3 +925,120 @@ class CardScraper(BaseScraper):
             return None
         
         return self.create_article(title, url, date, excerpt)
+
+
+class InnerWestScraper(CardScraper):
+    """
+    Scraper for Inner West Council.
+    
+    Inner West Council does not display dates on the listing page.
+    We must fetch each article page to get the date.
+    """
+    
+    def scrape(self) -> List[NewsArticle]:
+        # Use the default CardScraper logic to find articles (title, url)
+        articles = super().scrape()
+        
+        # Clean titles
+        for article in articles:
+            if article.title.startswith("Click through to "):
+                article.title = article.title.replace("Click through to ", "").strip()
+        
+        # Now fetch details for each article to get the date
+        # We limit to the first 10 articles to avoid hammering the server
+        # and because we only care about recent news anyway
+        for article in articles[:10]:
+            if not article.date:
+                self._fetch_article_details(article)
+                # Add a delay to be polite and avoid 429s
+                time.sleep(1)
+                
+        return articles[:10]
+    
+    def _fetch_article_details(self, article: NewsArticle):
+        """Fetch article page to find the date."""
+        try:
+            html = self.fetch_page(article.url)
+            if not html:
+                return
+                
+            soup = self.parse_html(html)
+            
+            # Date is usually plain text after the h1
+            # We search the whole text for a date pattern to be safe
+            # Pattern: Dayname? Day Month Year (e.g. Tuesday 11 November 2025)
+            
+            # Get text from the main content area if possible, to avoid header dates
+            content = soup.select_one('#page-content, .content-area, main')
+            if content:
+                text = content.get_text(" ", strip=True)
+            else:
+                text = soup.get_text(" ", strip=True)
+            
+            # Regex for date
+            # We look for: Dayname? Day Month Year
+            # We handle the "Novemeber" typo specifically
+            date_match = re.search(r'(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)?\s*(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})', text)
+            
+            if date_match:
+                day, month, year = date_match.groups()
+                # Fix known typos
+                if month.lower() == 'novemeber':
+                    month = 'November'
+                
+                date_str = f"{day} {month} {year}"
+                article.date = self.parse_date(date_str)
+                
+        except Exception as e:
+            print(f"Error fetching details for {article.url}: {e}")
+
+
+class RSSScraper(BaseScraper):
+    """Scraper for RSS feeds."""
+    
+    def __init__(self, council_id: str, council_name: str, news_url: str, use_curl: bool = False, mobile_mode: bool = False, selectors: Optional[Dict[str, str]] = None, limit: Optional[int] = None, proxy: Optional[str] = None):
+        super().__init__(council_id, council_name, news_url, use_curl, mobile_mode, limit, proxy)
+        self.selectors = selectors or {}
+    
+    def scrape(self) -> List[NewsArticle]:
+        content = self.fetch_page(self.news_url)
+        if not content:
+            return []
+            
+        # Use 'xml' parser for RSS if available, else html.parser
+        try:
+            soup = BeautifulSoup(content, 'xml')
+        except Exception:
+            soup = BeautifulSoup(content, 'html.parser')
+        articles = []
+        
+        items = soup.find_all('item')
+        for item in items:
+            title_elem = item.find('title')
+            link_elem = item.find('link')
+            desc_elem = item.find('description')
+            date_elem = item.find('pubDate')
+            
+            if not title_elem or not link_elem:
+                continue
+                
+            title = title_elem.get_text(strip=True)
+            link = link_elem.get_text(strip=True)
+            
+            date = None
+            if date_elem:
+                try:
+                    date = date_parser.parse(date_elem.get_text(strip=True))
+                except Exception:
+                    pass
+            
+            excerpt = None
+            if desc_elem:
+                desc_text = desc_elem.get_text(strip=True)
+                # Remove HTML tags from description
+                desc_soup = BeautifulSoup(desc_text, 'html.parser')
+                excerpt = desc_soup.get_text(strip=True)[:200] + "..."
+            
+            articles.append(self.create_article(title, link, date, excerpt))
+            
+        return articles
