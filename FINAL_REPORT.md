@@ -14,13 +14,14 @@ The system is now **stable, scalable, and cost-efficient**, utilizing a "Direct 
 *   **Hosting:** DigitalOcean Droplet (Ubuntu 24.04 LTS).
 *   **Deployment:** Docker Compose (Containerized Python 3.9 environment).
 *   **Persistence:** SQLite database (`bot.db`) persisted via Docker volumes.
-*   **CI/CD:** Manual "One-Click" deployment script (`scripts/deploy_to_vps.sh`).
+*   **CI/CD:** Custom Python script (`scripts/deploy_with_password.py`) handling SSH/Rsync with password auth.
 
 ### ✅ Coverage
 *   **Victoria (VIC):** 79/79 Councils (100%) - *5 migrated to RSS*.
 *   **New South Wales (NSW):** 128/128 Councils (100%).
 *   **Queensland (QLD):** 78/77 Councils (100%).
-*   **Total Active Scrapers:** 285.
+*   **Tasmania (TAS):** 10/29 Councils (Initialized) - *Requires tuning*.
+*   **Total Active Scrapers:** 295.
 
 ### ✅ Performance
 *   **Concurrency:** Scrapes 5 councils simultaneously (configurable).
