@@ -3,10 +3,14 @@ import os
 import sys
 import time
 
-# Credentials
-HOST = "170.64.186.16"
-USER = "root"
-PASS = "TOWING.takeshi7staples9vault"
+# Try to import credentials from a local ignored file
+try:
+    from deploy_secrets import HOST, USER, PASS
+except ImportError:
+    print("Error: scripts/deploy_secrets.py not found.")
+    print("Please create it with HOST, USER, and PASS variables.")
+    sys.exit(1)
+
 TARGET_DIR = "/opt/council-news-bot"
 
 def read(fd):
