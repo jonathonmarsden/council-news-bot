@@ -2,6 +2,25 @@
 
 This document is designed to help AI agents and developers understand the Council News Bot architecture, workflows, and common tasks.
 
+## 🚀 Deployment Workflow (CRITICAL)
+
+**The VPS does NOT pull from GitHub automatically.**
+
+We use a **Push-to-Deploy** model using `rsync`. This ensures that local configuration (like `.env` secrets) and the database schema are synchronized correctly without exposing secrets in the git repository.
+
+### How to Deploy Changes
+
+1.  **Develop Locally**: Make changes, run tests, and verify on your local machine.
+2.  **Commit to Git**: `git push` to save your work to the "Library" (GitHub). This is for version control and backup.
+3.  **Deploy to VPS**: Run the deployment script from your local machine.
+    ```bash
+    python3 scripts/deploy_with_password.py
+    ```
+    *   This script uses `rsync` to copy your local files *directly* to the VPS.
+    *   It then restarts the Docker containers on the VPS.
+
+**Do NOT assume `git push` updates the live bot.** You MUST run the deployment script.
+
 ## 🏗 Project Structure
 
 The project is a **Dockerized, VPS-hosted application** designed for concurrent execution.
