@@ -51,7 +51,7 @@ The bot uses a configuration-driven approach. We support both HTML scraping and 
 
 ### `core/scraper.py`
 
-- **`BaseScraper`**: Handles HTTP requests (requests/curl), WAF evasion (Smart Proxy), and basic parsing.
+- **`BaseScraper`**: Handles HTTP requests. Supports `requests` and `curl_cffi` (for WAF bypass).
 - **`CardScraper`**: The default HTML scraper. Configurable via CSS selectors in JSON.
 - **`RSSScraper`**: The preferred scraper. Consumes standard RSS/Atom feeds.
 

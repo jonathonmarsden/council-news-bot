@@ -1,10 +1,10 @@
 # Project TODOs
 
 ## 🔴 Critical (Immediate Actions)
-- [ ] **Tasmania Expansion**: 
-    - [x] Create `states/tas/councils.json` (10/29 added).
-    - [ ] Fix scrapers for initial batch (Hobart, Launceston, etc.).
-    - [ ] Add remaining 19 councils.
+- [x] **Tasmania Expansion**: 
+    - [x] Create `states/tas/councils.json` (29/29 added).
+    - [x] Fix scrapers for initial batch (Hobart, Launceston, etc.).
+    - [x] Configure selectors for remaining 19 councils.
 - [ ] **South Australia Expansion**: Create `states/sa/councils.json` (68 councils).
 - [ ] **Western Australia Expansion**: Create `states/wa/councils.json` (137 councils).
 - [ ] **Northern Territory Expansion**: Create `states/nt/councils.json` (17 councils).
