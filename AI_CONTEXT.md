@@ -4,14 +4,16 @@ This document is designed to help AI agents and developers understand the Counci
 
 ## 🏗 Project Structure
 
-The project has evolved from a simple script to a modular, state-based system designed for concurrent execution.
+The project is a **Dockerized, VPS-hosted application** designed for concurrent execution.
 
 ```text
 council-news-bot/
 ├── main.py                 # Core Worker (CLI Entry Point, called by scheduler)
-├── scheduler.py            # Main Service Loop (runs continuously)
+├── scheduler.py            # Main Service Loop (runs continuously in Docker)
+├── Dockerfile              # Container definition
+├── docker-compose.yml      # Orchestration config
 ├── core/                   # Core Application Logic
-│   ├── scraper.py          # Scraper implementations (BaseScraper, CardScraper)
+│   ├── scraper.py          # Scraper implementations (BaseScraper, CardScraper, RSSScraper)
 │   ├── database.py         # SQLite database handler
 │   ├── poster.py           # BlueSky API client
 │   └── utils.py            # Logging and utilities
@@ -20,18 +22,19 @@ council-news-bot/
 │   │   └── councils.json   # VIC Council configurations
 │   └── nsw/
 │       └── councils.json   # NSW Council configurations
-├── scripts/                # Utility scripts
+├── scripts/                # Utility scripts (Deployment, Health Checks, RSS Discovery)
 └── bot.db                  # SQLite Database (stores article history)
 ```
 
 ## 🤖 Scraper Architecture
 
-The bot uses a configuration-driven approach. Instead of writing Python code for every council, we define CSS selectors in JSON files.
+The bot uses a configuration-driven approach. We support both HTML scraping and RSS feeds.
 
 ### `core/scraper.py`
 
-- **`BaseScraper`**: Handles HTTP requests (requests/curl), WAF evasion, and basic parsing.
-- **`CardScraper`**: The default scraper. It looks for a list of "cards" or news items. It is highly configurable via JSON.
+- **`BaseScraper`**: Handles HTTP requests (requests/curl), WAF evasion (Smart Proxy), and basic parsing.
+- **`CardScraper`**: The default HTML scraper. Configurable via CSS selectors in JSON.
+- **`RSSScraper`**: The preferred scraper. Consumes standard RSS/Atom feeds.
 
 ### Configuration (`states/{state}/councils.json`)
 
@@ -41,13 +44,9 @@ Each council entry looks like this:
 {
     "id": "council-id-kebab-case",
     "name": "Council Name",
-    "news_url": "https://example.com/news",
-    "scraper": "card_scraper",
-    "enabled": true,
-    "item_selector": "article.news-item",      // CSS selector for the card container
-    "title_selector": "h3 a",                  // Selector for title (relative to item)
-    "date_selector": "span.date",              // Selector for date (relative to item)
-    "link_selector": "self"                    // "self" if the item itself is the link, or a selector
+    "news_url": "https://example.com/rss.xml",
+    "scraper": "rss_scraper",  // or "card_scraper"
+    "enabled": true
 }
 ```
 
@@ -55,9 +54,18 @@ Each council entry looks like this:
 
 If a council is not scraping correctly (e.g., finding 0 articles, or missing dates), follow this process:
 
-### 1. Create a Reproduction Script
+### 1. Check for RSS First!
 
-Create a temporary file (e.g., `test_council.py`) to isolate the council.
+Before debugging HTML selectors, check if the council has an RSS feed. This is much more reliable.
+- Look for the RSS icon on their news page.
+- Check common paths: `/rss`, `/feed`, `/news/rss`, `/news/feed`.
+- Use the `scripts/find_rss.py` tool (if available) or just `curl` and `grep`.
+
+If an RSS feed exists, switch the `scraper` type to `rss_scraper` in `councils.json` and update the `news_url`.
+
+### 2. Create a Reproduction Script
+
+If you must use HTML scraping, create a temporary file (e.g., `test_council.py`) to isolate the council.
 
 ```python
 import sys
@@ -90,7 +98,7 @@ if __name__ == "__main__":
     test()
 ```
 
-### 2. Analyze the HTML
+### 3. Analyze the HTML
 
 Download the page HTML to inspect the structure. Use `curl` to mimic the bot.
 
@@ -116,11 +124,27 @@ Run your reproduction script again. If it works, delete the script and the HTML 
 
 ## 🚀 Deployment (VPS)
 
-The bot runs as a systemd service on a DigitalOcean Droplet.
+The bot runs as a Docker container on a DigitalOcean Droplet.
 
-- **Service Name**: `council-news-bot`
-- **Logs**: `journalctl -u council-news-bot -f`
-- **Restart**: `systemctl restart council-news-bot`
+### Deployment Script
+We use a custom script to handle deployment because we don't have SSH keys set up on the VPS yet (password auth).
+
+```bash
+# Deploy code and rebuild containers
+python3 scripts/deploy_with_password.py
+```
+
+### Manual Management (SSH)
+If you need to debug on the server:
+
+1. SSH in: `ssh root@vps.example.com`
+2. View logs: `docker compose logs -f`
+3. Restart: `docker compose restart`
+4. Rebuild: `docker compose up -d --build`
+
+### Data Persistence
+- The SQLite database (`bot.db`) is persisted in a Docker volume.
+- Logs are accessible via `docker compose logs`.
 
 ## 🧪 Testing
 

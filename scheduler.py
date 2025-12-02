@@ -60,7 +60,7 @@ def main():
         last_scrape_time = last_scrape_time.replace(tzinfo=TZ)
     
     # States to manage
-    STATES = ["vic", "nsw", "qld"]
+    STATES = ["vic", "nsw", "qld", "tas"]
     
     while True:
         now = datetime.now(TZ) if TZ else datetime.now()
