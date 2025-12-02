@@ -37,6 +37,8 @@ mkdir -p $PROJECT_DIR/logs
 # Assuming we run as root for simplicity on a droplet, but ideally we'd use a user.
 # For now, we'll just ensure the directories are writable.
 chmod -R 755 $PROJECT_DIR
+chmod -R 777 $PROJECT_DIR/data
+chmod -R 777 $PROJECT_DIR/logs
 
 echo "=== Setup Complete ==="
 echo "Next steps:"
