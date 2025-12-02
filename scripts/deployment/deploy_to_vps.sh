@@ -33,7 +33,7 @@ rsync -avz --progress \
 
 # 3. Execute Setup and Start
 echo "Running remote setup and starting Docker..."
-ssh $USER@$HOST "cd $TARGET_DIR && bash scripts/setup_vps.sh && docker compose down && docker compose up -d --build"
+ssh $USER@$HOST "cd $TARGET_DIR && bash scripts/deployment/setup_vps.sh && docker compose down && docker compose up -d --build"
 
 echo "=== Deployment Complete ==="
 echo "Check status with: ssh $USER@$HOST 'cd $TARGET_DIR && docker compose logs -f --tail=50'"
