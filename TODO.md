@@ -5,6 +5,14 @@
     - [x] Create `states/tas/councils.json` (29/29 added).
     - [x] Fix scrapers for initial batch (Hobart, Launceston, etc.).
     - [x] Configure selectors for remaining 19 councils.
+- [ ] **Fix Hard Nuts (WAF/Broken)**:
+    - [ ] **Bass Coast (VIC)**: WAF blocking (403). `curl_cffi` failed.
+    - [ ] **Blue Mountains (NSW)**: WAF blocking (403). `curl_cffi` failed.
+    - [ ] **Liverpool (NSW)**: WAF blocking (403). `curl_cffi` failed.
+    - [ ] **Ballarat (VIC)**: Selectors broken (200 OK).
+    - [ ] **Brisbane (QLD)**: Selectors broken (200 OK).
+    - [ ] **Gold Coast (QLD)**: Selectors broken (200 OK).
+    - [ ] **Cumberland (NSW)**: Selectors broken (200 OK).
 - [ ] **South Australia Expansion**: Create `states/sa/councils.json` (68 councils).
 - [ ] **Western Australia Expansion**: Create `states/wa/councils.json` (137 councils).
 - [ ] **Northern Territory Expansion**: Create `states/nt/councils.json` (17 councils).
