@@ -3,24 +3,25 @@ import os
 import sys
 import time
 
-# Credentials
-HOST = "vps.example.com"
-USER = "root"
-PASS = "TOWING.takeshi7staples9vault"
-CMD = "cd /opt/council-news-bot && docker compose logs --tail=20"
+# Try to import credentials from a local ignored file
+try:
+    from deploy_secrets import HOST, USER, PASS
+except ImportError:
+    print("Error: scripts/deploy_secrets.py not found.")
+    sys.exit(1)
+
+# Fix permissions for data and logs directories
+CMD = "chmod -R 777 /opt/council-news-bot/data /opt/council-news-bot/logs && cd /opt/council-news-bot && docker compose restart"
 
 def read(fd):
     return os.read(fd, 1024)
 
-def check_logs():
+def fix_perms():
     pid, fd = pty.fork()
     
     if pid == 0:
-        # Child process
-        # We use ssh directly here
-        os.execv("/usr/bin/ssh", ["ssh", f"{USER}@{HOST}", CMD])
+        os.execvp("ssh", ["ssh", f"{USER}@{HOST}", CMD])
     else:
-        # Parent process
         try:
             while True:
                 try:
@@ -46,4 +47,4 @@ def check_logs():
             os.close(fd)
 
 if __name__ == "__main__":
-    check_logs()
+    fix_perms()

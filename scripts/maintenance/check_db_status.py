@@ -2,9 +2,18 @@ import sqlite3
 import os
 import sys
 
+# Add project root to path
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(project_root)
+
+from core.config import DB_PATH
+
 def check_status():
-    db_path = os.path.join(os.path.dirname(__file__), '..', 'bot.db')
-    conn = sqlite3.connect(db_path)
+    if not DB_PATH.exists():
+        print(f"Database not found at {DB_PATH}")
+        sys.exit(1)
+        
+    conn = sqlite3.connect(str(DB_PATH))
     c = conn.cursor()
     
     # Count total articles
