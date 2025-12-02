@@ -28,6 +28,7 @@ rsync -avz --progress \
     --exclude '.DS_Store' \
     --exclude 'data' \
     --exclude 'scheduler.log' \
+    --exclude 'scripts/deploy_secrets.py' \
     . $USER@$HOST:$TARGET_DIR
 
 # 3. Execute Setup and Start
