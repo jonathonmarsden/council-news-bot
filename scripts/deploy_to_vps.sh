@@ -8,7 +8,7 @@ USER="root"
 TARGET_DIR="/opt/council-news-bot"
 
 echo "=== Deploying to $USER@$HOST ==="
-echo "You will be prompted for the password: TOWING.takeshi7staples9vault"
+# Password handled by wrapper script
 
 # 0. Ensure known_hosts
 mkdir -p ~/.ssh
