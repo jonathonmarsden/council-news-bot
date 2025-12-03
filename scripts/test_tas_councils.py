@@ -7,7 +7,7 @@ from pathlib import Path
 # Add project root to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from core.scraper import ScraperFactory
+from core.scrapers import ScraperFactory
 
 def test_council(council_config):
     """Test a single council scraper."""
