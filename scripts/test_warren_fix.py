@@ -1,4 +1,4 @@
-from core.scraper import CardScraper
+from core.scrapers import CardScraper
 import sys
 import os
 

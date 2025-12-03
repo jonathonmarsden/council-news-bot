@@ -1,7 +1,7 @@
 import sys
 import os
 sys.path.append('/root/council-news-bot')
-from core.scraper import CardScraper
+from core.scrapers import CardScraper
 
 def test_scrape():
     selectors = {
