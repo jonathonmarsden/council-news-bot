@@ -1,38 +1,45 @@
-# Future Development Prompt
+# Architecture Refactor: Parallel Scheduler for Council News Bot
 
-**Role:** Senior Python Architect & DevOps Engineer
-**Project:** Council News Bot (National Scale-Up)
-**Current State:** Dockerized, VPS-hosted. Covers VIC/NSW/QLD. **Tasmania (TAS) has been initialized but requires scraper tuning.**
+## Status: COMPLETE (2025-12-03)
 
-**Objective:** 
-Transform the current MVP into a robust, national-scale news aggregation platform covering all ~537 Australian Local Government Areas (LGAs).
+The `scheduler.py` has been successfully refactored to use `asyncio`.
+- **Scraping**: Runs in a non-blocking subprocess loop every 3 hours.
+- **Posting**: Runs in a concurrent loop every 5 minutes.
+- **Verification**: Logs confirm that posting tasks execute immediately even while scraping tasks are active.
 
-**Key Directives:**
+## Future Improvements
 
-1.  **National Expansion (The "Gap Fill"):**
-    *   **IMMEDIATE PRIORITY:** Fix the broken scrapers in `states/tas/councils.json`. 9/10 are currently failing (403 Forbidden or 0 items). See `states/tas/README.md` for details.
-    *   Complete the Tasmania rollout (remaining 19 councils).
-    *   Proceed to **South Australia (68)**, **Western Australia (137)**, and **Northern Territory (17)**.
+### 1. Database Concurrency
+With parallel execution, we are now running multiple instances of `main.py` simultaneously (one for scraping, potentially 5 for posting).
+- **Risk**: SQLite database locking.
+- **Mitigation**: WAL mode is enabled, but we should monitor for `database is locked` errors.
+- **Next Step**: If locking becomes an issue, consider migrating to PostgreSQL or implementing a dedicated DB writer service.
 
-2.  **Architecture Hardening:**
-    *   **Database Migration:** Design a migration plan from SQLite to PostgreSQL to handle concurrent writes from 10+ workers and 500+ councils.
-    *   **Config Validation:** Implement a JSON Schema validator for `councils.json` files to prevent typos breaking the bot.
-    *   **Error Recovery:** Implement a "Circuit Breaker" for scrapers. If a council fails 5 times in a row, auto-disable it and alert, rather than wasting resources.
+### 2. Scrape Optimization
+Scraping is currently sequential by state (`await scrape_state(state)` inside a loop).
+- **Improvement**: We could run states in parallel too, but this might overload the VPS (CPU/RAM).
+- **Action**: Monitor VPS resource usage (htop) during a full scrape cycle.
 
-3.  **Monitoring & Alerts:**
-    *   Convert `health_check.py` into a service that runs daily.
-    *   Implement a notification system (Discord Webhook or Email) to alert the admin when:
-        *   A scraper finds 0 articles for >30 days.
-        *   The VPS disk space is low.
-        *   The BlueSky authentication fails.
+### 3. Error Reporting
+Currently, errors are logged to stdout.
+- **Improvement**: Integrate a notification system (e.g., Discord webhook, Email) for critical failures (e.g., "Scrape failed for NSW").
 
-4.  **Content Intelligence:**
-    *   Implement NLP (Natural Language Processing) or simple keyword matching to auto-tag posts with relevant hashtags (e.g., `#RoadWorks`, `#Community`, `#Arts`).
-    *   Implement a "Deduplication Fingerprint" to prevent reposting articles if the URL changes slightly but the content is identical.
+## Original Context (Archived)
+The current `scheduler.py` implementation is single-threaded and blocking. It performs two main tasks:
+1.  **Scraping**: Runs every 3 hours for all 5 states (ACT, NSW, QLD, TAS, VIC).
+2.  **Posting**: Runs every 5 minutes (5am-10pm) to post 1 article per state.
 
-5.  **Documentation:**
-    *   Maintain `AI_CONTEXT.md` as the single source of truth.
-    *   Create a `CONTRIBUTING.md` specifically for open-source contributors to add their local council.
+## The Problem (SOLVED)
+The `run_scrape` function uses `subprocess.run(..., check=True)`, which blocks the main execution thread.
+-   Scraping NSW alone involves checking ~128 councils and can take 10-20 minutes.
+-   Scraping all 5 states sequentially can take over an hour.
+-   **Critical Issue**: During this scrape time, the scheduler is "stuck" in the scrape loop and **cannot execute the posting logic**. This results in massive gaps in posting (e.g., no posts for an hour) followed by a burst of activity, rather than the intended steady 5-minute cadence.
 
-**Execution Strategy:**
-Work state-by-state, starting with Tasmania (smallest) to validate the new patterns, then moving to SA, WA, and NT.
+## Solution Implemented: Option A (Asyncio Scheduler)
+Refactored `scheduler.py` to use Python's `asyncio` library.
+-   Used `asyncio.create_subprocess_exec()` for scraping tasks.
+-   The main event loop continues to check the time and trigger posting tasks even while a scrape subprocess is running in the background.
+
+
+## Prompt for Agent
+"Refactor `scheduler.py` to use `asyncio`. The goal is to ensure that long-running scrape jobs (which happen every 3 hours) do not block the posting jobs (which must happen every 5 minutes). The scraper for each state should run in a non-blocking subprocess, allowing the main loop to continue checking for posting intervals."
