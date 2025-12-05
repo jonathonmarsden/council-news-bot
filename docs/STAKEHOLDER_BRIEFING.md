@@ -1,4 +1,4 @@
-# Council News Bot: Stakeholder Briefing
+# Roundup News Bot: Stakeholder Briefing
 
 **Document Version:** 1.0  
 **Date:** 5 December 2025  
@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-Council News Bot is an automated news aggregation and distribution platform that monitors **541 Australian local government websites** across all 8 states and territories, automatically publishing news articles to BlueSky social media feeds. The system represents the first comprehensive, real-time local government news aggregation service in Australia.
+Roundup News Bot is an automated news aggregation and distribution platform that monitors **541 Australian local government websites** across all 8 states and territories, automatically publishing news articles to BlueSky social media feeds. The system represents the first comprehensive, real-time local government news aggregation service in Australia.
 
 ### Key Metrics at Launch
 
@@ -17,7 +17,7 @@ Council News Bot is an automated news aggregation and distribution platform that
 |--------|-------|
 | Councils Monitored | 541 of 542 (99.8% coverage) |
 | States/Territories | All 8 |
-| BlueSky Feeds | 9 (1 national + 8 state) |
+| BlueSky Feeds | 8 (1 per state/territory) |
 | Articles Processed | 6,000+ |
 | Articles Posted | 1,393+ |
 | Average Daily Posts | ~200-300 |
@@ -27,14 +27,14 @@ Council News Bot is an automated news aggregation and distribution platform that
 
 ## Part 1: Technical Overview
 
-### 1.1 What is Council News Bot?
+### 1.1 What is Roundup News Bot?
 
-Council News Bot is an automated system that:
+Roundup News Bot is an automated system that:
 
 1. **Scrapes** news pages from 540 Australian council websites every 3 hours
 2. **Processes** articles to extract titles, dates, excerpts, and URLs
 3. **Deduplicates** content to avoid repeat posts
-4. **Publishes** to 9 BlueSky social media feeds (1 national feed + 8 state-specific feeds)
+4. **Publishes** to 8 BlueSky social media feeds (1 per state/territory)
 5. **Archives** older content while maintaining a complete historical record
 
 ### 1.2 Technology Stack
@@ -54,7 +54,7 @@ Council News Bot is an automated system that:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        COUNCIL NEWS BOT                          │
+│                       ROUNDUP NEWS BOT                           │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
 │  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐       │
@@ -102,19 +102,23 @@ Many council websites use Web Application Firewalls (Cloudflare, Incapsula) that
 
 ### 2.1 Project Timeline
 
-| Phase | Duration | Key Achievements |
-|-------|----------|------------------|
-| **Phase 1** | Week 1-2 | VIC scrapers (79 councils), core architecture |
-| **Phase 2** | Week 3-4 | NSW, QLD, TAS expansion |
-| **Phase 3** | Week 5-6 | SA, NT, ACT completion |
-| **Phase 4** | Week 7 | WA integration (137 councils) |
-| **Phase 5** | Week 8 | Production deployment, optimization |
+The entire project was developed in a single intensive sprint over one week, from Friday 28 November to Friday 5 December 2025.
+
+| Day | Date | Key Achievements |
+|-----|------|------------------|
+| **Day 1** | Fri 28 Nov | Core architecture, VIC scrapers (79 councils) |
+| **Day 2-3** | Sat-Sun 29-30 Nov | NSW, QLD expansion |
+| **Day 4** | Mon 1 Dec | TAS completion |
+| **Day 5** | Tue 2 Dec | ACT completion |
+| **Day 6** | Wed 3 Dec | SA, NT completion |
+| **Day 7** | Thu 4 Dec | WA integration (137 councils) |
+| **Day 8** | Fri 5 Dec | Production deployment, optimization, documentation |
 
 ### 2.2 Development Effort
 
-| Category | Estimate |
-|----------|----------|
-| **Total Development Hours** | 200-250 hours |
+| Category | Value |
+|----------|-------|
+| **Total Development Hours** | 35 hours |
 | **Lines of Code** | ~15,000 |
 | **Configuration (JSON)** | ~8,000 lines |
 | **Council Configurations** | 541 unique entries |
@@ -323,7 +327,7 @@ The 540 councils represent:
 | **Codebase** | Proprietary scraping and posting infrastructure |
 | **Configurations** | 541 council-specific scraper configurations |
 | **Database** | Historical article archive |
-| **Brand** | LG News Roundup, Council News Bot names |
+| **Brand** | LG News Roundup, Roundup News Bot names |
 
 ---
 
@@ -544,7 +548,6 @@ This creates a "tip line" for local government news.
 
 | Feed | Handle | Purpose |
 |------|--------|---------|
-| **National** | @roundupnewsbot.bsky.social | All states combined |
 | **Victoria** | @roundupnewsbotvic.bsky.social | VIC only |
 | **NSW** | @roundupnewsbotnsw.bsky.social | NSW only |
 | **Queensland** | @roundupnewsbotqld.bsky.social | QLD only |
