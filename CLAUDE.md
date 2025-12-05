@@ -1,7 +1,8 @@
 # CLAUDE.md - Council News Bot
 
 ## Project Overview
-Automated scraper and BlueSky poster for Victorian local government news. Posts to @roundupnewsbot.bsky.social for Chris Eddy's LG News Roundup.
+Automated scraper and BlueSky poster for Australian local government news. Posts to @roundupnewsbot.bsky.social for Chris Eddy's LG News Roundup.
+Supports 7 states/territories: VIC, NSW, QLD, TAS, SA, NT, ACT.
 
 ## Quick Reference
 
@@ -38,15 +39,14 @@ council-news-bot/
 ├── main.py              # Entry point, state management, priority queue
 ├── scheduler.py         # VPS service loop
 ├── core/                # Core logic (scraper, database, poster)
-├── states/              # Config (vic/councils.json, nsw/councils.json)
+├── states/              # Config (vic/councils.json, nsw/councils.json, etc.)
 └── bot.db               # SQLite database
 ```
 
 ### Key Files
 - `main.py` - Orchestration, 7-day freshness filter, priority queue (new articles first)
 - `core/scraper.py` - BaseScraper and CardScraper logic
-- `states/vic/councils.json` - VIC Council configurations
-- `states/nsw/councils.json` - NSW Council configurations
+- `states/*/councils.json` - State-specific Council configurations
 
 ### BlueSky Credentials
 - Handle: `roundupnewsbot.bsky.social`

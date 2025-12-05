@@ -48,16 +48,22 @@ def get_available_states():
                 states.append(item)
     return sorted(states)
 
-async def run_process(args, description):
-    """Run a subprocess asynchronously."""
+async def run_process(args, description, timeout=600):
+    """Run a subprocess asynchronously with timeout."""
     try:
         process = await asyncio.create_subprocess_exec(
             *args,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE
         )
-        stdout, stderr = await process.communicate()
         
+        try:
+            stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=timeout)
+        except asyncio.TimeoutError:
+            process.kill()
+            log(f"Timeout running {description} (killed after {timeout}s)")
+            return
+
         if process.returncode != 0:
             log(f"Error in {description}: {stderr.decode().strip()}")
             # Also log stdout as it might contain the actual python exception if stderr is empty
@@ -82,7 +88,8 @@ async def scrape_state(state):
     # Limit concurrency to 2 workers to prevent VPS overload
     await run_process(
         [sys.executable, main_script, "--state", state, "--scrape-only", "--concurrency", "2"],
-        f"scrape for {state}"
+        f"scrape for {state}",
+        timeout=3600  # 1 hour timeout for scraping
     )
     log(f"Finished scrape for {state}")
 
@@ -92,7 +99,8 @@ async def post_state(state):
     main_script = os.path.join(os.path.dirname(__file__), 'main.py')
     await run_process(
         [sys.executable, main_script, "--state", state, "--post-only", "--limit", "2"],
-        f"post for {state}"
+        f"post for {state}",
+        timeout=300  # 5 minutes timeout for posting
     )
 
 async def scrape_job():
