@@ -27,6 +27,7 @@ rsync -avz --progress -e "ssh -o PreferredAuthentications=password -o PubkeyAuth
     --exclude '*.pyc' \
     --exclude '.DS_Store' \
     --exclude 'data' \
+    --exclude '*.db' \
     --exclude 'scheduler.log' \
     --exclude 'scripts/deploy_secrets.py' \
     . $USER@$HOST:$TARGET_DIR

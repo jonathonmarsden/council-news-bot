@@ -39,8 +39,13 @@ council-news-bot/
 ├── states/                 # Configuration by State
 │   ├── vic/
 │   │   └── councils.json   # VIC Council configurations
-│   └── nsw/
-│       └── councils.json   # NSW Council configurations
+│   ├── nsw/
+│   │   └── councils.json   # NSW Council configurations
+│   ├── qld/
+│   ├── tas/
+│   ├── sa/
+│   ├── nt/
+│   └── act/
 ├── scripts/                # Utility scripts (Deployment, Health Checks, RSS Discovery)
 └── bot.db                  # SQLite Database (stores article history)
 ```
