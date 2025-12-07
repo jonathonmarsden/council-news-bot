@@ -1,0 +1,39 @@
+{
+  "states": {
+    "VIC": {
+      "peak": "#VLGA",
+      "councils": "#VicCouncils"
+    },
+    "NSW": {
+      "peak": "#LGNSW",
+      "councils": "#NSWCouncils"
+    },
+    "QLD": {
+      "peak": "#LGAQ",
+      "councils": "#QLDCouncils"
+    },
+    "WA": {
+      "peak": "#WALGA",
+      "councils": "#WACouncils"
+    },
+    "SA": {
+      "peak": "#LGASA",
+      "councils": "#SACouncils"
+    },
+    "NT": {
+      "peak": "#LGANT",
+      "councils": "#NTCouncils"
+    },
+    "TAS": {
+      "peak": "#LGAT",
+      "councils": "#TASCouncils"
+    },
+    "ACT": {
+      "peak": "#ALGA",
+      "councils": "#ACTCouncils"
+    }
+  },
+  "councils": {
+    "city_of_whittlesea": "#CityOfWhittlesea"
+  }
+}
