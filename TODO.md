@@ -27,6 +27,7 @@
 
 ## 🟢 Maintenance & Refinement
 - [x] **Global Health Check:** Completed Jan 22, 2026 (87.2% Healthy).
+- [x] **Config Cleanup:** Removed redundant/duplicate hashtags from QLD config (`#QLDCouncils` vs `#QldCouncils`).
 - [ ] **Dependency Lock:** Freeze `requirements.txt` to known stable versions.
 - [ ] **Logging:** Implement log rotation for `scheduler.log`.
 
