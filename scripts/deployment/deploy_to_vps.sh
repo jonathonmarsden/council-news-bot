@@ -16,11 +16,11 @@ ssh-keyscan -H $HOST >> ~/.ssh/known_hosts 2>/dev/null
 
 # 1. Create remote directory
 echo "Creating remote directory..."
-ssh -v -o PreferredAuthentications=password -o PubkeyAuthentication=no -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $USER@$HOST "mkdir -p $TARGET_DIR"
+ssh $USER@$HOST "mkdir -p $TARGET_DIR"
 
 # 2. Upload Files (including .env)
 echo "Uploading project files..."
-rsync -avz --progress -e "ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
+rsync -avz --delete --progress -e "ssh" \
     --exclude 'venv' \
     --exclude '.git' \
     --exclude '__pycache__' \
@@ -34,7 +34,11 @@ rsync -avz --progress -e "ssh -o PreferredAuthentications=password -o PubkeyAuth
 
 # 3. Execute Setup and Start
 echo "Running remote setup and starting Docker..."
-ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $USER@$HOST "cd $TARGET_DIR && bash scripts/deployment/setup_vps.sh && docker compose down && docker compose up -d --build"
+ssh $USER@$HOST "cd $TARGET_DIR && bash scripts/deployment/setup_vps.sh && docker compose down && docker compose up -d --build"
+
+# 4. Run Cleanup (Emergency Fix)
+echo "Running DB Cleanup..."
+ssh $USER@$HOST "cd $TARGET_DIR && docker compose exec -T bot python3 scripts/maintenance/cleanup_remote_db.py"
 
 echo "=== Deployment Complete ==="
 echo "Check status with: ssh $USER@$HOST 'cd $TARGET_DIR && docker compose logs -f --tail=50'"

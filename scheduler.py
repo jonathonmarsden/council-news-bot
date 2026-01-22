@@ -75,7 +75,8 @@ async def run_process(args, description, timeout=600):
             stdout_str = stdout.decode().strip()
             if stdout_str:
                 for line in stdout_str.split('\n'):
-                    if "Processing Summary" in line or "Posted" in line:
+                    # Capture critical info, warnings, and error messages
+                    if any(key in line for key in ["Processing Summary", "Posted", "Warning", "Error", "Exception", "Critical", "Skipping", "DISABLED"]):
                         log(f"[{description}] {line.strip()}")
             
     except Exception as e:
@@ -98,7 +99,7 @@ async def post_state(state):
     log(f"Posting for {state}...")
     main_script = os.path.join(os.path.dirname(__file__), 'main.py')
     await run_process(
-        [sys.executable, main_script, "--state", state, "--post-only", "--limit", "2"],
+        [sys.executable, main_script, "--state", state, "--post-only", "--limit", "10", "--max-per-council", "10"],
         f"post for {state}",
         timeout=300  # 5 minutes timeout for posting
     )
@@ -151,13 +152,32 @@ async def post_job():
         # Add a small buffer to ensure we land just after the minute
         await asyncio.sleep(seconds_to_next + 1)
 
+async def health_check_job():
+    """Daily health check loop."""
+    log("Starting Health Check Loop...")
+    while True:
+        # Run once every 24 hours
+        await asyncio.sleep(24 * 3600)
+        
+        log("Executing Daily Health Check & Zombie Audit...")
+        try:
+             # Run the audit script
+             audit_script = os.path.join(os.path.dirname(__file__), 'scripts', 'maintenance', 'audit_silent_failures.py')
+             if os.path.exists(audit_script):
+                 await run_process([sys.executable, audit_script], "Daily Zombie Audit", timeout=300)
+             else:
+                 log(f"Warning: Audit script not found at {audit_script}")
+        except Exception as e:
+            log(f"Error running health check: {e}")
+
 async def main():
     log(f"Starting Async Scheduler (Timezone: {TZ_NAME if TZ else 'System Default'})...")
     
-    # Run both loops concurrently
+    # Run loops concurrently
     await asyncio.gather(
         scrape_job(),
-        post_job()
+        post_job(),
+        health_check_job()
     )
 
 if __name__ == "__main__":
