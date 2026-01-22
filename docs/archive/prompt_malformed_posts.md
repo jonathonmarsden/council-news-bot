@@ -65,6 +65,7 @@
 
 ## Guardrails and Validation
 - Compose-then-validate locally: enforce title/hashtag/URL lengths, facet spans, and hashtag order before posting.
+- Posting path enforces `core.validator.validate_post`; canonical tags live in `docs/hashtags_map.json` (generated from council configs).
 - URL hygiene: reject mailto/tel/login/query-heavy/tracking URLs; ensure same-host unless whitelisted.
 - Excerpt hygiene: no links/hashtags/CTAs; drop if noisy.
 - Regression guard: when fixing, test against multiple archived pages if available; note before/after.

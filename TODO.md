@@ -1,39 +1,34 @@
-# Project TODOs
+# Project Roadmap 2026
 
-## 🔴 Critical (Immediate Actions)
-- [x] **Operation "Revive SA"**: Fixed 35 SA councils (Impersonation + Selector Update).
-- [x] **Core Logic Fix**: Fixed False Positive Cloudflare detection in `base.py` (caused by CDNJS scripts).
-- [ ] **Data Quality**: Monitor redirect URLs from new SA platform (ensure no duplicate spam).
-- [x] **Zombie Scraper Recovery**: Fixed Ballarat (Core Bug) and SA Cluster (Selector Bug). Pending: Wollongong.
-- [ ] **monitor_waf_fixes**: Verify successful parsing for Vincent and Burwood in VPS logs.
-- [ ] **Phase 3 (Western Expansion)**:
-    - [ ] Run coverage audit for WA.
-    - [ ] Create Batch 1 of missing councils.
-    - [ ] Implement fixes.
+## 🔴 Phase 2: Targeted Recovery (Q1 2026)
+*Focus: Addressing "Risky Selectors" and remaining WAF blocks.*
 
-## 🟡 Improvements (Robustness)
-- [ ] **RSS Migration (Phase 2)**: Run `scripts/analysis/diagnose_scrapers.py` periodically to catch new RSS feeds.
-- [ ] **Database Upgrade**: Migrate from SQLite (`bot.db`) to PostgreSQL (Dockerized) to support higher concurrency.
-- [ ] **Alerting**: Connect `scripts/maintenance/health_check.py` to a Discord Webhook or Email service for passive monitoring.
-- [x] **Config Validation**: Added `scripts/audit_configs.py`.
-- [x] **Doc Review**: Updated DEPLOY, ARCHITECTURE, and README docs to match reality.
+### Priority 1: Risky Selectors Audit (Active)
+*Ref: [RISKY_SELECTORS_REPORT.md](RISKY_SELECTORS_REPORT.md)*
+- [x] **Western Australia:** Albany & Bridgetown-Greenbushes verified and fixed.
+- [ ] **Tasmania:** Audit Hobart, Launceston, Burnie (OpenCities cluster).
+- [ ] **Victoria:** Audit Whitehorse, Wodonga, Greater Dandenong.
+- [ ] **NT:** Audit Katherine, MacDonnell.
 
-## 🟢 Nice to Have (Features)
-- [ ] **Auto-Hashtagging**: Use keyword analysis on article titles to add specific tags (e.g., #Library, #Roads).
-- [ ] **Web Dashboard**: A simple Flask/FastAPI page to view the status of all 500+ scrapers.
-- [ ] **Public API**: Expose the aggregated news feed as a JSON API for other developers.
-- [ ] **Consolidate Scrapers**: Migrate discovered WordPress sites from `card_scraper` to `wordpress_scraper` or `rss_scraper`.
-- [ ] **Vendor Scrapers**: Build `AlykaScraper` for the WA Kentico cluster.
-- [x] **Scheduler Tuning**: Increased posting throughput to 10/run and documented constraints.
-- [ ] **Scheduler Tuning**: Increase timeout for NSW/WA or randomize council order to prevent "Z-starvation" due to 600s timeout.
+### Priority 2: Western Australia (33 Failures) - CLOSED
+- [x] **Triage:** Completed.
+- [x] **Platform Migration:** 77 Shires moved to `CatalystScraper`.
+- [x] **Alyka/Kentico:** Swan, Rockingham, Stirling, Belmont fixed with custom scrapers/APIs.
+- [ ] **Armadale:** (Deferred) Requires Playwright due to React Server Components.
 
-## 🔵 Maintenance
-- [x] **Codebase Cleanup**: Archived debug files, organized `scripts/`.
-- [x] **Config Standardization**: Implemented `core/config.py`.
-- [x] **Safety Valve**: Implemented `max_per_council` limit.
-- [x] **WAF Fixes**: Enabled `curl_cffi` for blocked councils.
-- [x] **Logging**: Implemented structured JSON logging.
-- [x] **Health Check**: Added daily "Zombie Audit" to scheduler.
-- [x] **Circuit Breaker**: Added `consecutive_empty_runs` tracking.
-- [ ] **Dependency Audit**: Pin versions in `requirements.txt` to ensure long-term stability.
-- [ ] **Log Rotation**: Configure Docker logging driver to prevent `scheduler.log` from filling the disk.
+### Priority 3: NSW & QLD (24 Failures Combined)
+- [ ] **Bot Protection Check:** Test strict WAF failures with `curl_impersonate` options.
+- [ ] **Selector Audit:** Review the 16 NSW failures for common layout changes.
+
+## 🟡 Phase 3: Infrastructure & Stability
+- [ ] **Continuous monitoring:** Integrate `scripts/comprehensive_health_check.py` into a weekly CI/CD or cron job.
+- [ ] **Database Migration:** Prepare for migration from SQLite to PostgreSQL for better concurrency.
+- [ ] **Dashboard:** Create a simple HTML/JSON dashboard to visualize the `HEALTH_CHECK_REPORT_2026.md` data dynamically.
+
+## 🟢 Maintenance & Refinement
+- [x] **Global Health Check:** Completed Jan 22, 2026 (87.2% Healthy).
+- [ ] **Dependency Lock:** Freeze `requirements.txt` to known stable versions.
+- [ ] **Logging:** Implement log rotation for `scheduler.log`.
+
+---
+*See [GLOBAL_HEALTH_AUDIT_2026.md](GLOBAL_HEALTH_AUDIT_2026.md) for the latest detailed breakdown.*
