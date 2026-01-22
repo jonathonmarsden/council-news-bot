@@ -53,3 +53,10 @@ python3 scripts/analyze_state_scrapers.py
 - **Western Australia**: Requires attention (76%) due to custom scraped fragmentation.
 - See [`PROJECT_LEARNINGS_2026.md`](PROJECT_LEARNINGS_2026.md) for full strategic analysis.
 
+## Critical Production Fix (2026-01-22)
+
+**Issue**: A severe regression caused most scrapers to crash with `TypeError: __init__() got an unexpected keyword argument 'enabled'`.
+**Cause**: The `ScraperFactory` passes all extra configuration keys (like `enabled`, `hashtags`, etc.) to the scraper constructor as `**kwargs`. Many scraper classes (CardScraper, RSSScraper, etc.) did not accept `**kwargs` in their `__init__` method, causing them to reject these extra keys.
+**Resolution**: Updated ALL scraper classes (`CardScraper`, `RSSScraper`, `CatalystScraper`, `WannerooScraper`, etc.) to accept `**kwargs` and pass them to `super()`.
+**Rule**: Any new scraper class MUST accept `**kwargs` in `__init__` to be compatible with the Factory's configuration injection.
+
