@@ -1,7 +1,7 @@
 # Council News Bot Architecture
 
 ## Overview
-The Council News Bot is a scalable system designed to scrape news from Australian local government websites and publish updates to social media (BlueSky). It currently supports **7/8 States & Territories** (VIC, NSW, QLD, TAS, SA, NT, ACT), with a design ready to scale to all ~500 councils across Australia.
+The Council News Bot is a scalable system designed to scrape news from Australian local government websites and publish updates to social media (BlueSky). It currently supports **8/8 States & Territories** (VIC, NSW, QLD, TAS, SA, NT, ACT, WA), with a design ready to scale to all ~540 councils across Australia.
 
 ## System Architecture
 
@@ -22,6 +22,7 @@ graph TD
     subgraph "Scraper Engine"
         Card[CardScraper]
         RSS[RSSScraper]
+        Catalyst[CatalystScraper]
         Custom[Custom Scrapers]
         CURL[curl_cffi (WAF Bypass)]
     end
@@ -31,9 +32,11 @@ graph TD
     Factory --> Scraper
     Scraper --> Card
     Scraper --> RSS
+    Scraper --> Catalyst
     Scraper --> Custom
     Card --> CURL
     RSS --> CURL
+    Catalyst --> CURL
     
     Scraper -->|Raw Articles| DB
     DB -->|Unposted Articles| Poster
@@ -63,14 +66,26 @@ council-news-bot/
 └── docker-compose.yml      # Container Orchestration
 ```
 
+## Infrastructure & Constraints
+
+The system is designed to run on a low-cost VPS (DigitalOcean Basic Droplet) with specific resource constraints to ensure stability.
+
+| Resource | Constraint | Implementation |
+| :--- | :--- | :--- |
+| **Memory** | **1024 MB** | Enforced via Docker Compose `deploy.resources.limits.memory`. Prevents OOM kills affecting the host. |
+| **Concurrency** | **2 Workers** | `scheduler.py` limits `main.py` execution to 2 parallel processes to keep CPU load < 80%. |
+| **Disk Storage** | **25 GB** | Docker logs are rotated (`max-size: 10m`, `max-file: 3`) to prevent disk exhaustion. |
+| **Network** | **IP Reputation** | Heavy reliance on `curl_cffi` and rotating proxies to mitigate WAF blocks on the datacenter IP. |
+
 ## Core Components
 
 ### 1. Scraper Engine (`core/scrapers/`)
 The scraping logic is modular and handles various website structures and anti-bot protections.
 
 *   **`CardScraper`**: The primary scraper. It targets news "cards" on HTML pages using CSS selectors.
-    *   **WAF Bypass**: Uses `curl_cffi` to impersonate real browsers (`chrome110`, `chrome120`) to bypass Cloudflare/Incapsula.
+    *   **WAF Bypass**: Uses `curl_cffi` to impersonate real browsers (`chrome110`, `chrome120`) to bypass Cloudflare/Incapsula. See [WAF Strategy](WAF_STRATEGY.md) for research workflow.
     *   **Mobile Mode**: Can impersonate an iPhone to get a simpler mobile layout.
+*   **`CatalystScraper`**: Specialized class for ~116 WA councils using the Catalyst CMS. It handles their specific table-based layout and date parsing automatically.
 *   **`RSSScraper`**: Consumes standard RSS feeds where available.
 *   **`ScraperFactory`**: Dynamically instantiates the correct scraper based on the council's configuration.
 
@@ -83,9 +98,24 @@ We use a **"Record Everything"** strategy to eliminate ambiguity between "broken
         *   `status='archived'`: Old article (> 7 days), stored for history but ignored by poster.
         *   `status='posted'`: Successfully posted to BlueSky.
     *   `scraper_stats`: Logs every run (articles found, duration, status) for health monitoring.
-    *   `council_health`: Tracks consecutive failures to implement a "Circuit Breaker" (disables broken scrapers).
+    *   `council_health`: Circuit Breaker tracks:
+        *   `consecutive_failures`: Connection errors (trips at 5).
+        *   `consecutive_empty_runs`: "Zombie" detection (Active but finding nothing).
 
-### 3. Configuration (`states/{state}/councils.json`)
+### 3. Posting Engine & Scheduler
+The system is orchestrated to balance throughput with safety.
+
+*   **Scheduler (`scheduler.py`)**:
+    *   **Scrape Loop**: Runs every 3 hours (Concurrency: 2).
+    *   **Post Loop**: Runs every 5 minutes (5am - 10pm).
+    *   **Health Check Loop**: Runs daily. Audits for "Zombie" scrapers and sends alerts.
+    *   **Limits**: Posts max **10 articles** per state per run (increased Jan 2026).
+*   **Poster (`core/poster.py`)**:
+    *   **Freshness Filter**: Hard filter rejecting articles >7 days old.
+    *   **Variety Logic**: Round-Robin selection ensures no single council dominates the feed.
+    *   **Validation**: Rejects malformed content or excerpts >250 chars.
+
+### 4. Configuration (`states/{state}/councils.json`)
 Configuration is decoupled from code. Each council is defined by a JSON object:
 
 ```json
@@ -102,7 +132,7 @@ Configuration is decoupled from code. Each council is defined by a JSON object:
 }
 ```
 
-### 4. Deployment Pipeline
+### 5. Deployment Pipeline
 The bot is containerized using Docker for consistent execution across environments.
 
 *   **Local**: Developers run `main.py` or scripts directly.

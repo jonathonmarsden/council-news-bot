@@ -1,185 +1,44 @@
-# AI Context & Developer Guide
+# AI Context & Handover Guide
 
-This document is designed to help AI agents and developers understand the Council News Bot architecture, workflows, and common tasks.
+## 🚩 Mission Statement
+To create a comprehensive, automated news aggregation service for every Local Government Area (LGA) in Australia (~540 councils). The bot scrapes news, normalizes it, and publishes it to the BlueSky social network to ensure democratic transparency.
 
-## 🚀 Deployment Workflow (CRITICAL)
+## 🧠 System Context
+This project is a Python-based scraping pipeline running on a DigitalOcean VPS (Dockerized).
 
-**The VPS does NOT pull from GitHub automatically.**
+### Key Components
+- **Orchestrator**: `scheduler.py` runs the main loop (scrapes all states, then posts updates).
+- **Configuration**: JSON files in `states/{state_code}/councils.json` define the rules for each council.
+- **Engine**: `core/scrapers/` contains the logic. `CardScraper` is the workhorse.
+- **WAF Defense**: We use `curl_cffi` and rotating proxies to bypass Cloudflare/Incapsula.
 
-We use a **Push-to-Deploy** model using `rsync`. This ensures that local configuration (like `.env` secrets) and the database schema are synchronized correctly without exposing secrets in the git repository.
+## 🛡️ The "WAF War" (Phase 2 Complete)
+We have successfully developed a methodology to bypass sophisticated Anti-Bot protections found on major council sites (e.g., Adelaide, Vincent, Ballarat).
 
-### How to Deploy Changes
-
-1.  **Develop Locally**: Make changes, run tests, and verify on your local machine.
-2.  **Commit to Git**: `git push` to save your work to the "Library" (GitHub). This is for version control and backup.
-3.  **Deploy to VPS**: Run the deployment script from your local machine.
-    ```bash
-    python3 scripts/deploy_with_password.py
+### The Recipe
+If a council returns 403 Forbidden or 0 articles (Silent Block):
+1.  **Tool**: Use `scripts/debug/research_waf_bypass.py` on the VPS.
+2.  **Config**: The winning combo is usually:
+    ```json
+    "use_curl": true,
+    "use_rotating_proxy": true,
+    "impersonate": "chrome124"
     ```
-    *   This script uses `rsync` to copy your local files *directly* to the VPS.
-    *   It then restarts the Docker containers on the VPS.
+3.  **Deployment**: Update `councils.json` locally -> `deploy_to_vps.sh` (or manual SCP) -> `docker restart council_news_bot`.
 
-**Do NOT assume `git push` updates the live bot.** You MUST run the deployment script.
+## 🗺️ Current Status (Jan 2026)
+- **Coverage**: 8/8 States & Territories active.
+- **Health**: Phase 1 (Stability) & Phase 2 (WAF) are complete.
+- **Focus**: Phase 3 "Western Expansion" (Filling gaps in WA).
 
-## 🏗 Project Structure
+## 📂 Key Files for AI Agents
+- `docs/ARCHITECTURE.md`: Technical system design.
+- `docs/WAF_STRATEGY.md`: Detailed WAF bypass protocols.
+- `docs/reports/INCIDENT_MALFORMED_TITLES_2026_01_22.md`: Incident analysis of WA malformed posts.
+- `TODO.md`: Priority queue.
+- `states/wa/recovery_plan.md`: The roadmap for Western Australia.
 
-The project is a **Dockerized, VPS-hosted application** designed for concurrent execution.
-
-```text
-council-news-bot/
-├── main.py                 # Core Worker (CLI Entry Point, called by scheduler)
-├── scheduler.py            # Main Service Loop (runs continuously in Docker)
-├── Dockerfile              # Container definition
-├── docker-compose.yml      # Orchestration config
-├── core/                   # Core Application Logic
-│   ├── scraper.py          # Scraper implementations (BaseScraper, CardScraper, RSSScraper)
-│   ├── database.py         # SQLite database handler
-│   ├── poster.py           # BlueSky API client
-│   └── utils.py            # Logging and utilities
-├── states/                 # Configuration by State
-│   ├── vic/
-│   │   └── councils.json   # VIC Council configurations
-│   ├── nsw/
-│   │   └── councils.json   # NSW Council configurations
-│   ├── qld/
-│   ├── tas/
-│   ├── sa/
-│   ├── nt/
-│   └── act/
-├── scripts/                # Utility scripts (Deployment, Health Checks, RSS Discovery)
-└── bot.db                  # SQLite Database (stores article history)
-```
-
-## 🤖 Scraper Architecture
-
-The bot uses a configuration-driven approach. We support both HTML scraping and RSS feeds.
-
-### `core/scraper.py`
-
-- **`BaseScraper`**: Handles HTTP requests. Supports `requests` and `curl_cffi` (for WAF bypass).
-- **`CardScraper`**: The default HTML scraper. Configurable via CSS selectors in JSON.
-- **`RSSScraper`**: The preferred scraper. Consumes standard RSS/Atom feeds.
-
-### Configuration (`states/{state}/councils.json`)
-
-Each council entry looks like this:
-
-```json
-{
-    "id": "council-id-kebab-case",
-    "name": "Council Name",
-    "news_url": "https://example.com/rss.xml",
-    "scraper": "rss_scraper",  // or "card_scraper"
-    "enabled": true
-}
-```
-
-## 🛠 Workflow: Fixing a Broken Scraper
-
-If a council is not scraping correctly (e.g., finding 0 articles, or missing dates), follow this process:
-
-### 1. Check for RSS First!
-
-Before debugging HTML selectors, check if the council has an RSS feed. This is much more reliable.
-- Look for the RSS icon on their news page.
-- Check common paths: `/rss`, `/feed`, `/news/rss`, `/news/feed`.
-- Use the `scripts/find_rss.py` tool (if available) or just `curl` and `grep`.
-
-If an RSS feed exists, switch the `scraper` type to `rss_scraper` in `councils.json` and update the `news_url`.
-
-### 2. Create a Reproduction Script
-
-If you must use HTML scraping, create a temporary file (e.g., `test_council.py`) to isolate the council.
-
-```python
-import sys
-import os
-import json
-from core.scraper import CardScraper
-
-# Mock config
-config = {
-    "id": "test-council",
-    "name": "Test Council",
-    "news_url": "https://target-url.com/news",
-    "scraper": "card_scraper",
-    # Add current selectors from councils.json here
-}
-
-def test():
-    scraper = CardScraper(
-        config['id'], 
-        config['name'], 
-        config['news_url'], 
-        selectors=config
-    )
-    articles = scraper.scrape()
-    print(f"Found {len(articles)} articles")
-    for a in articles:
-        print(f"- {a.title}\n  Date: {a.date}\n  Link: {a.url}")
-
-if __name__ == "__main__":
-    test()
-```
-
-### 3. Analyze the HTML
-
-Download the page HTML to inspect the structure. Use `curl` to mimic the bot.
-
-```bash
-curl -A "Mozilla/5.0" "https://target-url.com/news" -o debug.html
-```
-
-### 3. Identify Selectors
-
-Open `debug.html` or use `grep` to find the article title, date, and container.
-
-- **Container (`item_selector`)**: The element wrapping the whole news card.
-- **Date (`date_selector`)**: The element containing the date text.
-- **Title (`title_selector`)**: The element containing the headline.
-
-### 4. Update Configuration
-
-Modify `states/{state}/councils.json` with the new selectors.
-
-### 5. Verify
-
-Run your reproduction script again. If it works, delete the script and the HTML file.
-
-## 🚀 Deployment (VPS)
-
-The bot runs as a Docker container on a DigitalOcean Droplet.
-
-### Deployment Script
-We use a custom script to handle deployment because we don't have SSH keys set up on the VPS yet (password auth).
-
-```bash
-# Deploy code and rebuild containers
-python3 scripts/deploy_with_password.py
-```
-
-### Manual Management (SSH)
-If you need to debug on the server:
-
-1. SSH in: `ssh root@170.64.186.16`
-2. View logs: `docker compose logs -f`
-3. Restart: `docker compose restart`
-4. Rebuild: `docker compose up -d --build`
-
-### Data Persistence
-- The SQLite database (`bot.db`) is persisted in a Docker volume.
-- Logs are accessible via `docker compose logs`.
-
-## 🧪 Testing
-
-Run the full test suite:
-
-```bash
-pytest
-```
-
-Run a specific test file:
-
-```bash
-pytest tests/test_scrapers.py
-```
+## 🔄 Deployment Cheatsheet
+- **Deploy Code**: `scp ...` to `root@170.64.186.16:/opt/council-news-bot/...`
+- **Restart Scraper**: `ssh root@170.64.186.16 "docker restart council_news_bot"`
+- **Check Logs**: `ssh root@170.64.186.16 "docker logs --tail 100 council_news_bot"`

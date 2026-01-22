@@ -32,16 +32,17 @@ These need a dedicated `CatalystScraper` class.
     - **South Perth**: Sitefinity. Moved to Phase 4.
     - **Belmont**: Investigation needed. Moved to Phase 3.
 
-### Phase 3: The "Platform" Consolidation (In Progress)
+### Phase 3: The "Platform" Consolidation (Completed 2026-01-22)
 - [x] **Goal 1: Catalyst Cluster (Completed 2026-01-21)**: Solved the 77 "Small Shire" sites (Ashburton, Beverley, Brookton, Carnarvon, etc).
     - Created `core/scrapers/catalyst.py`.
     - Migrated 77 councils from generic selectors to `catalyst_scraper` (fixing "malformed post" issues).
-- [x] **Goal 2: Alyka/Kentico Cluster (Partially Complete)**:
+- [x] **Goal 2: Alyka/Kentico Cluster (Completed 2026-01-22)**:
     - **Stirling**: Custom scraper refactored into generic `AlykaScraper`. **FIXED**.
-    - **Swan, Rockingham**: Confirmed Alyka/Kentico, but use different API endpoints (`/v1/aapi/search/htmlresult`). Disabled pending API reverse engineering.
-    - **Belmont**: Confirmed Kentico CSR. Disabled.
+    - **Swan**: **FIXED** (2026-01-22). Updated `AlykaScraper` to support item excerpts. `htmlresult` API works fine with correct config.
+    - **Rockingham**: **FIXED** (2026-01-22). Confirmed `curl_scraper` with `chrome124` bypasses WAF correctly.
+    - **Belmont**: **FIXED** (2026-01-21). Custom API scraper (`BelmontScraper`) implemented. Required reverse engineering `/api/search/search` and specific sort parameters (`DATE_DSC`).
 
-### Phase 4: The "Too Hard Basket" (Custom Dev)
+### Phase 4: The "Too Hard Basket" (Status Update)
 - [x] **South Perth**: Resolved! (Was sitefinity, but `card_scraper` works fine with correct URL).
 - [ ] **Vincent**: WAF protected (Barracuda). `curl_cffi` blocked. Requires Playwright/Puppeteer.
 - [ ] **Armadale**: React Server Components. Requires Playwright.
@@ -51,3 +52,9 @@ These need a dedicated `CatalystScraper` class.
 ## 4. Continuous Improvement
 - **Validation:** Added `core/validator.py` to prevent malformed posts.
 - **Logging:** Added Discord-style logging (even if just to stdout) to track "Zero Article" runs.
+- **Audit:** "Risky Selectors" audit for Albany and Bridgetown-Greenbushes completed and verified.
+
+## 5. Next Steps (2026-01-22)
+- **Tasmania**: Begin audit of OpenCities cluster (Hobart, Launceston, Burnie).
+- **Maintenance**: Regular checking of the new `AlykaScraper` implementations (Swan/Stirling).
+
