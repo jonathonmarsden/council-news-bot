@@ -2,7 +2,7 @@ name: Ops Monitoring
 
 on:
   schedule:
-    - cron: "0 21 * * *"
+    - cron: "0 21 * * *"  # Daily at 21:00 UTC (~8am AEDT)
   workflow_dispatch:
 
 jobs:
@@ -18,16 +18,41 @@ jobs:
           ssh-keyscan -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts
 
       - name: Daily briefing
+        id: briefing
+        continue-on-error: true
         run: |
           ssh -i ~/.ssh/deploy_key "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
             "cd /opt/council-news-bot && docker compose exec -T bot python3 scripts/monitoring/daily_briefing.py"
 
       - name: Daily health report
+        id: health
+        continue-on-error: true
         run: |
           ssh -i ~/.ssh/deploy_key "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
             "cd /opt/council-news-bot && docker compose exec -T bot python3 scripts/maintenance/health_check.py"
 
       - name: Backup database
+        id: backup
+        continue-on-error: true
         run: |
           ssh -i ~/.ssh/deploy_key "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
             "mkdir -p /opt/council-news-bot/backups && cd /opt/council-news-bot && docker compose exec -T db pg_dump -U councilbot council_news | gzip -c > /opt/council-news-bot/backups/council_news_$(date +%F).sql.gz && find /opt/council-news-bot/backups -name 'council_news_*.sql.gz' -mtime +14 -delete"
+
+      - name: Send failure alert
+        if: steps.briefing.outcome == 'failure' || steps.health.outcome == 'failure' || steps.backup.outcome == 'failure'
+        run: |
+          FAILED_STEPS=""
+          [ "${{ steps.briefing.outcome }}" == "failure" ] && FAILED_STEPS="${FAILED_STEPS}\n• Daily Briefing"
+          [ "${{ steps.health.outcome }}" == "failure" ] && FAILED_STEPS="${FAILED_STEPS}\n• Health Report"
+          [ "${{ steps.backup.outcome }}" == "failure" ] && FAILED_STEPS="${FAILED_STEPS}\n• Database Backup"
+          
+          curl -H "Content-Type: application/json" -X POST \
+            -d "{\"embeds\": [{\"title\": \"🔴 Ops Monitoring Failed\", \"description\": \"One or more monitoring tasks failed:\n${FAILED_STEPS}\n\nCheck [GitHub Actions](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.\", \"color\": 15158332, \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}], \"username\": \"CI/CD Bot\"}" \
+            "${{ secrets.DISCORD_WEBHOOK_ALERTS }}" || echo "Failed to send Discord alert"
+
+      - name: Send success notification
+        if: steps.briefing.outcome == 'success' && steps.health.outcome == 'success' && steps.backup.outcome == 'success'
+        run: |
+          curl -H "Content-Type: application/json" -X POST \
+            -d "{\"embeds\": [{\"title\": \"✅ Daily Ops Complete\", \"description\": \"All monitoring tasks completed successfully:\n• Daily briefing sent\n• Health report generated\n• Database backed up\", \"color\": 3066993, \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}], \"username\": \"CI/CD Bot\"}" \
+            "${{ secrets.DISCORD_WEBHOOK_ALERTS }}" || echo "Failed to send Discord notification"
