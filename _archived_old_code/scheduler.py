@@ -19,6 +19,12 @@ except ImportError:
     # Fallback for older Python versions
     ZoneInfo = None
 
+# Optional Discord Logging
+try:
+    from discord_logger import log_error
+except ImportError:
+    log_error = None
+
 # Set Timezone
 TZ_NAME = "Australia/Sydney"
 try:
@@ -76,19 +82,25 @@ async def run_process(args, description, timeout=600):
             if stdout_str:
                 for line in stdout_str.split('\n'):
                     # Capture critical info, warnings, and error messages
-                    if any(key in line for key in ["Processing Summary", "Posted", "Warning", "Error", "Exception", "Critical", "Skipping", "DISABLED"]):
+                    if any(key in line for key in ["Processing Summary", "Posted", "Warning", "Error", "Exception", "Critical", "Skipping", "DISABLED", "Found", "Audit", "Zombie", "Success"]):
                         log(f"[{description}] {line.strip()}")
             
     except Exception as e:
         log(f"Exception running {description}: {e}")
+        if log_error:
+            try:
+                log_error(None, str(e), context=f"Scheduler Task: {description}")
+            except Exception:
+                pass
+
 
 async def scrape_state(state):
     """Scrape a single state."""
     log(f"Starting scrape for {state}...")
     main_script = os.path.join(os.path.dirname(__file__), 'main.py')
-    # Limit concurrency to 2 workers to prevent VPS overload
+    # Limit concurrency to 5 workers (Tuned for 4GB VPS)
     await run_process(
-        [sys.executable, main_script, "--state", state, "--scrape-only", "--concurrency", "2"],
+        [sys.executable, main_script, "--state", state, "--scrape-only", "--concurrency", "5"],
         f"scrape for {state}",
         timeout=3600  # 1 hour timeout for scraping
     )

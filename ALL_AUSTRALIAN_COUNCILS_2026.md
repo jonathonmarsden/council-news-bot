@@ -1,0 +1,555 @@
+# Official Australian Council List 2026
+
+Total Councils: 537
+
+
+## NSW (128)
+- Albury City Council
+- Armidale Regional Council
+- Ballina Shire Council
+- Balranald Shire Council
+- Bathurst Regional Council
+- Bayside Council
+- Bega Valley Shire Council
+- Bellingen Shire Council
+- Berrigan Shire Council
+- Blacktown City Council
+- Bland Shire Council
+- Blayney Shire Council
+- Blue Mountains City Council
+- Bogan Shire Council
+- Bourke Shire Council
+- Brewarrina Shire Council
+- Broken Hill City Council
+- Burwood Council
+- Byron Shire Council
+- Cabonne Council
+- Camden Council
+- Campbelltown City Council
+- Carrathool Shire Council
+- Central Coast Council
+- Central Darling Shire Council
+- Cessnock City Council
+- City of Canada Bay Council
+- City of Canterbury Bankstown
+- City of Newcastle
+- City of Parramatta Council
+- City of Ryde
+- City of Sydney
+- Clarence Valley Council
+- Cobar Shire Council
+- Coffs Harbour City Council
+- Coolamon Shire Council
+- Coonamble Shire Council
+- Cootamundra-Gundagai Council
+- Cowra Council
+- Cumberland City Council
+- Dubbo Regional Council
+- Dungog Shire Council
+- Edward River Council
+- Eurobodalla Shire Council
+- Fairfield City Council
+- Federation Council
+- Forbes Shire Council
+- Georges River Council
+- Gilgandra Shire Council
+- Glen Innes Severn Council
+- Goulburn Mulwaree Council
+- Greater Hume Shire Council
+- Griffith City Council
+- Gunnedah Shire Council
+- Gwydir Shire Council
+- Hawkesbury City Council
+- Hay Shire Council
+- Hilltops Council
+- Hornsby Shire Council
+- Hunter's Hill Council
+- Inner West Council
+- Inverell Shire Council
+- Junee Shire Council
+- Kempsey Shire Council
+- Kiama Municipal Council
+- Ku-ring-gai Council
+- Kyogle Council
+- Lachlan Shire Council
+- Lake Macquarie City Council
+- Lane Cove Council
+- Leeton Shire Council
+- Lismore City Council
+- Lithgow City Council
+- Liverpool City Council
+- Liverpool Plains Shire Council
+- Lockhart Shire Council
+- Maitland City Council
+- Mid-Western Regional Council
+- MidCoast Council
+- Moree Plains Shire Council
+- Mosman Municipal Council
+- Murray River Council
+- Murrumbidgee Council
+- Muswellbrook Shire Council
+- Nambucca Valley Council
+- Narrabri Shire Council
+- Narrandera Shire Council
+- Narromine Shire Council
+- North Sydney Council
+- Northern Beaches Council
+- Oberon Council
+- Orange City Council
+- Parkes Shire Council
+- Penrith City Council
+- Port Macquarie-Hastings Council
+- Port Stephens Council
+- Queanbeyan-Palerang Regional Council
+- Randwick City Council
+- Richmond Valley Council
+- Shellharbour City Council
+- Shoalhaven City Council
+- Singleton Council
+- Snowy Monaro Regional Council
+- Snowy Valleys Council
+- Strathfield Council
+- Sutherland Shire Council
+- Tamworth Regional Council
+- Temora Shire Council
+- Tenterfield Shire Council
+- The Hills Shire Council
+- Tweed Shire Council
+- Upper Hunter Shire Council
+- Upper Lachlan Shire Council
+- Uralla Shire Council
+- Wagga Wagga City Council
+- Walcha Council
+- Walgett Shire Council
+- Warren Shire Council
+- Warrumbungle Shire Council
+- Waverley Council
+- Weddin Shire Council
+- Wentworth Shire Council
+- Willoughby City Council
+- Wingecarribee Shire Council
+- Wollondilly Shire Council
+- Wollongong City Council
+- Woollahra Municipal Council
+- Yass Valley Council
+
+## NT (18)
+- Alice Springs Town Council
+- Barkly Regional Council
+- Belyuen Community Government Council
+- Central Desert Regional Council
+- City of Darwin
+- City of Palmerston
+- Coomalie Community Government Council
+- East Arnhem Regional Council
+- Groote Archipelago Regional Council
+- Katherine Town Council
+- Litchfield Council
+- MacDonnell Regional Council
+- Roper Gulf Regional Council
+- Tiwi Islands Regional Council
+- Victoria Daly Regional Council
+- Wagait Shire Council
+- West Arnhem Regional Council
+- West Daly Regional Council
+
+## QLD (77)
+- Aurukun Shire Council
+- Balonne Shire Council
+- Banana Shire Council
+- Barcaldine Regional Council
+- Barcoo Shire Council
+- Blackall Tambo Regional Council
+- Boulia Shire Council
+- Brisbane City Council
+- Bulloo Shire Council
+- Bundaberg Regional Council
+- Burdekin Shire Council
+- Burke Shire Council
+- Cairns Regional Council
+- Carpentaria Shire Council
+- Cassowary Coast Regional Council
+- Central Highlands Regional Council
+- Charters Towers Regional Council
+- Cherbourg Aboriginal Shire Council
+- City of Gold Coast
+- City of Logan
+- City of Moreton Bay
+- Cloncurry Shire Council
+- Cook Shire Council
+- Croydon Shire Council
+- Diamantina Shire Council
+- Doomadgee Aboriginal Shire Council
+- Douglas Shire Council
+- Etheridge Shire Council
+- Flinders Shire Council
+- Fraser Coast Regional Council
+- Gladstone Regional Council
+- Goondiwindi Regional Council
+- Gympie Regional Council
+- Hinchinbrook Shire Council
+- Hope Vale Aboriginal Shire Council
+- Ipswich City Council
+- Isaac Regional Council
+- Kowanyama Aboriginal Shire Council
+- Livingstone Shire Council
+- Lockhart River Aboriginal Shire Council
+- Lockyer Valley Regional Council
+- Longreach Regional Council
+- Mackay Regional Council
+- Mapoon Aboriginal Shire Council
+- Maranoa Regional Council
+- Mareeba Shire Council
+- McKinlay Shire Council
+- Mornington Shire Council
+- Mount Isa City Council
+- Murweh Shire Council
+- Napranum Aboriginal Shire Council
+- Noosa Shire Council
+- North Burnett Regional Council
+- Northern Peninsula Area Regional Council
+- Palm Island Aboriginal Shire Council
+- Paroo Shire Council
+- Pormpuraaw Aboriginal Shire Council
+- Quilpie Shire Council
+- Redland City Council
+- Richmond Shire Council
+- Rockhampton Regional Council
+- Scenic Rim Regional Council
+- Somerset Regional Council
+- South Burnett Regional Council
+- Southern Downs Regional Council
+- Sunshine Coast Regional Council
+- Tablelands Regional Council
+- Toowoomba Regional Council
+- Torres Shire Council
+- Torres Strait Island Regional Council
+- Townsville City Council
+- Western Downs Regional Council
+- Whitsunday Regional Council
+- Winton Shire Council
+- Woorabinda Aboriginal Shire Council
+- Wujal Wujal Aboriginal Shire Council
+- Yarrabah Aboriginal Shire Council
+
+## SA (68)
+- Adelaide Hills Council
+- Adelaide Plains Council
+- Alexandrina Council
+- Barunga West Council
+- Berri Barmera Council
+- Campbelltown City Council
+- City of Adelaide
+- City of Burnside
+- City of Charles Sturt
+- City of Holdfast Bay
+- City of Marion
+- City of Mitcham
+- City of Mount Gambier
+- City of Norwood Payneham & St Peters
+- City of Onkaparinga
+- City of Playford
+- City of Port Adelaide Enfield
+- City of Port Lincoln
+- City of Prospect
+- City of Salisbury
+- City of Tea Tree Gully
+- City of Unley
+- City of Victor Harbor
+- City of West Torrens
+- City of Whyalla
+- Clare and Gilbert Valleys Council
+- Coorong District Council
+- Copper Coast Council
+- District Council of Ceduna
+- District Council of Cleve
+- District Council of Coober Pedy
+- District Council of Elliston
+- District Council of Franklin Harbour
+- District Council of Grant
+- District Council of Karoonda East Murray
+- District Council of Kimba
+- District Council of Loxton Waikerie
+- District Council of Mount Remarkable
+- District Council of Orroroo Carrieton
+- District Council of Peterborough
+- District Council of Robe
+- District Council of Streaky Bay
+- District Council of Tumby Bay
+- District Council of Yankalilla
+- Kangaroo Island Council
+- Kingston District Council
+- Light Regional Council
+- Lower Eyre Council
+- Mid Murray Council
+- Mount Barker District Council
+- Municipal Council of Roxby Downs
+- Naracoorte Lucindale Council
+- Northern Areas Council
+- Port Augusta City Council
+- Port Pirie Regional Council
+- Regional Council of Goyder
+- Renmark Paringa Council
+- Rural City of Murray Bridge
+- Southern Mallee District Council
+- Tatiara District Council
+- The Barossa Council
+- The Flinders Ranges Council
+- Town of Gawler
+- Town of Walkerville
+- Wakefield Regional Council
+- Wattle Range Council
+- Wudinna District Council
+- Yorke Peninsula Council
+
+## TAS (29)
+- Break O'Day Council
+- Brighton Council
+- Burnie City Council
+- Central Coast Council
+- Central Highlands Council
+- Circular Head Council
+- Clarence City Council
+- Derwent Valley Council
+- Devonport City Council
+- Dorset Council
+- Flinders Council
+- George Town Council
+- Glamorgan Spring Bay Council
+- Glenorchy City Council
+- Hobart City Council
+- Huon Valley Council
+- Kentish Council
+- King Island Council
+- Kingborough Council
+- Latrobe Council
+- Launceston City Council
+- Meander Valley Council
+- Northern Midlands Council
+- Sorell Council
+- Southern Midlands Council
+- Tasman Council
+- Waratah-Wynyard Council
+- West Coast Council
+- West Tamar Council
+
+## VIC (79)
+- Alpine Shire Council
+- Ararat Rural City Council
+- Ballarat City Council
+- Banyule City Council
+- Bass Coast Shire Council
+- Baw Baw Shire Council
+- Bayside City Council
+- Benalla Rural City Council
+- Boroondara City Council
+- Borough of Queenscliffe
+- Brimbank City Council
+- Buloke Shire Council
+- Campaspe Shire Council
+- Cardinia Shire Council
+- Casey City Council
+- Central Goldfields Shire Council
+- Colac Otway Shire Council
+- Corangamite Shire Council
+- Darebin City Council
+- East Gippsland Shire Council
+- Frankston City Council
+- Gannawarra Shire Council
+- Glen Eira City Council
+- Glenelg Shire Council
+- Golden Plains Shire Council
+- Greater Bendigo City Council
+- Greater Dandenong City Council
+- Greater Geelong City Council
+- Greater Shepparton City Council
+- Hepburn Shire Council
+- Hindmarsh Shire Council
+- Hobsons Bay City Council
+- Horsham Rural City Council
+- Hume City Council
+- Indigo Shire Council
+- Kingston City Council
+- Knox City Council
+- Latrobe City Council
+- Loddon Shire Council
+- Macedon Ranges Shire Council
+- Manningham City Council
+- Mansfield Shire Council
+- Maribyrnong City Council
+- Maroondah City Council
+- Melbourne City Council
+- Melton City Council
+- Merri-bek City Council
+- Mildura Rural City Council
+- Mitchell Shire Council
+- Moira Shire Council
+- Monash City Council
+- Moonee Valley City Council
+- Moorabool Shire Council
+- Mornington Peninsula Shire Council
+- Mount Alexander Shire Council
+- Moyne Shire Council
+- Murrindindi Shire Council
+- Nillumbik Shire Council
+- Northern Grampians Shire Council
+- Port Phillip City Council
+- Pyrenees Shire Council
+- South Gippsland Shire Council
+- Southern Grampians Shire Council
+- Stonnington City Council
+- Strathbogie Shire Council
+- Surf Coast Shire Council
+- Swan Hill Rural City Council
+- Towong Shire Council
+- Wangaratta Rural City Council
+- Warrnambool City Council
+- Wellington Shire Council
+- West Wimmera Shire Council
+- Whitehorse City Council
+- Whittlesea City Council
+- Wodonga City Council
+- Wyndham City Council
+- Yarra City Council
+- Yarra Ranges Shire Council
+- Yarriambiack Shire Council
+
+## WA (138)
+- City of Albany
+- City of Armadale
+- City of Bayswater
+- City of Belmont
+- City of Bunbury
+- City of Busselton
+- City of Canning
+- City of Cockburn
+- City of Fremantle
+- City of Gosnells
+- City of Greater Geraldton
+- City of Joondalup
+- City of Kalamunda
+- City of Kalgoorlie-Boulder
+- City of Karratha
+- City of Kwinana
+- City of Mandurah
+- City of Melville
+- City of Nedlands
+- City of Perth
+- City of Rockingham
+- City of South Perth
+- City of Stirling
+- City of Subiaco
+- City of Swan
+- City of Vincent
+- City of Wanneroo
+- Shire of Ashburton
+- Shire of Augusta Margaret River
+- Shire of Beverley
+- Shire of Boddington
+- Shire of Boyup Brook
+- Shire of Bridgetown-Greenbushes
+- Shire of Brookton
+- Shire of Broome
+- Shire of Broomehill-Tambellup
+- Shire of Bruce Rock
+- Shire of Capel
+- Shire of Carnamah
+- Shire of Carnarvon
+- Shire of Chapman Valley
+- Shire of Chittering
+- Shire of Cocos (Keeling) Islands
+- Shire of Collie
+- Shire of Coolgardie
+- Shire of Coorow
+- Shire of Corrigin
+- Shire of Cranbrook
+- Shire of Cuballing
+- Shire of Cue
+- Shire of Cunderdin
+- Shire of Dalwallinu
+- Shire of Dandaragan
+- Shire of Dardanup
+- Shire of Denmark
+- Shire of Derby-West Kimberley
+- Shire of Donnybrook-Balingup
+- Shire of Dowerin
+- Shire of Dumbleyung
+- Shire of Dundas
+- Shire of East Pilbara
+- Shire of Esperance
+- Shire of Exmouth
+- Shire of Gingin
+- Shire of Gnowangerup
+- Shire of Goomalling
+- Shire of Halls Creek
+- Shire of Harvey
+- Shire of Irwin
+- Shire of Jerramungup
+- Shire of Katanning
+- Shire of Kellerberrin
+- Shire of Kent
+- Shire of Kojonup
+- Shire of Kondinin
+- Shire of Koorda
+- Shire of Kulin
+- Shire of Lake Grace
+- Shire of Laverton
+- Shire of Leonora
+- Shire of Manjimup
+- Shire of Meekatharra
+- Shire of Menzies
+- Shire of Merredin
+- Shire of Mingenew
+- Shire of Moora
+- Shire of Morawa
+- Shire of Mount Magnet
+- Shire of Mount Marshall
+- Shire of Mukinbudin
+- Shire of Mundaring
+- Shire of Murchison
+- Shire of Murray
+- Shire of Nannup
+- Shire of Narembeen
+- Shire of Narrogin
+- Shire of Ngaanyatjarraku
+- Shire of Northam
+- Shire of Northampton
+- Shire of Nungarin
+- Shire of Peppermint Grove
+- Shire of Perenjori
+- Shire of Pingelly
+- Shire of Plantagenet
+- Shire of Quairading
+- Shire of Ravensthorpe
+- Shire of Sandstone
+- Shire of Serpentine-Jarrahdale
+- Shire of Shark Bay
+- Shire of Tammin
+- Shire of Three Springs
+- Shire of Toodyay
+- Shire of Trayning
+- Shire of Upper Gascoyne
+- Shire of Victoria Plains
+- Shire of Wagin
+- Shire of Wandering
+- Shire of Waroona
+- Shire of West Arthur
+- Shire of Westonia
+- Shire of Wickepin
+- Shire of Williams
+- Shire of Wiluna
+- Shire of Wongan-Ballidu
+- Shire of Woodanilling
+- Shire of Wyalkatchem
+- Shire of Wyndham-East Kimberley
+- Shire of Yalgoo
+- Shire of Yilgarn
+- Shire of York
+- Town of Bassendean
+- Town of Cambridge
+- Town of Claremont
+- Town of Cottesloe
+- Town of East Fremantle
+- Town of Mosman Park
+- Town of Port Hedland
+- Town of Victoria Park
