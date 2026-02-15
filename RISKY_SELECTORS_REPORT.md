@@ -7,39 +7,40 @@ This report identifies 22 councils using "Risky Selectors" (layout classes like 
 ## Identified Councils
 
 ### Victoria (Drupal/Squiz)
-- [ ] **whitehorse**: `.views-row` -> Look for `.node` or `.news-teaser`
-- [ ] **wodonga**: `.postcard.row` -> Look for `article` or `div.card`
-- [ ] **greater-dandenong**: `.view-news .views-row` -> Look for `article`
-- [ ] **warrnambool**: `.listing.views-row` -> Look for `article`
+- [x] **whitehorse**: `.views-row` -> Hardened to `div.search-result` / `.search__title a`.
+- [x] **wodonga**: `.postcard.row` -> Hardened to `a:has(h2)` (Container Link logic).
+- [x] **greater-dandenong**: `.view-news .views-row` -> Hardened to `.views-row:has(.right-side)`.
+- [x] **warrnambool**: `.listing.views-row` -> Hardened to `.listing.views-row:has(time)`.
 
 ### Northern Territory
-- [ ] **katherine**: `.row:has(.h4.text-primary)` -> Very fragile. Inspect HTML.
-- [ ] **macdonnell**: `.row:has(.h4.text-primary)` -> Same.
-- [ ] **tiwi_islands**: `.row:has(.h4.text-primary)` -> Same.
+- [x] **katherine**: `.module-list .row` (Fixed - SparkCMS/ASP)
+- [x] **macdonnell**: `.module-list .row` (Fixed - SparkCMS/ASP)
+- [x] **tiwi_islands**: `.module-list .row` (Fixed - SparkCMS/ASP)
 
 ### South Australia
-- [ ] **holdfast-bay**: `div.news-listing__item` (better), but generic fallback implies risk.
-- [ ] **onkaparinga**: `div.list-item-container` (OpenCities)
+- [x] **holdfast-bay**: `a.group:has(h3.heading-3)` (Fixed - Link Container)
+- [x] **onkaparinga**: `.list-item-container article` (Fixed - OpenCities - URL Corrected)
 
 ### Queensland (OpenCities)
-- [ ] **logan**: `.list-item-container`
-- [ ] **moreton-bay**: `.list-item-container`
-- [ ] **rockhampton**: `div.list-item-container`
+- [x] **logan**: `.news-list-container .list-item-container article` (Fixed - Hardened)
+- [x] **moreton-bay**: `.news-list-container .list-item-container article` (Fixed - Hardened)
+- [x] **rockhampton**: `.news-list-container .list-item-container article` (Fixed - Hardened)
 
 ### New South Wales
-- [ ] **bayside-council**: `.views-row article` -> This is actually okay (`article`), but `.views-row` is redundant. Use `article`.
-- [ ] **city-of-canada-bay**: `.rows-content-view--wrapper` -> Inspect.
-- [ ] **maitland-city-council**: `.civictheme-card-container__card` -> This looks specific (CivicTheme), might be okay, but verify.
-- [ ] **midcoast-council**: `.list-item-container article` -> Okay.
-- [ ] **nambucca-valley-council**: `div.list-item-container`
+- [x] **bayside-council**: `article.event-teaser` -> Verified safe.
+- [x] **city-of-canada-bay**: `.rows-content-view--wrapper` -> Verified, standard Drupal view wrapper.
+- [x] **maitland-city-council**: `.civictheme-card-container__card` -> Fixed to `.civictheme-promo-card`.
+- [x] **midcoast-council**: `.list-item-container article` -> Verified safe (OpenCities).
+- [x] **nambucca-valley-council**: `.list-item-container article` -> Fixed to use `article` context.
 
 ### Tasmania (OpenCities Cluster)
-- [ ] **hobart**: `.list-item-container`
-- [ ] **launceston**: `.list-item-container`
-- [ ] **burnie**: `.list-item-container`
+- [x] **hobart**: `.news-list-container article` (Fixed)
+- [x] **launceston**: `.news-list-container:not(.list-container-grid) article` (Fixed)
+- [x] **burnie**: `.news-list-container article` (Fixed)
 
 ### Western Australia (Element Element / Generic)
-- [x] **albany**: `div.col-sm-7` -> Verified working. Added `excerpt_selector: p`. Selectors are fragile but currently functional.
+- [x] **albany**: `.module-list .row` (Functional - SparkCMS/ASP)
+- [x] **esperance**: `.module-list .row` (Fixed - SparkCMS/ASP)
 - [x] **bridgetown-greenbushes**: `div.col-sm-7` -> Verified working. Selector maps to empty p tag often but item detection works.
 
 ## Remediation Usage Guide
