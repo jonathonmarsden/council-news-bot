@@ -1,9 +1,10 @@
 name: Deploy to VPS
 
 on:
-  push:
-    branches:
-      - master
+  workflow_run:
+    workflows: ["Test & Lint"]
+    branches: [ master ]
+    types: [ completed ]
   workflow_dispatch:
 
 concurrency:
@@ -13,10 +14,13 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - name: Check out code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Prepare SSH
         run: |
@@ -45,3 +49,8 @@ jobs:
           ssh -i ~/.ssh/deploy_key "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
             "cd /opt/council-news-bot && docker compose down && docker compose up -d --build"
           echo "Deployed at $(date)"
+
+      - name: Post-deploy health check
+        run: |
+          ssh -i ~/.ssh/deploy_key "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
+            "cd /opt/council-news-bot && docker compose ps && docker compose exec -T bot python3 scripts/maintenance/health_check.py"
