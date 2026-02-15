@@ -1,0 +1,33 @@
+name: Ops Monitoring
+
+on:
+  schedule:
+    - cron: "0 21 * * *"
+  workflow_dispatch:
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Prepare SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Daily briefing
+        run: |
+          ssh -i ~/.ssh/deploy_key "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
+            "cd /opt/council-news-bot && docker compose exec -T bot python3 scripts/monitoring/daily_briefing.py"
+
+      - name: Daily health report
+        run: |
+          ssh -i ~/.ssh/deploy_key "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
+            "cd /opt/council-news-bot && docker compose exec -T bot python3 scripts/maintenance/health_check.py"
+
+      - name: Backup database
+        run: |
+          ssh -i ~/.ssh/deploy_key "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
+            "mkdir -p /opt/council-news-bot/backups && cd /opt/council-news-bot && docker compose exec -T db pg_dump -U councilbot council_news | gzip -c > /opt/council-news-bot/backups/council_news_$(date +%F).sql.gz && find /opt/council-news-bot/backups -name 'council_news_*.sql.gz' -mtime +14 -delete"
