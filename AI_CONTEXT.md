@@ -1,44 +1,68 @@
-# AI Context & Handover Guide
+# AI Context & Operational Doctrine
 
 ## 🚩 Mission Statement
-To create a comprehensive, automated news aggregation service for every Local Government Area (LGA) in Australia (~540 councils). The bot scrapes news, normalizes it, and publishes it to the BlueSky social network to ensure democratic transparency.
+**"No Silent Failures. No Dark Councils."**
+
+The Council News Bot exists to shine a light on local government by aggregating news from all ~540 LGAs in Australia. 
+Our primary operational directive is **Robustness**. A scraper that fails silently is worse than no scraper at all, as it gives a false sense of coverage.
 
 ## 🧠 System Context
-This project is a Python-based scraping pipeline running on a DigitalOcean VPS (Dockerized).
+This project is a Python-based asynchronous scraping pipeline running on a DigitalOcean VPS (Dockerized).
 
 ### Key Components
-- **Orchestrator**: `scheduler.py` runs the main loop (scrapes all states, then posts updates).
+- **Orchestrator**: VPS Host `cron` triggers `main.py` (Scraping) and `scripts/cron/process_global_queue.py` (Posting).
 - **Configuration**: JSON files in `states/{state_code}/councils.json` define the rules for each council.
 - **Engine**: `core/scrapers/` contains the logic. `CardScraper` is the workhorse.
 - **WAF Defense**: We use `curl_cffi` and rotating proxies to bypass Cloudflare/Incapsula.
 
-## 🛡️ The "WAF War" (Phase 2 Complete)
-We have successfully developed a methodology to bypass sophisticated Anti-Bot protections found on major council sites (e.g., Adelaide, Vincent, Ballarat).
+## 🛡️ Anti-Bot Strategy (The WAF War)
+We bypass sophisticated protections (Cloudflare, Incapsula, SparkCMS) using a tiered approach:
 
-### The Recipe
-If a council returns 403 Forbidden or 0 articles (Silent Block):
-1.  **Tool**: Use `scripts/debug/research_waf_bypass.py` on the VPS.
-2.  **Config**: The winning combo is usually:
-    ```json
-    "use_curl": true,
-    "use_rotating_proxy": true,
-    "impersonate": "chrome124"
+1.  **Tier 1: Standard Requests** (Fastest) - Used for simple HTML sites (SA/NT).
+2.  **Tier 2: Impersonation** - `use_curl: true` with `impersonate: chrome124`.
+3.  **Tier 3: Rotating Proxies** - Added for IP-blocked sites.
+
+**SparkCMS / Catalyst Pattern**:
+Identified in Jan 2026. Dominant in NT and WA (Esperance, Albany, ~70 other councils). Note: Often labeled as "Catalyst" in legacy configs, but the `module-list .row` signature is the technical identifier.
+*   **Signature**: `.module-list .row`
+*   **Required Config**: `curl_scraper` + `use_curl: true` + `impersonate: chrome124` (or `chrome120`).
+
+## 🔄 Deployment & Operations
+
+### Local-to-Remote Workflow
+1.  **Develop Locally**: All changes to `councils.json` or scrapers happen in VS Code.
+2.  **Verify**: Run `python3 scripts/debug/run_scraper.py <council_id>` to ensure it works.
+3.  **Deploy**: 
+    ```bash
+    python3 scripts/deployment/deploy_with_password.py
     ```
-3.  **Deployment**: Update `councils.json` locally -> `deploy_to_vps.sh` (or manual SCP) -> `docker restart council_news_bot`.
 
-## 🗺️ Current Status (Jan 2026)
-- **Coverage**: 8/8 States & Territories active.
-- **Health**: Phase 1 (Stability) & Phase 2 (WAF) are complete.
-- **Focus**: Phase 3 "Western Expansion" (Filling gaps in WA).
+### Monitoring & Maintenance
+- **Logs**: `ssh root@vps.example.com 'cd /opt/council-news-bot && docker compose logs -f --tail=100'`
+- **Health Checks**: The bot runs an internal health check daily.
+- **Zero Article Warning**: Any council returning 0 articles is treated as a **P1 Issue**. It usually means a broken selector or WAF block.
 
 ## 📂 Key Files for AI Agents
-- `docs/ARCHITECTURE.md`: Technical system design.
-- `docs/WAF_STRATEGY.md`: Detailed WAF bypass protocols.
-- `docs/reports/INCIDENT_MALFORMED_TITLES_2026_01_22.md`: Incident analysis of WA malformed posts.
-- `TODO.md`: Priority queue.
-- `states/wa/recovery_plan.md`: The roadmap for Western Australia.
+- `docs/DEVELOPER_GUIDE.md`: Detailed architecture.
+- `docs/reports/`: Historical audit reports and risky selector tracking.
+- `PROJECT_LEARNINGS_2026.md`: Knowledge base of CMS patterns (Catalyst, OpenCities, SparkCMS).
+- `states/`: The source of truth for council configurations.
 
-## 🔄 Deployment Cheatsheet
-- **Deploy Code**: `scp ...` to `root@vps.example.com:/opt/council-news-bot/...`
-- **Restart Scraper**: `ssh root@vps.example.com "docker restart council_news_bot"`
-- **Check Logs**: `ssh root@vps.example.com "docker logs --tail 100 council_news_bot"`
+## 🤖 Directives for Future Agents
+1.  **Preserve the Config**: Do not change the structure of `councils.json` without validating the schema.
+2.  **Safe Selectors**: Avoid generic classes like `.col-12` or `.row`. Prefer `article`, `.news-item`, or `h2`.
+3.  **Check the Cookies**: If a site is failing, use `curl -I` to check cookies for CMS hints (e.g., `BNI_SparkCMSLB`).
+
+## 🔑 Operational Access
+**VPS Access**: The agent currently has SSH access to the production VPS (`vps.example.com`) via `scripts/deployment/deploy_secrets.py` (which contains `HOST`, `USER`, `PASS`).
+- **Standard Protocol**: Use `sshpass` or the existing Python deployment scripts to execute remote commands.
+- **Verification**: Always verify changes on the VPS after deployment (e.g., checking `crontab -l` or `docker ps`).
+
+## 🤖 Agent Autonomy Protocol (Strict)
+**Deployment Authority**: The agent processes unrestricted SSH access to the production VPS via `scripts/deployment/deploy_with_password.py`.
+**Rule**: NEVER ask the user to run deployment scripts or SSH commands.
+**Action**: If a code change requires deployment, the agent must:
+1.  Make the code change.
+2.  **IMMEDIATELY** execute the deployment script.
+3.  Verify the result on the VPS.
+4.  Report the completed action to the user.

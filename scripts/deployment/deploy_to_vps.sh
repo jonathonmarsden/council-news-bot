@@ -22,6 +22,7 @@ ssh $USER@$HOST "mkdir -p $TARGET_DIR"
 echo "Uploading project files..."
 rsync -avz --delete --progress -e "ssh" \
     --exclude 'venv' \
+    --exclude '.env' \
     --exclude '.git' \
     --exclude '__pycache__' \
     --exclude '*.pyc' \

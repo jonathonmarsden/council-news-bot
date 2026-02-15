@@ -1,45 +1,87 @@
-# Action Plan 2026: "Operation Fortification"
+# Action Plan 2026: The "Deep Dive" Recovery
 
-Based on the January 22, 2026 Health Check (85.9% Health Score, 464 Active, 76 Warnings), the following plan operationalizes the recovery of the remaining 14% of the network.
+**Status:** ACTIVE
+**Last Updated:** 2026-02-15
+**Priority:** STABILITY > COVERAGE > FEATURES
 
-## 🎯 Strategic Goal
-Achieve **95% Active Health** (>513 active councils) by moving fragile scrapers to robust patterns (Curl/Vendor-specific).
+## 0. Scheduling Overhaul: Twice-Daily Model (In Progress, Feb 2026)
 
-## 🛠 Workstreams
+Transitioning from **continuous 3-hourly scraping** to a **twice-daily schedule** (06:00 & 18:00 local per state).
 
-### W1. The "Zero-Article" Triage (The 76)
-**Objective**: Recover the 76 councils currently returning 0 articles.
-- **Hypothesis**: Most are blocked by WAFs (Cloudflare/Incapsula) or have had DOM structure changes.
-- **Action 1.1 (VIC/NSW/QLD)**: Bulk toggle `use_curl: true` for the failing councils in these states. VIC's 97.5% success rate proves this works.
-- **Action 1.2 (WA/NT)**: These are likely custom site structure issues. Audit manually.
+**Status:** 
+- ✅ Core timezone and cron generation utilities created
+- ✅ Test coverage for DST transitions and timezone conversions
+- ✅ `main.py` updated with `--time-window` flag for dynamic concurrency
+- ✅ Crontab generation script deployed (`generate_crontab.py`)
+- ✅ Documentation (SCHEDULING_GUIDE.md) written
+- ✅ DEPLOYMENT.md updated
+- 🔄 Ready for VPS deployment and monitoring
 
-### W2. WA Standardization ("West Coast Recovery")
-**Objective**: Fix WA's low 76% health score.
-- **Problem**: 33 WA councils are failing. WA uses many custom generic scrapers.
-- **Action 2.1**: Check if any of the 33 failing WA councils are actually *Catalyst* sites that were missed or are slightly non-standard.
-- **Action 2.2**: Check if any are *Alyka* sites (another WA vendor).
-- **Action 2.3**: Build generic fallback for WA small shires (often basic HTML).
+**Key Changes:**
+- **Frequency**: 8 scrapes/day → 2 scrapes/day (75% load reduction)
+- **Timing**: Localized to each state's timezone (accounts for DST)
+- **Concurrency**: Dynamic reduction during morning peak (06:00–08:30)
+- **Queue**: Every 10 minutes (down from 5)
+- **Staggering**: 4 state groups, 30 min apart to avoid thundering herd
 
-### W3. Vendor consolidation
-**Objective**: Reduce maintenance overhead by grouping generic scrapers into Vendor Classes.
-- **Action 3.1**: Run a signature scan on the 74 VIC `curl_scrapers`. If >50% are one vendor (e.g. Squiz Matrix), subclass `SquizScraper`.
-- **Action 3.2**: Migrate identified WordPress sites in NSW from `card_scraper` to `wordpress_scraper` (better metadata).
+**Next Steps:**
+1. Deploy crontab to VPS (via `generate_crontab.py --static`)
+2. Monitor first 2 weeks for coverage & performance
+3. Adjust concurrency if needed based on proxy failures
+4. Document DST handling for future maintainers
 
-## 📋 Operational Tasks
+**References:**
+- [SCHEDULING_GUIDE.md](SCHEDULING_GUIDE.md)
+- [Timezone Utils](core/timezone_utils.py)
+- [Crontab Generation](scripts/deployment/generate_crontab.py)
 
-### Phase 1: Immediate Triage (Next 24 Hours)
-1.  **Diagnose the Zeros**: Create `scripts/diagnosis_tool.py` to inspect the HTML of failing councils to determine *why* they fail (Cloudflare challenge vs. Empty Selector).
-2.  **The "Curl" Batches**: Update `states/{state}/councils.json` for NSW/QLD failures to use `curl_scraper` and re-test.
+---
 
-### Phase 2: Code Fortification (Next Week)
-3.  **Refine Catalyst**: Ensure `catalyst_scraper` isn't missing items due to date filtering (some councils might have old dates on "new" items on the homepage).
-4.  **Bot Hygiene**: Ensure user-agents are rotated in `curl_scraper` to avoid long-term banning.
+## 1. Immediate Maintenance (Completed)
+- [x] **Audit VPS Health**: Confirmed healthy (Docker, Postgres, Disk).
+- [x] **Fix Critical Security Flaw**: Patched `base.py` to prevent "Proxy Leak" (using direct connection when proxy is configured).
+- [x] **Sanitize Database**: Ran `fix_mojibake_urls.py` to fix 155 corrupted URLs.
+- [x] **Prevent Future Corruption**: Added `urllib.parse.quote` to `NewsArticle` post-init hook.
+- [x] **Fix Infinite Loops**: Updated `cleanup_remote_db.py` to archive (not delete) future-dated articles.
 
-### Phase 3: Infrastructure (Long Term)
-5.  **Alerting**: Hook the `Health Check` script into the Discord Logger to post "Zero Article" warnings weekly.
-6.  **Dashboard**: Simple static HTML report generated daily (already started with `HEALTH_CHECK_REPORT_2026.md`).
+## 2. High Priority: Silent Failures (Zombies)
+The recent health check identified several councils returning `0 articles` without throwing errors. This is the "Zombie Scraper" state.
 
-## 📊 Success Metrics
-- **Green**: > 500 Councils returning news (Currently 464).
-- **Yellow**: < 20 Councils with "Zero Articles" (Currently 76).
-- **Red**: Any exceptions/crashes (Currently 0 - PASSED).
+**Task**: Investigate and Fix Selectors for:
+- **Peppermint Grove (WA)**
+- **Quairading (WA)**
+- **Sandstone (WA)**
+- **Vincent (WA)** (Note: Bayside VIC also showed issues in dry-run)
+
+**Action**:
+1. Run `./debug_council.sh <id>` (or `main.py --dry-run`).
+2. Update `councils.json` selectors or headers.
+3. Deploy fix.
+
+## 3. Medium Priority: Monitoring Scalability (Partially Completed ✅)
+
+The current monitoring had two issues:
+1. ✅ **Discord Webhook Reliability**: `discord_logger.py` lacked retry logic and error handling.
+   - **Status: RESOLVED (Feb 15, 2026)**
+   - **Fix**: Added exponential backoff, timeout enforcement, 429 rate-limit handling, and response validation.
+   - **Outcome**: Discord summaries now post reliably with accurate council/article counts.
+
+2. ✅ **Council Counting Accuracy**: Summaries were showing "Councils: 0" because the accumulator wasn't called for councils with 0 articles.
+   - **Status: RESOLVED (Feb 15, 2026)**
+   - **Fix**: Added `current_run.log_success()` calls for zero-article councils and error councils in `main.py`.
+   - **Outcome**: Discord summaries now show accurate metrics (e.g., "Councils: 79, Articles Found: 175").
+
+**Remaining Task**: Implement proactive alerting for "consecutive zero counts" (3+ runs with 0 articles for a council).
+- **Implementation Approach**: Add `log_error()` method to `RunAccumulator` for failure tracking; store persistent state via DB `scraper_stats` table.
+- **Priority**: Medium (useful for detecting broken selectors early).
+
+
+## 4. Low Priority: Infrastructure Hygiene
+- **Task**: Standardize Logging.
+- **Goal**: Replace `print()` with `logger` across *all* scripts (started in `base.py`, need to finish `main.py`).
+- **Task**: Fix Report Persistence.
+- **Goal**: Update `scripts/comprehensive_health_check.py` to write to `/app/data/` so reports can be read from the host.
+
+## 5. Long Term: "Generic" Evolution
+- **Goal**: Move away from per-council CSS selectors where possible.
+- **Idea**: Use LLM-based parsing for "difficult" sites (only if cost-effective), or invest in `JsonScraper` discovery for more councils (like Armadale).
