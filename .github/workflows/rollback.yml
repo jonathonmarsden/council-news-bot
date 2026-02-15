@@ -1,26 +1,35 @@
-name: Deploy to VPS
+name: Rollback
 
 on:
-  workflow_run:
-    workflows: ["Test & Lint"]
-    branches: [ master ]
-    types: [ completed ]
   workflow_dispatch:
-
-concurrency:
-  group: deploy-vps
-  cancel-in-progress: true
+    inputs:
+      commit:
+        description: 'Commit SHA to rollback to (leave empty for previous commit)'
+        required: false
+        type: string
 
 jobs:
-  deploy:
+  rollback:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - name: Check out code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          fetch-depth: 10  # Get last 10 commits for context
+
+      - name: Determine rollback target
+        id: target
+        run: |
+          if [ -n "${{ github.event.inputs.commit }}" ]; then
+            TARGET="${{ github.event.inputs.commit }}"
+          else
+            # Get the commit before current HEAD
+            TARGET=$(git rev-parse HEAD~1)
+          fi
+          echo "commit=$TARGET" >> $GITHUB_OUTPUT
+          echo "Rolling back to: $TARGET"
+          git log --oneline -1 $TARGET
 
       - name: Prepare SSH
         run: |
@@ -29,8 +38,11 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts
 
-      - name: Sync code to VPS
-        id: sync
+      - name: Checkout target commit
+        run: |
+          git checkout ${{ steps.target.outputs.commit }}
+
+      - name: Sync rollback code to VPS
         run: |
           rsync -az --delete -e "ssh -i ~/.ssh/deploy_key" \
             --exclude 'venv' \
@@ -45,35 +57,30 @@ jobs:
             --exclude 'scripts/deploy_secrets.py' \
             ./ "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/opt/council-news-bot"
 
-      - name: Rebuild and restart
-        id: restart
+      - name: Restart services
         run: |
           ssh -i ~/.ssh/deploy_key "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
             "cd /opt/council-news-bot && docker compose down && docker compose up -d --build"
-          echo "Deployed at $(date)"
+          echo "Rolled back to commit ${{ steps.target.outputs.commit }} at $(date)"
 
-      - name: Post-deploy health check
-        id: health
+      - name: Verify rollback
         run: |
           ssh -i ~/.ssh/deploy_key "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
-            "cd /opt/council-news-bot && docker compose ps && docker compose exec -T bot python3 scripts/maintenance/health_check.py"
+            "cd /opt/council-news-bot && docker compose ps"
 
-      - name: Send deployment notification
+      - name: Send Discord alert
         if: always()
         run: |
-          COMMIT_MSG=$(git log -1 --pretty=%B | head -1)
-          COMMIT_SHA=$(git rev-parse --short HEAD)
-          
           if [ "${{ job.status }}" == "success" ]; then
             COLOR=3066993
-            EMOJI="🚀"
-            TITLE="Deploy Successful"
-            DESC="Successfully deployed commit [\`$COMMIT_SHA\`](https://github.com/${{ github.repository }}/commit/$COMMIT_SHA) to production.\n\n**Message:** $COMMIT_MSG"
+            EMOJI="✅"
+            TITLE="Rollback Successful"
+            DESC="Rolled back to commit \`${{ steps.target.outputs.commit }}\`"
           else
             COLOR=15158332
             EMOJI="❌"
-            TITLE="Deploy Failed"
-            DESC="Failed to deploy commit [\`$COMMIT_SHA\`](https://github.com/${{ github.repository }}/commit/$COMMIT_SHA) to production.\n\n**Message:** $COMMIT_MSG\n\n⚠️ **Action Required:** Check [workflow logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) and consider rollback."
+            TITLE="Rollback Failed"
+            DESC="Failed to rollback to commit \`${{ steps.target.outputs.commit }}\`"
           fi
           
           curl -H "Content-Type: application/json" -X POST \
