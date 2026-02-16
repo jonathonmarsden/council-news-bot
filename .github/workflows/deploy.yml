@@ -55,7 +55,7 @@ jobs:
         id: migrate
         run: |
           ssh -i ~/.ssh/deploy_key "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
-            "cd /opt/council-news-bot && docker compose exec -T bot alembic upgrade head"
+            "cd /opt/council-news-bot && docker compose run --rm bot alembic upgrade head"
 
       - name: Record deployed commit
         run: |
