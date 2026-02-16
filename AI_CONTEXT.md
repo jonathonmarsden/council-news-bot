@@ -28,6 +28,42 @@ Identified in Jan 2026. Dominant in NT and WA (Esperance, Albany, ~70 other coun
 *   **Required Config**: `curl_scraper` + `use_curl: true` + `impersonate: chrome124` (or `chrome120`).
 
 ## 🔄 Deployment & Operations
+### Infrastructure
+- **VPS**: DigitalOcean Droplet (vps.example.com)
+- **User**: `root`
+- **Path**: `/opt/council-news-bot`
+- **Persistence**: `logs/` and `data/` volumes.
+
+### CI/CD Pipeline
+- **Defined**: `.github/workflows/deploy.yml`
+- **Trigger**: Push to `master` (passes checks) -> Auto-Deploy.
+- **Process**: Rsync code -> Rebuild Docker -> Migrate DB.
+- **Best Practice**: Commit to `master` rather than manual SSH edits.
+- **Diagnostics**: `scripts/monitoring/diagnose.py`
+
+### Scheduling
+- **Method**: Local `cron` on VPS host (generated via `scripts/deployment/generate_crontab.py`).
+- **Timing**: Twice daily per state (Morning/Evening windows).
+
+## 🛠 Troubleshooting Guide
+
+### 1. Proxy Errors (403/502/SSL)
+- **Symptom**: "Tunnel connection failed" in logs.
+- **Strategy**: Specific councils block the proxy IP.
+- **Fix**: Add `"bypass_proxy": true` to council config (see Orange City Council).
+
+### 2. Missing Articles
+- **Diagnosis**: Scraper runs but finds 0 items.
+- **Fix**: Check selectors in `councils.json`. Sites often redesign.
+- **Tools**: Use `main.py --council {id} --dry-run` locally.
+
+### 3. BlueSky Rate Limits
+- **Symptom**: "RateLimitExceeded".
+- **Fix**: Queue processor runs every 10 mins; ensure it doesn't overlap.
+
+## Reference
+- **Repo**: `jonathonmarsden/council-news-bot`
+- **Documentation**: `STAKEHOLDER_REPORT_V2.0.md`
 
 ### Local-to-Remote Workflow
 1.  **Develop Locally**: All changes to `councils.json` or scrapers happen in VS Code.
