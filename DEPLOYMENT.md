@@ -37,6 +37,16 @@ Push to `master` and allow GitHub Actions to run **Test & Lint** and **Deploy to
 To trigger manually:
 - GitHub → Actions → **Deploy to VPS** → Run workflow.
 
+### Deploy Verification (On-Box)
+After deploy, the workflow writes markers on the VPS:
+- `/opt/council-news-bot/.deploy_commit`
+- `/opt/council-news-bot/.deploy_timestamp`
+
+Check with:
+```bash
+ssh root@vps.example.com 'cd /opt/council-news-bot && cat .deploy_commit && cat .deploy_timestamp'
+```
+
 ### Emergency Local Deploy (Break Glass)
 Only use local SSH deploy if GitHub Actions is unavailable.
 
