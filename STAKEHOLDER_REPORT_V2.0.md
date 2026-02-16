@@ -529,132 +529,54 @@ We operate **8 separate BlueSky accounts**, one per Australian state/territory:
 
 ## System Architecture Diagram
 
-<svg viewBox="0 0 1000 900" xmlns="http://www.w3.org/2000/svg">
-  <!-- Define styles -->
-  <defs>
-    <style>
-      .box { fill: #f0f4f8; stroke: #334155; stroke-width: 2; }
-      .header-box { fill: #3b82f6; stroke: #1e40af; stroke-width: 2; }
-      .container-box { fill: #e0e7ff; stroke: #4f46e5; stroke-width: 2; }
-      .external-box { fill: #dbeafe; stroke: #0284c7; stroke-width: 2; }
-      .proxy-box { fill: #fef3c7; stroke: #d97706; stroke-width: 2; }
-      .title { fill: white; font-size: 16px; font-weight: bold; font-family: Arial, sans-serif; }
-      .text { fill: #1e293b; font-size: 12px; font-family: Arial, sans-serif; }
-      .small-text { fill: #475569; font-size: 10px; font-family: Arial, sans-serif; }
-      .arrow { stroke: #64748b; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
-    </style>
-    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-      <polygon points="0 0, 10 3, 0 6" fill="#64748b" />
-    </marker>
-  </defs>
+```
+┌─────────────────────────────────────┐
+│  GITHUB (Code + CI/CD)              │
+│  • Python code (core/, states/)     │
+│  • GitHub Actions (test + deploy)   │
+└──────────────┬──────────────────────┘
+               │ auto-deploy
+               ↓
+┌─────────────────────────────────────┐
+│  VPS (vps.example.com)                │
+│  ┌───────────────────────────────┐  │
+│  │  Docker Compose               │  │
+│  │  ┌─────────┐   ┌───────────┐ │  │
+│  │  │ Postgres│←──│ Python Bot│ │  │
+│  │  │ (DB)    │   │ (App)     │ │  │
+│  │  └─────────┘   └───────────┘ │  │
+│  └───────────────────────────────┘  │
+│  ┌───────────────────────────────┐  │
+│  │  Cron (20 jobs)               │  │
+│  │  • 2x/day: Scrape councils    │  │
+│  │  • Every 10m: Post queue      │  │
+│  │  • Hourly/daily: Reports      │  │
+│  └───────────────────────────────┘  │
+└──────┬────────────┬─────────────┬───┘
+       │            │             │
+    Scrapes      Posts        Reports
+       │            │             │
+       ↓            ↓             ↓
+┌──────────┐ ┌──────────┐ ┌──────────┐
+│ 537      │ │ BlueSky  │ │ Discord  │
+│ Council  │ │ 8 State  │ │ Webhooks │
+│ Websites │ │ Accounts │ │ Alerts   │
+└────┬─────┘ └──────────┘ └──────────┘
+     │
+  (blocked)
+     ↓
+┌──────────┐
+│ Webshare │
+│ Proxy    │
+│ (~50)    │
+└──────────┘
 
-  <!-- GitHub Section -->
-  <rect x="50" y="20" width="900" height="180" class="box" rx="5"/>
-  <rect x="50" y="20" width="900" height="35" class="header-box" rx="5"/>
-  <text x="500" y="42" text-anchor="middle" class="title">GITHUB (Code Storage)</text>
-  
-  <rect x="80" y="70" width="840" height="60" class="container-box" rx="3"/>
-  <text x="500" y="90" text-anchor="middle" class="text" font-weight="bold">Repository: council-news-bot</text>
-  <text x="120" y="108" class="small-text">• Python code (main.py, core/, states/)</text>
-  <text x="120" y="122" class="small-text">• Config files (docker-compose.yml, crontab)</text>
-  
-  <rect x="80" y="145" width="840" height="45" class="container-box" rx="3"/>
-  <text x="500" y="163" text-anchor="middle" class="text" font-weight="bold">GITHUB ACTIONS (CI/CD Pipeline)</text>
-  <text x="120" y="178" class="small-text">1. Test & Lint  2. Deploy to VPS  3. Ops Monitoring</text>
-
-  <!-- Arrow: GitHub to VPS -->
-  <path d="M 500 200 L 500 240" class="arrow"/>
-  <text x="520" y="225" class="small-text">Deploys to</text>
-
-  <!-- VPS Section -->
-  <rect x="50" y="240" width="900" height="280" class="box" rx="5"/>
-  <rect x="50" y="240" width="900" height="35" class="header-box" rx="5"/>
-  <text x="500" y="262" text-anchor="middle" class="title">VPS (vps.example.com) - Ubuntu 22.04</text>
-
-  <!-- Docker Compose -->
-  <rect x="80" y="290" width="840" height="120" class="container-box" rx="3"/>
-  <text x="500" y="310" text-anchor="middle" class="text" font-weight="bold">DOCKER COMPOSE (Container Orchestra)</text>
-  
-  <rect x="150" y="325" width="280" height="70" class="box" rx="3"/>
-  <text x="290" y="345" text-anchor="middle" class="text" font-weight="bold">council_db (Postgres 15)</text>
-  <text x="170" y="362" class="small-text">• Articles DB</text>
-  <text x="170" y="376" class="small-text">• Health logs</text>
-  <text x="170" y="390" class="small-text">• Run summaries</text>
-  
-  <rect x="570" y="325" width="280" height="70" class="box" rx="3"/>
-  <text x="710" y="345" text-anchor="middle" class="text" font-weight="bold">council_news_bot</text>
-  <text x="590" y="362" class="small-text">• Scrapers</text>
-  <text x="590" y="376" class="small-text">• Poster</text>
-  <text x="590" y="390" class="small-text">• Monitoring</text>
-  
-  <!-- Arrow between containers -->
-  <path d="M 570 360 L 440 360" class="arrow"/>
-
-  <!-- Cron Section -->
-  <rect x="80" y="425" width="840" height="85" class="container-box" rx="3"/>
-  <text x="500" y="445" text-anchor="middle" class="text" font-weight="bold">CRON (Task Scheduler) - 20 jobs</text>
-  <text x="120" y="463" class="small-text">• 07:00 UTC: Scrape NSW/VIC/TAS (evening)</text>
-  <text x="120" y="477" class="small-text">• 19:00 UTC: Scrape NSW/VIC/TAS (morning)</text>
-  <text x="120" y="491" class="small-text">• */10 min: Process posting queue</text>
-  <text x="500" y="463" class="small-text">• 0 * * *: Hourly briefing</text>
-  <text x="500" y="477" class="small-text">• 0 21 * *: Daily briefing</text>
-  <text x="500" y="491" class="small-text">• + 13 more scraping jobs</text>
-
-  <!-- Arrows from VPS to external services -->
-  <path d="M 250 520 L 180 590" class="arrow"/>
-  <text x="190" y="555" class="small-text">Scrapes</text>
-  
-  <path d="M 500 520 L 500 590" class="arrow"/>
-  <text x="520" y="555" class="small-text">Posts</text>
-  
-  <path d="M 750 520 L 820 590" class="arrow"/>
-  <text x="770" y="555" class="small-text">Reports</text>
-
-  <!-- External Services -->
-  <rect x="50" y="590" width="250" height="130" class="external-box" rx="5"/>
-  <text x="175" y="615" text-anchor="middle" class="text" font-weight="bold">537 COUNCIL WEBSITES</text>
-  <text x="70" y="640" class="small-text">• News pages</text>
-  <text x="70" y="655" class="small-text">• RSS feeds</text>
-  <text x="70" y="670" class="small-text">• Sitemaps</text>
-  <text x="70" y="685" class="small-text">• Press releases</text>
-  <text x="70" y="700" class="small-text">• Community announcements</text>
-
-  <rect x="375" y="590" width="250" height="130" class="external-box" rx="5"/>
-  <text x="500" y="615" text-anchor="middle" class="text" font-weight="bold">BLUESKY (8 accounts)</text>
-  <text x="395" y="640" class="small-text">• roundupnewsbot*.bsky.social</text>
-  <text x="395" y="655" class="small-text">• Posts articles (1 per state)</text>
-  <text x="395" y="670" class="small-text">• ~37 posts/hour total</text>
-  <text x="395" y="685" class="small-text">• Rate limited per account</text>
-  <text x="395" y="700" class="small-text">• ATP protocol API</text>
-
-  <rect x="700" y="590" width="250" height="130" class="external-box" rx="5"/>
-  <text x="825" y="615" text-anchor="middle" class="text" font-weight="bold">DISCORD</text>
-  <text x="720" y="640" class="small-text">• Logs channel (summaries)</text>
-  <text x="720" y="655" class="small-text">• Alerts channel (critical)</text>
-  <text x="720" y="670" class="small-text">• Hourly reports</text>
-  <text x="720" y="685" class="small-text">• Daily health checks</text>
-  <text x="720" y="700" class="small-text">• Error notifications</text>
-
-  <!-- Proxy Section -->
-  <path d="M 175 720 L 175 760" class="arrow"/>
-  <text x="185" y="745" class="small-text">Some blocked</text>
-  
-  <rect x="50" y="760" width="250" height="100" class="proxy-box" rx="5"/>
-  <text x="175" y="785" text-anchor="middle" class="text" font-weight="bold">WEBSHARE PROXY</text>
-  <text x="175" y="805" text-anchor="middle" class="small-text">(Rotating IPs)</text>
-  <text x="70" y="830" class="small-text">• Gets around IP blocks</text>
-  <text x="70" y="845" class="small-text">• Costs ~$10/month</text>
-  <text x="70" y="860" class="small-text">• Used for ~50 councils</text>
-
-  <!-- Legend -->
-  <rect x="375" y="760" width="575" height="100" class="box" rx="5"/>
-  <text x="660" y="785" text-anchor="middle" class="text" font-weight="bold">System Flow Summary</text>
-  <text x="395" y="808" class="small-text">1. GitHub Actions deploys code to VPS automatically on push</text>
-  <text x="395" y="823" class="small-text">2. Cron triggers scrapers twice daily per state (20 total jobs)</text>
-  <text x="395" y="838" class="small-text">3. Scrapers collect articles from 537 council websites (via proxy if needed)</text>
-  <text x="395" y="853" class="small-text">4. Posting queue processes articles every 10 min to 8 BlueSky accounts</text>
-  <text x="395" y="868" class="small-text">5. Monitoring scripts send hourly/daily summaries and alerts to Discord</text>
-</svg>
+Flow:
+1. GitHub → VPS (auto-deploy)
+2. Cron → Scrapers → DB
+3. Queue → BlueSky (every 10m)
+4. Monitors → Discord (hourly)
+```
 
 ---
 
