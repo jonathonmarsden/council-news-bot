@@ -343,7 +343,7 @@ Local → GitHub → Actions → VPS
 
 | Decision | Rationale |
 |----------|-----------|
-| **PostgreSQL over SQLite** | Concurrent access, better performance at scale |
+| **PostgreSQL (standard)** | Concurrent access, better performance at scale |
 | **Twice-daily scraping** | Balances freshness vs server load |
 | **Staggered state scrapes** | Prevents thundering herd on proxy |
 | **Round-robin posting** | Varies content, avoids council spam perception |

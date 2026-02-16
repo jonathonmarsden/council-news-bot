@@ -2,6 +2,8 @@
 
 This document is designed to help AI agents and developers understand the Council News Bot architecture, workflows, and common tasks.
 
+**Authoritative Sources**: Use docs in `docs/` and root-level guides only. Ignore `docs/archive/` and `_archived_old_code/`.
+
 ## 🚀 Deployment Workflow
 
 **The VPS does NOT pull from GitHub automatically.**
@@ -21,13 +23,12 @@ The project is a **Dockerized, VPS-hosted application** designed for concurrent 
 
 ```text
 council-news-bot/
-├── main.py                 # Core Worker (CLI Entry Point, called by scheduler)
-├── scheduler.py            # Main Service Loop (runs continuously in Docker)
+├── main.py                 # Core Worker (CLI Entry Point, called by cron)
 ├── Dockerfile              # Container definition
-├── docker-compose.yml      # Orchestration config
+├── docker-compose.yml      # Orchestration config (bot + postgres)
 ├── core/                   # Core Application Logic
-│   ├── scapers/            # Scraper implementations
-│   ├── database.py         # SQLite database handler
+│   ├── scrapers/           # Scraper implementations
+│   ├── database.py         # PostgreSQL database handler
 │   ├── poster.py           # BlueSky API client
 │   └── ...
 ├── states/                 # Configuration by State
@@ -37,7 +38,7 @@ council-news-bot/
 ├── scripts/                # Utility scripts
 │   ├── deployment/         # Deployment scripts (deploy_to_vps.sh, deploy_secrets.py)
 │   └── ...
-└── bot.db                  # SQLite Database (stores article history)
+└── docs/                   # Architecture, operations, and runbooks
 ```
 ```
 
@@ -158,7 +159,7 @@ If you need to debug on the server:
 4. Rebuild: `docker compose up -d --build`
 
 ### Data Persistence
-- The SQLite database (`bot.db`) is persisted in a Docker volume.
+- PostgreSQL data is persisted via the `postgres_data` volume.
 - Logs are accessible via `docker compose logs`.
 
 ## 🧪 Testing

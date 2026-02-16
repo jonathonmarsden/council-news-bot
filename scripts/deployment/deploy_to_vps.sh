@@ -1,7 +1,14 @@
 #!/bin/bash
 
 # Deployment Script for DigitalOcean Droplet
-# Usage: ./scripts/deploy_to_vps.sh
+# Usage: ./scripts/deploy_to_vps.sh --force-local
+
+if [ "$1" != "--force-local" ]; then
+    echo "Local SSH deploy is for emergency use only."
+    echo "Use GitHub Actions for normal production deploys."
+    echo "Re-run with: $0 --force-local"
+    exit 1
+fi
 
 HOST="vps.example.com"
 USER="root"
