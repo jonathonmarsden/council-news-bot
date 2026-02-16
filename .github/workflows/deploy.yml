@@ -51,6 +51,12 @@ jobs:
             "cd /opt/council-news-bot && docker compose down && docker compose up -d --build"
           echo "Deployed at $(date)"
 
+      - name: Run database migrations
+        id: migrate
+        run: |
+          ssh -i ~/.ssh/deploy_key "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
+            "cd /opt/council-news-bot && docker compose exec -T bot alembic upgrade head"
+
       - name: Record deployed commit
         run: |
           ssh -i ~/.ssh/deploy_key "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
