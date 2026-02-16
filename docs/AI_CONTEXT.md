@@ -4,6 +4,8 @@ This document is designed to help AI agents and developers understand the Counci
 
 **Authoritative Sources**: Use docs in `docs/` and root-level guides only. Ignore `docs/archive/` and `_archived_old_code/`.
 
+**Deploy Verification**: The CI deploy writes `/opt/council-news-bot/.deploy_commit` and `.deploy_timestamp` on the VPS for on-box verification.
+
 ## 🚀 Deployment Workflow
 
 **The VPS does NOT pull from GitHub automatically.**
