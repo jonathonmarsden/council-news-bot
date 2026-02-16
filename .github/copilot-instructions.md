@@ -3,7 +3,7 @@
 ## 1. Project Summary
 A robust, Dockerized Python system for aggregating and publishing Australian Local Government news.
 It scrapes hundreds of council websites using configurable strategies (BeautifulSoup, Playwright, curl_cffi), deduplicates content via PostgreSQL, and broadcasts updates to BlueSky and Discord.
-The architecture uses a staggered scheduler to manage concurrency, respects `robots.txt` where possible, and emphasizes "fail-loud" reliability.
+The architecture uses host cron to manage concurrency, respects `robots.txt` where possible, and emphasizes "fail-loud" reliability.
 Key components: Scraper Engine (Core), State Configs (JSON), and Publishing Queue (Cron).
 
 ## 2. Key Folders & Responsibilities

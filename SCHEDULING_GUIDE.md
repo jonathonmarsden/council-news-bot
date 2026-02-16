@@ -1,4 +1,3 @@
-```markdown
 # Twice-Daily Scheduling Guide
 
 **Last Updated:** February 15, 2026
@@ -223,7 +222,7 @@ crontab -e
 1. Increase queue processor frequency to 15–20 minutes:
    ```bash
    # In crontab:
-   */20 * * * * cd /opt/council-news-bot && docker compose run --rm bot ...
+   */20 * * * * cd /opt/council-news-bot && docker compose exec -T bot ...
    ```
 2. Reduce `--limit` in `process_global_queue.py` from 2 to 1 per state per run.
 

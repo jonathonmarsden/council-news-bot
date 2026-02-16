@@ -1,5 +1,7 @@
-import pty
+import argparse
 import os
+import pty
+import subprocess
 import sys
 import time
 
@@ -19,7 +21,29 @@ TARGET_DIR = "/opt/council-news-bot"
 def read(fd):
     return os.read(fd, 1024)
 
-def deploy():
+def ensure_local_deploy_allowed(allow_dirty: bool) -> None:
+    if not allow_dirty:
+        status = subprocess.run(
+            ["git", "status", "--porcelain"],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if status.stdout.strip():
+            print("Error: working tree has uncommitted changes.")
+            print("Commit changes or re-run with --allow-dirty for emergency deploys.")
+            sys.exit(1)
+
+
+def deploy(force_local: bool, allow_dirty: bool):
+    if not force_local:
+        print("Local SSH deploy is for emergency use only.")
+        print("Use GitHub Actions for normal production deploys.")
+        print("Re-run with --force-local to proceed anyway.")
+        sys.exit(1)
+
+    ensure_local_deploy_allowed(allow_dirty)
+
     # We need to run the bash script, but wrapping it in a way we can feed the password
     # Actually, the bash script calls ssh/rsync multiple times. 
     # It's better to rewrite the logic here or use sshpass if we had it.
@@ -31,7 +55,7 @@ def deploy():
     
     if pid == 0:
         # Child process
-        os.execv(script_path, [script_path])
+        os.execv(script_path, [script_path, "--force-local"])
     else:
         # Parent process
         try:
@@ -64,4 +88,8 @@ def deploy():
             # os.waitpid(pid, 0)
 
 if __name__ == "__main__":
-    deploy()
+    parser = argparse.ArgumentParser(description="Emergency SSH deploy (not for normal use)")
+    parser.add_argument("--force-local", action="store_true", help="Allow local SSH deploy")
+    parser.add_argument("--allow-dirty", action="store_true", help="Allow deploy with uncommitted changes")
+    args = parser.parse_args()
+    deploy(args.force_local, args.allow_dirty)
