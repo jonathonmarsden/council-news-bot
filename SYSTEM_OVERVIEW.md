@@ -31,9 +31,9 @@ python-dateutil>=2.8.2    # Australian date parsing
 curl_cffi>=0.5.10         # CloudFlare bypass
 playwright>=1.41.0        # JavaScript rendering
 SQLAlchemy>=2.0.0         # Database ORM
-alembic>=1.13.0          # Database migrations
-psycopg2-binary>=2.9.9   # PostgreSQL driver
-pytz>=2024.1             # Timezone handling
+alembic>=1.13.0           # Database migrations
+psycopg2-binary>=2.9.9    # PostgreSQL driver
+pytz>=2024.1              # Timezone handling
 ```
 
 ---
@@ -46,70 +46,70 @@ pytz>=2024.1             # Timezone handling
 └─────────────────────────────────────────────────────────────┘
 
 ┌──────────────────────────────────────────────────────────────┐
-│                    INPUT LAYER (Sources)                      │
+│                    INPUT LAYER (Sources)                     │
 ├──────────────────────────────────────────────────────────────┤
 │  560+ Australian Council Websites                            │
-│  ├─ VIC (79) │ NSW (128) │ QLD (77) │ WA (137) │ SA (68)   │
-│  ├─ TAS (29) │ ACT (1)   │ NT (17)                          │
-│  └─ Scrapers: BeautifulSoup, Playwright, curl_cffi, RSS     │
+│  ├─ VIC (79) │ NSW (128) │ QLD (77) │ WA (137) │ SA (68)     │
+│  ├─ TAS (29) │ ACT (1)   │ NT (17)                           │
+│  └─ Scrapers: BeautifulSoup, Playwright, curl_cffi, RSS      │
 └──────────────────────────────────────────────────────────────┘
                             ↓
 ┌──────────────────────────────────────────────────────────────┐
 │               SCRAPING ENGINE (Core Logic)                   │
 ├──────────────────────────────────────────────────────────────┤
 │  ScraperFactory                                              │
-│  ├─ BaseScraper (CSS selectors + date parsing)              │
-│  ├─ JsonScraper (API endpoints)                             │
-│  ├─ RssScraper (RSS/Atom feeds)                             │
-│  ├─ BrowserScraper (Playwright for JS-heavy sites)          │
-│  └─ Custom Scrapers (WA councils, special cases)            │
+│  ├─ BaseScraper (CSS selectors + date parsing)               │
+│  ├─ JsonScraper (API endpoints)                              │
+│  ├─ RssScraper (RSS/Atom feeds)                              │
+│  ├─ BrowserScraper (Playwright for JS-heavy sites)           │
+│  └─ Custom Scrapers (WA councils, special cases)             │
 │                                                              │
-│  Proxy Layer: Webshare rotating proxy (WAF bypass)          │
-│  Rate Limiting: 2s delay, dynamic concurrency (4-8)         │
-│  Error Handling: 9 custom exception types                   │
+│  Proxy Layer: Webshare rotating proxy (WAF bypass)           │
+│  Rate Limiting: 2s delay, dynamic concurrency (4-8)          │
+│  Error Handling: 9 custom exception types                    │
 └──────────────────────────────────────────────────────────────┘
                             ↓
 ┌──────────────────────────────────────────────────────────────┐
 │           DATA PROCESSING & STORAGE (State)                  │
 ├──────────────────────────────────────────────────────────────┤
 │  PostgreSQL Database (council_news)                          │
-│  ├─ articles (URL, title, date, excerpt, state, status)     │
-│  ├─ scraper_stats (run_at, articles_found, duration)        │
-│  └─ council_health (consecutive_failures, last_success)     │
+│  ├─ articles (URL, title, date, excerpt, state, status)      │
+│  ├─ scraper_stats (run_at, articles_found, duration)         │
+│  └─ council_health (consecutive_failures, last_success)      │
 │                                                              │
-│  Deduplication: URL-based (primary key)                     │
-│  Staleness Filter: Articles >7 days auto-suppressed         │
-│  Round-Robin Queue: Varies councils to avoid spam           │
+│  Deduplication: URL-based (primary key)                      │
+│  Staleness Filter: Articles >7 days auto-suppressed          │
+│  Round-Robin Queue: Varies councils to avoid spam            │
 └──────────────────────────────────────────────────────────────┘
                             ↓
 ┌──────────────────────────────────────────────────────────────┐
 │              PUBLISHING LAYER (Output)                       │
 ├──────────────────────────────────────────────────────────────┤
-│  BlueSky (ATProto)                                          │
-│  ├─ 8 state-specific accounts (@vic.councils.lgau.net...)  │
-│  ├─ Rate Limit: 24 posts/hour per account                  │
-│  ├─ Format: Title + Date + Council + Hashtags + Link       │
-│  └─ Posting Window: Every 10 minutes (6 posts/hour)        │
+│  BlueSky (ATProto)                                           │
+│  ├─ 8 state-specific accounts (@vic.councils.lgau.net...)    │
+│  ├─ Rate Limit: 24 posts/hour per account                    │
+│  ├─ Format: Title + Date + Council + Hashtags + Link         │
+│  └─ Posting Window: Every 10 minutes (6 posts/hour)          │
 │                                                              │
-│  Discord Webhooks                                           │
-│  ├─ Logs: Scraper run summaries                            │
-│  ├─ Alerts: Critical failures (>3 consecutive)             │
-│  └─ Feed: Post confirmation (optional)                      │
+│  Discord Webhooks                                            │
+│  ├─ Logs: Scraper run summaries                              │
+│  ├─ Alerts: Critical failures (>3 consecutive)               │
+│  └─ Feed: Post confirmation (optional)                       │
 └──────────────────────────────────────────────────────────────┘
                             ↓
 ┌──────────────────────────────────────────────────────────────┐
 │           MONITORING & OPERATIONS (Oversight)                │
 ├──────────────────────────────────────────────────────────────┤
 │  GitHub Actions CI/CD                                        │
-│  ├─ Test & Lint (on every push)                            │
-│  ├─ Auto-Deploy (after tests pass)                         │
-│  ├─ Rollback (1-click revert)                              │
-│  └─ Daily Ops (health + backup)                            │
+│  ├─ Test & Lint (on every push)                              │
+│  ├─ Auto-Deploy (after tests pass)                           │
+│  ├─ Rollback (1-click revert)                                │
+│  └─ Daily Ops (health + backup)                              │
 │                                                              │
-│  Health Checks                                              │
-│  ├─ Daily briefing (success rates, top councils)           │
-│  ├─ Broken scrapers report (>3 failures)                   │
-│  └─ Database backups (14-day retention)                     │
+│  Health Checks                                               │
+│  ├─ Daily briefing (success rates, top councils)             │
+│  ├─ Broken scrapers report (>3 failures)                     │
+│  └─ Database backups (14-day retention)                      │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -138,14 +138,14 @@ Cron → main.py --state vic --concurrency 4 --time-window 24h
 ```
 Cron → scripts/cron/process_global_queue.py
 ├─ Fetches unposted articles (round-robin by council)
-├─ Posts to BlueSky (max 6 per state per hour)
+├─ Posts to BlueSky (max 3 per run, 18/hr per state)
 ├─ Marks as posted in database
-├─ Respects rate limits (24/hour per account)
+├─ Respects rate limits (18/hr = 75% of BlueSky 24/hr limit)
 └─ Logs success to Discord
 ```
 
 **States:** Each state has dedicated BlueSky account  
-**Cadence:** ~144 posts/day across 8 accounts  
+**Cadence:** ~3,456 posts/day across 8 accounts (18/hr × 8 × 24)  
 
 ---
 
@@ -242,7 +242,8 @@ GitHub Actions → Ops Monitoring Workflow
 
 ### Throughput
 - **Articles found:** 500-2000/day (varies by state)
-- **Articles posted:** ~144/day (rate-limited)
+- **Articles posted:** ~3,456/day (18/hr per state, 75% of BlueSky 24/hr limit)
+- **Previous rate:** 144/day (increased Feb 16, 2026 after metrics analysis)
 - **Posting queue depth:** 100-500 articles (normal)
 
 ### Reliability
@@ -457,7 +458,7 @@ DISCORD_WEBHOOK_ALERTS=(webhook URL)
 - ✅ Average 500-2000 articles/day
 
 ### Publishing Health
-- ✅ 144 posts/day (rate-limited)
+- ✅ 3,456 posts/day (18/hr per state, 75% BlueSky capacity)
 - ✅ 100% post success (BlueSky uptime)
 - ✅ <500 article backlog
 
