@@ -148,6 +148,16 @@ Run the health check to verify the schedule is working:
 python3 scripts/deployment/check_twice_daily_schedule.py
 ```
 
+Ensure the summary jobs are in cron:
+
+```bash
+# Hourly activity summary
+0 * * * * cd /opt/council-news-bot && docker compose exec -T bot python3 scripts/monitoring/hourly_briefing.py
+
+# Daily briefing (21:00 UTC)
+0 21 * * * cd /opt/council-news-bot && docker compose exec -T bot python3 scripts/monitoring/daily_briefing.py
+```
+
 Expected output:
 ```
 NSW morning: Last run 2026-02-15 06:15 UTC ✓
