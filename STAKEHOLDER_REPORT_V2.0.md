@@ -334,16 +334,16 @@ finish_run()
 
 We operate **8 separate BlueSky accounts**, one per Australian state/territory:
 
-| State/Territory | BlueSky Handle | Status |
-|----------------|---------------|--------|
-| NSW | @roundupnewsbotnsw.bsky.social | Active ✅ |
-| VIC | @roundupnewsbotvic.bsky.social | Active ✅ |
-| QLD | @roundupnewsbotqld.bsky.social | Active ✅ |
-| SA | @roundupnewsbotsa.bsky.social | Active ✅ |
-| WA | @roundupnewsbotwa.bsky.social | Active ✅ |
-| TAS | @roundupnewsbottas.bsky.social | Active ✅ |
-| NT | @roundupnewsbotnt.bsky.social | Active ✅ |
-| ACT | @roundupnewsbotact.bsky.social | Active ✅ |
+| State/Territory | BlueSky Handle | Profile URL | Status |
+|----------------|---------------|-------------|--------|
+| NSW | @roundupnewsbotnsw.bsky.social | https://bsky.app/profile/roundupnewsbotnsw.bsky.social | Active ✅ |
+| VIC | @roundupnewsbotvic.bsky.social | https://bsky.app/profile/roundupnewsbotvic.bsky.social | Active ✅ |
+| QLD | @roundupnewsbotqld.bsky.social | https://bsky.app/profile/roundupnewsbotqld.bsky.social | Active ✅ |
+| SA | @roundupnewsbotsa.bsky.social | https://bsky.app/profile/roundupnewsbotsa.bsky.social | Active ✅ |
+| WA | @roundupnewsbotwa.bsky.social | https://bsky.app/profile/roundupnewsbotwa.bsky.social | Active ✅ |
+| TAS | @roundupnewsbottas.bsky.social | https://bsky.app/profile/roundupnewsbottas.bsky.social | Active ✅ |
+| NT | @roundupnewsbotnt.bsky.social | https://bsky.app/profile/roundupnewsbotnt.bsky.social | Active ✅ |
+| ACT | @roundupnewsbotact.bsky.social | https://bsky.app/profile/roundupnewsbotact.bsky.social | Active ✅ |
 
 **Why Separate Accounts?**
 - People can follow just their state
@@ -1134,8 +1134,14 @@ If the goal is **learning and demonstration**, then it has already succeeded - t
 - **VPS Server:** vps.example.com (SSH only, no web interface)
 - **Discord Channels:** [Your Discord server links]
 - **BlueSky Accounts:** 
-  - NSW: @roundupnewsbotnsw.bsky.social
-  - [... other 7 accounts ...]
+  - NSW: https://bsky.app/profile/roundupnewsbotnsw.bsky.social
+  - VIC: https://bsky.app/profile/roundupnewsbotvic.bsky.social
+  - QLD: https://bsky.app/profile/roundupnewsbotqld.bsky.social
+  - SA: https://bsky.app/profile/roundupnewsbotsa.bsky.social
+  - WA: https://bsky.app/profile/roundupnewsbotwa.bsky.social
+  - TAS: https://bsky.app/profile/roundupnewsbottas.bsky.social
+  - NT: https://bsky.app/profile/roundupnewsbotnt.bsky.social
+  - ACT: https://bsky.app/profile/roundupnewsbotact.bsky.social
 
 ### Important Commands
 
