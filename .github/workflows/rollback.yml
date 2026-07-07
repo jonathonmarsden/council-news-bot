@@ -53,13 +53,17 @@ jobs:
             --exclude '.DS_Store' \
             --exclude 'data' \
             --exclude '*.db' \
-            --exclude 'scripts/deploy_secrets.py' \
+            --exclude 'scripts/deployment/deploy_secrets.py' \
+            --exclude '.ops.lock' \
             ./ "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/opt/council-news-bot"
 
       - name: Restart services
         run: |
+          # Build outside the ops lock, swap containers inside it (same
+          # pattern as deploy.yml) so a rollback can't kill Postgres under a
+          # running cron job.
           ssh -i ~/.ssh/deploy_key "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
-            "cd /opt/council-news-bot && docker compose down && docker compose up -d --build"
+            "cd /opt/council-news-bot && docker compose build && flock -x -w 600 .ops.lock docker compose up -d --remove-orphans"
           echo "Rolled back to commit ${{ steps.target.outputs.commit }} at $(date)"
 
       - name: Verify rollback
