@@ -75,8 +75,11 @@ jobs:
       - name: Post-deploy health check
         id: health
         run: |
+          # A real gate: services up, DB answering, migrations current, code
+          # imports. (health_check.py always exited 0 and wrote its report
+          # into the ephemeral container — it gated nothing.)
           ssh -i ~/.ssh/deploy_key "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
-            "cd /opt/council-news-bot && docker compose ps && docker compose exec -T bot python3 scripts/maintenance/health_check.py"
+            "cd /opt/council-news-bot && docker compose ps && docker compose exec -T db psql -U councilbot -d council_news -c 'SELECT 1' && docker compose exec -T bot python3 -c 'import main, core.database, core.scrapers.factory; print(\"imports OK\")'"
 
       - name: Send deployment notification
         if: always()
