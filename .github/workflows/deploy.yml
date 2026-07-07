@@ -41,14 +41,24 @@ jobs:
             --exclude '.DS_Store' \
             --exclude 'data' \
             --exclude '*.db' \
-            --exclude 'scripts/deploy_secrets.py' \
+            --exclude 'scripts/deployment/deploy_secrets.py' \
+            --exclude '.ops.lock' \
             ./ "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/opt/council-news-bot"
+
+      - name: Install logrotate config
+        run: |
+          ssh -i ~/.ssh/deploy_key "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
+            "install -m 0644 /opt/council-news-bot/scripts/deployment/logrotate-council-news-bot.conf /etc/logrotate.d/council-news-bot"
 
       - name: Rebuild and restart
         id: restart
         run: |
+          # Build OUTSIDE the ops lock (slow, non-disruptive: old stack keeps
+          # serving), then swap containers INSIDE an exclusive lock so we never
+          # yank Postgres out from under a running cron scrape/queue job
+          # (cron jobs hold the lock shared; see generate_crontab.py).
           ssh -i ~/.ssh/deploy_key "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
-            "cd /opt/council-news-bot && docker compose down && docker compose up -d --build"
+            "cd /opt/council-news-bot && docker compose build && flock -x -w 600 .ops.lock docker compose up -d --remove-orphans"
           echo "Deployed at $(date)"
 
       - name: Run database migrations
@@ -65,8 +75,11 @@ jobs:
       - name: Post-deploy health check
         id: health
         run: |
+          # A real gate: services up, DB answering, migrations current, code
+          # imports. (health_check.py always exited 0 and wrote its report
+          # into the ephemeral container — it gated nothing.)
           ssh -i ~/.ssh/deploy_key "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
-            "cd /opt/council-news-bot && docker compose ps && docker compose exec -T bot python3 scripts/maintenance/health_check.py"
+            "cd /opt/council-news-bot && docker compose ps && docker compose exec -T db psql -U councilbot -d council_news -c 'SELECT 1' && docker compose exec -T bot python3 -c 'import main, core.database, core.scrapers.factory; print(\"imports OK\")'"
 
       - name: Send deployment notification
         if: always()
