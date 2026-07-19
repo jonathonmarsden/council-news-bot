@@ -1,7 +1,7 @@
 # Migration Plan: DigitalOcean → Rakali (CT 104)
 
-**Status**: Planned, not started.
-**Target window**: TBD — schedule when ≥4 hours of focused time available.
+**Status**: ✅ COMPLETED 2026-07-17 (single session). Production is Rakali CT 104; droplet decommissioned 2026-07-19.
+**As-built notes**: Playwright spike passed in an unprivileged LXC (nesting=1,keyctl=1); DB streamed and verified identical (34,776 articles); exactly-once posting confirmed post-cutover; acceptance test 509/532 on cutover day and 531/531 after the council repair sweep. Deploys became PULL-based (see CLAUDE.md — GitHub runners can't reach the LAN, so deploy.yml/rollback.yml were retired). Backups: daily in-container pg_dump + nightly Proxmox vzdump. One deviation from plan: found and fixed an unpinned playwright dependency that broke fresh image builds (now pinned to the base image version).
 **Owner**: Jonathon Marsden.
 
 ## Why migrate
