@@ -1,24 +1,29 @@
 name: Ops Monitoring
 
+# Production runs on Rakali CT 104 (homelab), which GitHub runners cannot
+# reach. Deploys are pull-based (the CT polls origin/master); backups are a
+# daily in-container pg_dump plus the nightly Proxmox vzdump of the whole CT.
+# The only job that belongs here is the one that benefits from being OFF the
+# production network: an independent dead-man check of the public feeds.
+
 on:
   schedule:
-    - cron: "0 21 * * *"    # Daily: health report + backup (~7am AEST)
-    - cron: "37 */6 * * *"  # Every 6h: off-VPS feed watchdog (dead-man check)
+    - cron: "37 */6 * * *"  # Every 6h: off-site feed watchdog
   workflow_dispatch:
 
 jobs:
-  # Off-VPS dead-man: checks the public BlueSky feeds from the GitHub runner,
-  # so it still fires when the VPS itself (cron/docker/disk) is dead — the
-  # failure mode no VPS-side monitor can report. Uses looser thresholds than
-  # the VPS-side watchdog (which has state and a cooldown) to stay quiet
-  # unless output is seriously wrong.
+  # Off-site dead-man: checks the public BlueSky feeds from the GitHub runner,
+  # so it still fires when the homelab (power/network/host) is down — the
+  # failure mode no Rakali-side monitor can report. Looser thresholds than the
+  # CT-side watchdog (which has state and a cooldown) to stay quiet unless
+  # output is seriously wrong.
   feed-watchdog:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
         uses: actions/checkout@v4
 
-      - name: Run feed watchdog (stdlib only, no VPS needed)
+      - name: Run feed watchdog (stdlib only, no infra access needed)
         id: watchdog
         continue-on-error: true
         run: |
@@ -29,79 +34,5 @@ jobs:
         run: |
           BODY=$(tail -20 watchdog_output.txt | sed 's/"/\\"/g' | awk '{printf "%s\\n", $0}')
           curl -H "Content-Type: application/json" -X POST \
-            -d "{\"embeds\": [{\"title\": \"🚨 Off-VPS feed watchdog: output looks wrong\", \"description\": \"Independent check from GitHub runner (fires even if the VPS is dead):\n\`\`\`\n${BODY}\n\`\`\`\", \"color\": 15158332, \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}], \"username\": \"CI/CD Bot\"}" \
-            "${{ secrets.DISCORD_WEBHOOK_ALERTS }}" || echo "Failed to send Discord alert"
-
-  health:
-    runs-on: ubuntu-latest
-    # Only on the daily cron (or manual runs) — not every 6h watchdog tick.
-    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 21 * * *'
-
-    steps:
-      - name: Prepare SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts
-
-      # NOTE: daily_briefing.py runs from the VPS crontab (21:11 UTC); it was
-      # also run here, producing two identical digests a day. Removed.
-
-      - name: Daily health report
-        id: health
-        continue-on-error: true
-        run: |
-          ssh -i ~/.ssh/deploy_key "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
-            "cd /opt/council-news-bot && docker compose exec -T bot python3 scripts/maintenance/health_check.py"
-
-      - name: Backup database
-        id: backup
-        continue-on-error: true
-        run: |
-          # pipefail so a failed pg_dump can't masquerade as success behind
-          # gzip's exit 0; stage to .tmp and require a sane minimum size
-          # before the dump replaces nothing (an empty gzip is ~20 bytes).
-          ssh -i ~/.ssh/deploy_key "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" bash -s <<'REMOTE'
-          set -euo pipefail
-          mkdir -p /opt/council-news-bot/backups
-          cd /opt/council-news-bot
-          docker compose exec -T db pg_dump -U councilbot council_news | gzip -c > backups/backup.tmp.sql.gz
-          SIZE=$(stat -c%s backups/backup.tmp.sql.gz)
-          if [ "$SIZE" -lt 100000 ]; then
-            echo "Backup suspiciously small (${SIZE} bytes) — refusing to keep it"
-            exit 1
-          fi
-          mv backups/backup.tmp.sql.gz "backups/council_news_$(date +%F).sql.gz"
-          find backups -name 'council_news_*.sql.gz' -mtime +14 -delete
-          echo "Backup OK: ${SIZE} bytes"
-          REMOTE
-
-      - name: Copy backup off-box
-        id: offbox
-        if: steps.backup.outcome == 'success'
-        continue-on-error: true
-        run: |
-          scp -i ~/.ssh/deploy_key \
-            "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/opt/council-news-bot/backups/council_news_$(date +%F).sql.gz" \
-            ./db-backup.sql.gz
-
-      - name: Upload backup artifact (off-VPS copy, 30-day retention)
-        if: steps.offbox.outcome == 'success'
-        uses: actions/upload-artifact@v4
-        with:
-          name: db-backup-${{ github.run_id }}
-          path: db-backup.sql.gz
-          retention-days: 30
-
-      - name: Send failure alert
-        if: steps.health.outcome == 'failure' || steps.backup.outcome == 'failure' || steps.offbox.outcome == 'failure'
-        run: |
-          FAILED_STEPS=""
-          [ "${{ steps.health.outcome }}" == "failure" ] && FAILED_STEPS="${FAILED_STEPS}\n• Health Report"
-          [ "${{ steps.backup.outcome }}" == "failure" ] && FAILED_STEPS="${FAILED_STEPS}\n• Database Backup"
-          [ "${{ steps.offbox.outcome }}" == "failure" ] && FAILED_STEPS="${FAILED_STEPS}\n• Off-box Backup Copy"
-
-          curl -H "Content-Type: application/json" -X POST \
-            -d "{\"embeds\": [{\"title\": \"🔴 Ops Monitoring Failed\", \"description\": \"One or more monitoring tasks failed:\n${FAILED_STEPS}\n\nCheck [GitHub Actions](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.\", \"color\": 15158332, \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}], \"username\": \"CI/CD Bot\"}" \
+            -d "{\"embeds\": [{\"title\": \"🚨 Off-site feed watchdog: output looks wrong\", \"description\": \"Independent check from GitHub runner (fires even if the homelab is down):\n\`\`\`\n${BODY}\n\`\`\`\", \"color\": 15158332, \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}], \"username\": \"CI/CD Bot\"}" \
             "${{ secrets.DISCORD_WEBHOOK_ALERTS }}" || echo "Failed to send Discord alert"
