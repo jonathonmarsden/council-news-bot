@@ -2,7 +2,7 @@
 
 ## What This Project Does
 
-Scrapes news articles from 540+ Australian local government council websites and posts them to 8 BlueSky state accounts twice daily (06:00 and 18:00 local time per state). Runs on a DigitalOcean VPS with GitHub Actions CI/CD and PostgreSQL.
+Scrapes news articles from 530+ Australian local government council websites and posts them to 8 BlueSky state accounts continuously (staggered once-daily scraping per council + a posting queue every 10 minutes). Runs on Rakali (homelab Proxmox, LXC CT 104 "council-bot", 192.168.86.14) with PostgreSQL; CI on GitHub Actions; deploys are pull-based from the CT.
 
 Live accounts: `@roundupnewsbotvic.bsky.social`, `@roundupnewsbotnsw.bsky.social`, etc. (one per state).
 
@@ -219,13 +219,14 @@ python scripts/maintenance/health_check.py
 
 ## Deployment
 
-Production runs on DigitalOcean VPS (Ubuntu, 4GB RAM). GitHub Actions auto-deploys on test pass.
+Production runs on **Rakali CT 104** (unprivileged Debian LXC, Docker Compose, 4GB/2vCPU). Access: `ssh root@100.122.222.91` (Proxmox host, Tailscale) then `pct exec 104 -- bash`. App at `/opt/council-news-bot`, secrets at `/root/secrets/.env`.
+
+**Deploys are pull-based**: merging to master is deploying. `/usr/local/bin/council-bot-pull-deploy` (cron, every 10 min on the CT) fast-forwards to origin/master, rebuilds, and swaps containers under the ops lock. There is no push-deploy; GitHub runners cannot reach the LAN.
+
+Backups: daily in-container `pg_dump` (`/etc/cron.daily/council-bot-backup` → `/root/backups/`, 14-day retention) plus nightly Proxmox `vzdump` of the whole CT (7 daily + 4 weekly). Restore: `docs/operations/RESTORE.md`. Rollback: `pct rollback 104 <snapshot>` or `git revert` + let pull-deploy converge.
 
 ```bash
-# Manual deploy
-bash scripts/deployment/deploy.sh
-
-# Docker rebuild (on VPS)
+# Docker rebuild (inside CT 104)
 docker compose up -d --build
 ```
 
