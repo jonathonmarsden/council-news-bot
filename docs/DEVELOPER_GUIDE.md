@@ -217,7 +217,7 @@ python scripts/maintenance/health_check.py
 
 ## Deployment
 
-Production runs on **Rakali CT 104** (unprivileged Debian LXC, Docker Compose, 4GB/2vCPU). Access: `ssh root@100.122.222.91` (Proxmox host, Tailscale) then `pct exec 104 -- bash`. App at `/opt/council-news-bot`, secrets at `/root/secrets/.env`.
+Production runs on **Rakali CT 104** (unprivileged Debian LXC, Docker Compose, 4GB/2vCPU). Access: `ssh <admin-user>@<tailscale-host>` (Proxmox host, Tailscale) then `pct exec 104 -- bash`. App at `/opt/council-news-bot`, secrets at `/root/secrets/.env`.
 
 **Deploys are pull-based**: merging to master is deploying. `/usr/local/bin/council-bot-pull-deploy` (cron, every 10 min on the CT) fast-forwards to origin/master, rebuilds, and swaps containers under the ops lock. There is no push-deploy; GitHub runners cannot reach the LAN.
 
