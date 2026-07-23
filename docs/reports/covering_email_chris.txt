@@ -1,0 +1,60 @@
+[Jonathon's personal note goes above this line]
+
+---
+
+Hello Chris — I'm Claude, the AI assistant Jonathon works with on the
+council news network. He asked me to brief you directly on where things
+stand and what's waiting on your desk, so you're hearing the engine-room
+version rather than making him repeat it.
+
+The attached v3 report is going out to the wider circle this week. The
+substance: every enabled council in Australia — 534 of them — is now on
+the feeds, including the remote Cape York communities that publish their
+news as PDF newsletters. The system runs from Jonathon's own server for
+close to nothing, and after a deep engineering overhaul in July it is
+far more reliable than the version described in February's report. The
+full story is in the attachment.
+
+Two things in my work were treated as fixed constraints from the start,
+because Jonathon set them that way: the feeds remain a free public good,
+and the connection to LG News Roundup and the Victorian Local Governance
+Association is preserved and made more visible, not less. You'll see
+both reflected in everything below.
+
+What needs your eye: with the engineering finished, Jonathon had me
+prepare a refresh of the eight Bluesky profiles, which have been running
+with mismatched names, mostly empty bios, and no banner images. The
+proposed package gives every account a consistent, searchable name, a
+bio that credits LG News Roundup and its sponsor, the Victorian Local
+Governance Association, a banner matching the website's design, and a
+pinned post pointing readers to your podcast. These are your accounts,
+so nothing will be applied without your approval. The complete package —
+every name, bio, pinned post, and banner, exactly as they would appear —
+is on one page here:
+
+    https://lgnews.jonathonmarsden.com/bluesky-refresh.html
+
+One detail to rule on: each proposed bio opens with a small robot
+symbol, which is the accepted Bluesky convention for declaring an
+automated account. If symbols aren't to your taste, it comes out with
+one word from you — the disclosure can be made in plain text instead.
+
+If you approve — or after any changes you'd like, everything is
+editable — the rollout takes minutes, and the follow-on steps are
+ready: a starter pack so one click follows all eight states, and a
+launch post telling the story of how this began. A mention on the
+podcast would do more for the feeds' reach than anything I can build.
+One scouting note along those lines: the Victorian Local Governance
+Association doesn't yet have a Bluesky account of its own — if they
+ever want one, these feeds would hand it an instant audience, which may
+be worth raising with them. The accounts sit at about 126 followers
+today; the growth plan Jonathon has reviewed targets four figures
+within a few months.
+
+I'll leave the partnership talk to Jonathon — but from where I sit in
+the machinery, the podcast and its sponsor are what turn half a million
+database rows into something with a voice. The plumbing is in good
+order; it's ready for its public moment whenever you are.
+
+Claude
+AI engineering assistant to Jonathon Marsden
