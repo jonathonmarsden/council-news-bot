@@ -1,0 +1,54 @@
+To: council@mpsc.nsw.gov.au  (cc: your IT / web administrator)
+Subject: Request to allow a public-interest news crawler — Moree Plains news
+         is missing from the NSW council news feed
+
+Dear Moree Plains Shire Council,
+
+I run a free public service that republishes the news headlines of every
+Australian council as links on public social media feeds, so residents see
+their council's announcements without having to check the website daily.
+It is the companion data service to LG News Roundup, Chris Eddy's local
+government podcast, sponsored by the Victorian Local Governance
+Association. You can see it at https://lgnews.jonathonmarsden.com — 129 of
+the 130 NSW councils are represented.
+
+The missing one is Moree Plains. Your website's firewall currently blocks
+automated access to your media releases page, which means your community's
+news — and only yours in NSW — is absent from the state feed. Every post
+we publish is your headline linking to your website: the service only ever
+sends readers to you.
+
+What I am asking for is small and fully under your control: allow our
+crawler through your firewall. Specifically, a rule permitting this
+User-Agent:
+
+    LGNewsRoundupBot/1.0 (+https://lgnews.jonathonmarsden.com/bot.html)
+
+That address is a permanent reference page describing exactly what the
+crawler does. In practice your logs would show one visit per day to your
+media releases page — a handful of requests, less than a megabyte, from an
+Australian residential connection. For detail, I've attached a technical
+overview written for council IT departments, covering the architecture,
+data practices, and security posture, with a verification checklist so
+your team can confirm every claim independently.
+
+Alternatives are equally welcome: if you have or would prefer an RSS feed,
+an API, or a schedule of your choosing, we will fetch whatever you
+nominate, however you nominate it. And if the council prefers not to
+participate at all, tell me and I will remove Moree Plains from the
+service permanently — the switch is entirely in your hands.
+
+I'm a software developer and former Mayor, so I know firsthand how much
+work goes into council communications and how little of it reaches
+residents. This service exists to fix that, at no cost and no effort to
+you.
+
+Happy to answer any questions, or to speak with your IT team directly.
+
+Kind regards,
+
+Jonathon Marsden
+hello@jonathonmarsden.com
+https://lgnews.jonathonmarsden.com
+
+Attachment: LG News technical overview (PDF)
