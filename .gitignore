@@ -21,6 +21,13 @@ env/
 # macOS
 .DS_Store
 
+# Private workshop: strategy, planning, drafts, work logs.
+# These belong in the private council-news-bot-ops repo, never here.
+# The folder is git-ignored so nothing private can be committed to the public repo.
+private/
+CLAUDE.md
+.claude/
+
 # Test coverage
 .coverage
 htmlcov/
