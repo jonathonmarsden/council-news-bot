@@ -11,6 +11,9 @@ import sys
 import json
 from datetime import datetime
 
+from typing import Optional
+from dateutil import parser as date_parser
+
 DEFAULT_MAX_ARTICLE_AGE_DAYS = 7
 
 
@@ -31,8 +34,7 @@ def max_article_age_days() -> int:
     except (TypeError, ValueError):
         return DEFAULT_MAX_ARTICLE_AGE_DAYS
     return value if value > 0 else DEFAULT_MAX_ARTICLE_AGE_DAYS
-from typing import Optional
-from dateutil import parser as date_parser
+
 
 # An entity whose terminating semicolon has gone missing: "&rsquo s",
 # "Clare &amp Gilbert". Numeric and named forms, at least two characters so
