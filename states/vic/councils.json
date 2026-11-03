@@ -1110,9 +1110,10 @@
       "item_selector": "a.card-y",
       "title_selector": "h3",
       "link_selector": "self",
-      "date_selector": "div.absolute div.text-xs",
+      "date_selector": "div.absolute div.text-xs:last-child",
       "population": 104163,
-      "region": "Melbourne Inner"
+      "region": "Melbourne Inner",
+      "note": "2026-11-03: the date chip lost its div.absolute wrapper"
     },
     {
       "id": "yarra-ranges",

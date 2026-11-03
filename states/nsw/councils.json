@@ -602,10 +602,11 @@
       "item_selector": "table tr:has(a[href*='council_news'])",
       "title_selector": "a[href*='council_news']",
       "link_selector": "a[href*='council_news']",
-      "date_selector": "td strong",
+      "date_selector": "td > strong:nth-of-type(2)",
       "population": 74410,
       "region": "Greater Sydney",
-      "impersonate": "safari15_5"
+      "impersonate": "safari15_5",
+      "note": "2026-11-03: first <strong> is the title; the date is the second"
     },
     {
       "id": "city-of-willoughby",
@@ -990,7 +991,11 @@
       "scraper": "card_scraper",
       "enabled": true,
       "population": 10260,
-      "region": "Central West"
+      "region": "Central West",
+      "item_selector": "li:has(> h6 a[href*='/news/'])",
+      "title_selector": "h6 a",
+      "link_selector": "h6 a",
+      "date_selector": "span.mainItemDate, span.subItemDate"
     },
     {
       "id": "gilgandra-shire-council",
@@ -1351,7 +1356,12 @@
       "enabled": true,
       "population": 78445,
       "region": "Illawarra",
-      "use_curl": true
+      "use_curl": true,
+      "item_selector": "table.views-table tbody tr",
+      "title_selector": "td.views-field-title a",
+      "link_selector": "td.views-field-title a",
+      "date_selector": "td.views-field-field-mr-date",
+      "note": "2026-11-03: Drupal views table; dates were never read"
     },
     {
       "id": "singleton-council",
@@ -1385,7 +1395,8 @@
       "title_selector": "self",
       "link_selector": "self",
       "population": 6355,
-      "region": "Riverina"
+      "region": "Riverina",
+      "date_selector": "p.published-on"
     },
     {
       "id": "tenterfield-shire-council",
@@ -1522,7 +1533,12 @@
         "title": "a",
         "link": "a",
         "time": "p:contains('Posted')"
-      }
+      },
+      "item_selector": "div.summary-body",
+      "title_selector": "h3 a",
+      "link_selector": "h3 a",
+      "date_selector": "p.blog-post-meta a",
+      "note": "2026-11-03: default selectors matched bare h3s; date is relative text in the meta line"
     },
     {
       "id": "yass-valley-council",
