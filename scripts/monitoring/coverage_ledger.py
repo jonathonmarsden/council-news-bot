@@ -66,8 +66,10 @@ def classify(health: Optional[Dict], facts: Dict, now: datetime, window_days: in
         return "never_scraped", "no health row"
     if health.get("is_disabled"):
         if (health.get("consecutive_failures") or 0) > 0:
-            return "broken_error", f"{health['consecutive_failures']} consecutive errors, last ok {_d(health.get('last_success_at'))}"
-        return "broken_empty", f"{health.get('consecutive_empty_runs') or 0} consecutive empty runs, last article {_d(facts.get('last_seen'))}"
+            return "broken_error", (f"{health['consecutive_failures']} consecutive errors, "
+                                    f"last ok {_d(health.get('last_success_at'))}")
+        return "broken_empty", (f"{health.get('consecutive_empty_runs') or 0} consecutive empty runs, "
+                                f"last article {_d(facts.get('last_seen'))}")
     if facts.get("posted_window", 0) > 0:
         return "posting", f"{facts['posted_window']} posted"
     if facts.get("seen_window", 0) > 0:
@@ -86,7 +88,8 @@ def _d(dt: Optional[datetime]) -> str:
     return dt.strftime("%Y-%m-%d") if dt else "never"
 
 
-def build_facts(db, now: datetime, window_days: int = WINDOW_DAYS, baseline_days: int = BASELINE_DAYS) -> Dict[str, Dict]:
+def build_facts(db, now: datetime, window_days: int = WINDOW_DAYS,
+                baseline_days: int = BASELINE_DAYS) -> Dict[str, Dict]:
     """Per-council article aggregates from the database."""
     from sqlalchemy import func
     from core.models import Article
